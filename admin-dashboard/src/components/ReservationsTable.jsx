@@ -6,6 +6,8 @@ function ReservationsTable() {
   const { user } = useAuth();
 
   const [reservations, setReservations] = useState([]);
+  const [search, setSearch] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
   const [error, setError] = useState("");
 
   const isSuperAdmin = user?.role === "super_admin";
@@ -22,12 +24,53 @@ function ReservationsTable() {
     }
   }
 
+  function formatDate(value) {
+    if (!value) return "-";
+
+    return new Date(value).toLocaleString();
+  }
+
   function getTotalPrice(reservation) {
     return (
       Number(reservation.price || 0) *
       Number(reservation.quantity || 0)
     ).toFixed(2);
   }
+
+  function getEventTime(value) {
+    if (!value) return Number.MAX_SAFE_INTEGER;
+
+    return new Date(value).getTime();
+  }
+
+  const filteredReservations = reservations
+    .filter((reservation) => {
+      const text = `
+        ${reservation.reservation_code || ""}
+        ${reservation.event_name || ""}
+        ${reservation.event_date || ""}
+        ${reservation.supplier_ticket_id || ""}
+        ${reservation.category || ""}
+        ${reservation.block || ""}
+        ${reservation.quantity || ""}
+        ${reservation.status || ""}
+        ${reservation.company_name || ""}
+        ${reservation.contact_name || ""}
+        ${reservation.email || ""}
+      `.toLowerCase();
+
+      return text.includes(search.toLowerCase());
+    })
+    .sort((a, b) => {
+      const dateA = getEventTime(a.event_date);
+      const dateB = getEventTime(b.event_date);
+
+      if (sortDirection === "asc") {
+        return dateA - dateB;
+      }
+
+      return dateB - dateA;
+    });
 
   useEffect(() => {
     loadReservations();
@@ -45,6 +88,23 @@ function ReservationsTable() {
 
       {error && <div className="error">{error}</div>}
 
+      <div className="filters-bar">
+        <input
+          type="text"
+          placeholder="Cerca per evento, codice, ticket, categoria, status..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          value={sortDirection}
+          onChange={(e) => setSortDirection(e.target.value)}
+        >
+          <option value="asc">Data evento: più vicina</option>
+          <option value="desc">Data evento: più lontana</option>
+        </select>
+      </div>
+
       <table className="tickets-table">
         <thead>
           <tr>
@@ -54,6 +114,8 @@ function ReservationsTable() {
             {isSuperAdmin && <th>Company</th>}
             {isSuperAdmin && <th>Email</th>}
 
+            <th>Evento</th>
+            <th>Data evento</th>
             <th>Ticket</th>
             <th>Categoria</th>
             <th>Quantità</th>
@@ -66,7 +128,7 @@ function ReservationsTable() {
         </thead>
 
         <tbody>
-          {reservations.map((reservation) => (
+          {filteredReservations.map((reservation) => (
             <tr key={reservation.reservation_code}>
               <td>{reservation.reservation_code}</td>
 
@@ -78,10 +140,18 @@ function ReservationsTable() {
 
               {isSuperAdmin && <td>{reservation.email || "-"}</td>}
 
+              <td>{reservation.event_name || "-"}</td>
+
+              <td>{formatDate(reservation.event_date)}</td>
+
               <td>{reservation.supplier_ticket_id}</td>
+
               <td>{reservation.category}</td>
+
               <td>{reservation.quantity}</td>
+
               <td>€ {Number(reservation.price || 0).toFixed(2)}</td>
+
               <td>
                 <strong>€ {getTotalPrice(reservation)}</strong>
               </td>
@@ -92,17 +162,9 @@ function ReservationsTable() {
                 </span>
               </td>
 
-              <td>
-                {reservation.created_at
-                  ? new Date(reservation.created_at).toLocaleString()
-                  : "-"}
-              </td>
+              <td>{formatDate(reservation.created_at)}</td>
 
-              <td>
-                {reservation.confirmed_at
-                  ? new Date(reservation.confirmed_at).toLocaleString()
-                  : "-"}
-              </td>
+              <td>{formatDate(reservation.confirmed_at)}</td>
             </tr>
           ))}
         </tbody>

@@ -6,6 +6,8 @@ function TicketRequestsTable() {
   const { user } = useAuth();
 
   const [requests, setRequests] = useState([]);
+  const [search, setSearch] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
   const [error, setError] = useState("");
 
   const isSuperAdmin = user?.role === "super_admin";
@@ -51,12 +53,52 @@ function TicketRequestsTable() {
     }
   }
 
+  function formatDate(value) {
+    if (!value) return "-";
+    return new Date(value).toLocaleString();
+  }
+
   function getTotalPrice(request) {
     return (
       Number(request.price || 0) *
       Number(request.quantity || 0)
     ).toFixed(2);
   }
+
+  function getEventTime(value) {
+    if (!value) return Number.MAX_SAFE_INTEGER;
+    return new Date(value).getTime();
+  }
+
+  const filteredRequests = requests
+    .filter((request) => {
+      const text = `
+        ${request.id || ""}
+        ${request.event_name || ""}
+        ${request.event_date || ""}
+        ${request.supplier_ticket_id || ""}
+        ${request.category || ""}
+        ${request.block || ""}
+        ${request.quantity || ""}
+        ${request.status || ""}
+        ${request.notes || ""}
+        ${request.company_name || ""}
+        ${request.contact_name || ""}
+        ${request.email || ""}
+      `.toLowerCase();
+
+      return text.includes(search.toLowerCase());
+    })
+    .sort((a, b) => {
+      const dateA = getEventTime(a.event_date);
+      const dateB = getEventTime(b.event_date);
+
+      if (sortDirection === "asc") {
+        return dateA - dateB;
+      }
+
+      return dateB - dateA;
+    });
 
   useEffect(() => {
     loadRequests();
@@ -74,6 +116,23 @@ function TicketRequestsTable() {
 
       {error && <div className="error">{error}</div>}
 
+      <div className="filters-bar">
+        <input
+          type="text"
+          placeholder="Cerca per evento, ticket, categoria, status, partner..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          value={sortDirection}
+          onChange={(e) => setSortDirection(e.target.value)}
+        >
+          <option value="asc">Data evento: più vicina</option>
+          <option value="desc">Data evento: più lontana</option>
+        </select>
+      </div>
+
       <table className="tickets-table">
         <thead>
           <tr>
@@ -83,6 +142,8 @@ function TicketRequestsTable() {
             {isSuperAdmin && <th>Contact</th>}
             {isSuperAdmin && <th>Email</th>}
 
+            <th>Evento</th>
+            <th>Data evento</th>
             <th>Ticket</th>
             <th>Categoria</th>
             <th>Blocco</th>
@@ -97,7 +158,7 @@ function TicketRequestsTable() {
         </thead>
 
         <tbody>
-          {requests.map((request) => (
+          {filteredRequests.map((request) => (
             <tr key={request.id}>
               <td>{request.id}</td>
 
@@ -105,11 +166,20 @@ function TicketRequestsTable() {
               {isSuperAdmin && <td>{request.contact_name || "-"}</td>}
               {isSuperAdmin && <td>{request.email || "-"}</td>}
 
+              <td>{request.event_name || "-"}</td>
+
+              <td>{formatDate(request.event_date)}</td>
+
               <td>{request.supplier_ticket_id}</td>
+
               <td>{request.category}</td>
+
               <td>{request.block || "-"}</td>
+
               <td>{request.quantity}</td>
+
               <td>€ {Number(request.price || 0).toFixed(2)}</td>
+
               <td>
                 <strong>€ {getTotalPrice(request)}</strong>
               </td>

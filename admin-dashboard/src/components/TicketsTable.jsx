@@ -6,6 +6,7 @@ function TicketsTable({ canEdit = true }) {
   const [events, setEvents] = useState([]);
   const [search, setSearch] = useState("");
   const [eventFilter, setEventFilter] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
   const [editingId, setEditingId] = useState(null);
   const [requestQuantities, setRequestQuantities] = useState({});
   const [message, setMessage] = useState("");
@@ -21,6 +22,7 @@ function TicketsTable({ canEdit = true }) {
     try {
       const response = await api.get("/api/tickets");
       setTickets(response.data.tickets || []);
+      setError("");
     } catch (err) {
       console.error("Errore caricamento tickets:", err);
       setError("Errore caricamento tickets");
@@ -48,9 +50,31 @@ function TicketsTable({ canEdit = true }) {
     return () => clearInterval(interval);
   }, []);
 
+  function getEvent(eventId) {
+    return events.find((item) => Number(item.id) === Number(eventId));
+  }
+
   function getEventName(eventId) {
-    const event = events.find((item) => Number(item.id) === Number(eventId));
+    const event = getEvent(eventId);
     return event ? event.name : `Evento ID ${eventId}`;
+  }
+
+  function getEventDate(eventId) {
+    const event = getEvent(eventId);
+    return event?.event_date || null;
+  }
+
+  function formatDate(value) {
+    if (!value) return "-";
+    return new Date(value).toLocaleString();
+  }
+
+  function getEventTime(eventId) {
+    const eventDate = getEventDate(eventId);
+
+    if (!eventDate) return Number.MAX_SAFE_INTEGER;
+
+    return new Date(eventDate).getTime();
   }
 
   function startEdit(ticket) {
@@ -156,34 +180,47 @@ function TicketsTable({ canEdit = true }) {
     }
   }
 
-  const filteredTickets = tickets.filter((ticket) => {
-    const eventName = getEventName(ticket.event_id);
+  const filteredTickets = tickets
+    .filter((ticket) => {
+      const eventName = getEventName(ticket.event_id);
+      const eventDate = getEventDate(ticket.event_id);
 
-    const text = `
-      ${ticket.id || ""}
-      ${ticket.event_id || ""}
-      ${eventName || ""}
-      ${ticket.supplier_ticket_id || ""}
-      ${ticket.category || ""}
-      ${ticket.block || ""}
-      ${ticket.row_name || ""}
-      ${ticket.seat_from || ""}
-      ${ticket.seat_to || ""}
-      ${ticket.status || ""}
-    `.toLowerCase();
+      const text = `
+        ${ticket.id || ""}
+        ${ticket.event_id || ""}
+        ${eventName || ""}
+        ${eventDate || ""}
+        ${ticket.supplier_ticket_id || ""}
+        ${ticket.category || ""}
+        ${ticket.block || ""}
+        ${ticket.row_name || ""}
+        ${ticket.seat_from || ""}
+        ${ticket.seat_to || ""}
+        ${ticket.status || ""}
+      `.toLowerCase();
 
-    const matchesSearch = text.includes(search.toLowerCase());
+      const matchesSearch = text.includes(search.toLowerCase());
 
-    const matchesEvent = eventFilter
-      ? Number(ticket.event_id) === Number(eventFilter)
-      : true;
+      const matchesEvent = eventFilter
+        ? Number(ticket.event_id) === Number(eventFilter)
+        : true;
 
-    return matchesSearch && matchesEvent;
-  });
+      return matchesSearch && matchesEvent;
+    })
+    .sort((a, b) => {
+      const dateA = getEventTime(a.event_id);
+      const dateB = getEventTime(b.event_id);
+
+      if (sortDirection === "asc") {
+        return dateA - dateB;
+      }
+
+      return dateB - dateA;
+    });
 
   return (
     <div className="section">
-      <h2>Tickets Inventory</h2>
+      <h2>{canEdit ? "Tickets Inventory" : "Inventory disponibile"}</h2>
 
       {message && <div className="success-message">{message}</div>}
       {error && <div className="error">{error}</div>}
@@ -202,9 +239,17 @@ function TicketsTable({ canEdit = true }) {
           ))}
         </select>
 
+        <select
+          value={sortDirection}
+          onChange={(e) => setSortDirection(e.target.value)}
+        >
+          <option value="asc">Data evento: più vicina</option>
+          <option value="desc">Data evento: più lontana</option>
+        </select>
+
         <input
           type="text"
-          placeholder="Cerca ticket, categoria, blocco, evento..."
+          placeholder="Cerca ticket, evento, categoria, blocco, status..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -215,6 +260,7 @@ function TicketsTable({ canEdit = true }) {
           <tr>
             <th>ID</th>
             <th>Evento</th>
+            <th>Data evento</th>
             <th>Supplier Ticket</th>
             <th>Category</th>
             <th>Block</th>
@@ -237,19 +283,17 @@ function TicketsTable({ canEdit = true }) {
               requestQuantities[ticket.id] || 1
             );
 
-            const unitPrice = Number(
-              ticket.final_price || ticket.price || 0
-            );
+            const unitPrice = Number(ticket.final_price || ticket.price || 0);
 
-            const totalPrice = (
-              unitPrice * requestQuantity
-            ).toFixed(2);
+            const totalPrice = (unitPrice * requestQuantity).toFixed(2);
 
             return (
               <tr key={ticket.id}>
                 <td>{ticket.id}</td>
 
                 <td>{getEventName(ticket.event_id)}</td>
+
+                <td>{formatDate(getEventDate(ticket.event_id))}</td>
 
                 <td>{ticket.supplier_ticket_id}</td>
 
@@ -331,10 +375,7 @@ function TicketsTable({ canEdit = true }) {
                       max={ticket.available_quantity}
                       value={requestQuantities[ticket.id] || 1}
                       onChange={(e) =>
-                        updateRequestQuantity(
-                          ticket.id,
-                          e.target.value
-                        )
+                        updateRequestQuantity(ticket.id, e.target.value)
                       }
                     />
                   </td>
