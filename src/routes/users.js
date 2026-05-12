@@ -1,3 +1,4 @@
+const sendEmail = require("../services/emailService");
 const express = require("express");
 
 const router = express.Router();
@@ -45,7 +46,7 @@ router.patch("/:id/approve", authJwt, requireRole("super_admin"), async (req, re
 
     const result = await pool.query(
       `
-     UPDATE users
+      UPDATE users
       SET
         status = 'approved',
         approved_at = NOW(),
@@ -75,12 +76,44 @@ router.patch("/:id/approve", authJwt, requireRole("super_admin"), async (req, re
       });
     }
 
+    const approvedUser = result.rows[0];
+
+    sendEmail({
+      to: approvedUser.email,
+      subject: "Account approvato - Inventory Supplier",
+      text:
+        "Il tuo account partner è stato approvato. Puoi ora accedere alla piattaforma Inventory Supplier.",
+      html: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>Account approvato</h2>
+
+          <p>Gentile ${approvedUser.contact_name || approvedUser.company_name || "Partner"},</p>
+
+          <p>
+            il tuo account partner è stato approvato correttamente.
+          </p>
+
+          <p>
+            Puoi ora accedere alla piattaforma Inventory Supplier utilizzando
+            la tua email e la password indicata in fase di registrazione.
+          </p>
+
+          <p>
+            Cordiali saluti<br/>
+            Inventory Supplier Platform
+          </p>
+        </div>
+      `
+    }).catch((emailError) => {
+      console.error("Errore invio email approvazione:", emailError);
+    });
+
     res.json({
       message: "Utente approvato correttamente",
-      user: result.rows[0]
+      user: approvedUser
     });
   } catch (error) {
-    console.error("Errore approve user:", error);
+    console.error("Errore approvazione utente:", error);
 
     res.status(500).json({
       error: "Errore approvazione utente"
