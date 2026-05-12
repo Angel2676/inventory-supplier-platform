@@ -1,5 +1,3 @@
-import ForgotPasswordPage from "./components/ForgotPasswordPage";
-import ResetPasswordPage from "./components/ResetPasswordPage";
 import { useEffect, useState } from "react";
 
 import api from "./api";
@@ -14,6 +12,8 @@ import CreateReservationForm from "./components/CreateReservationForm";
 import CreateTicketRequestForm from "./components/CreateTicketRequestForm";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
+import ForgotPasswordPage from "./components/ForgotPasswordPage";
+import ResetPasswordPage from "./components/ResetPasswordPage";
 import UsersTable from "./components/UsersTable";
 import TicketRequestsTable from "./components/TicketRequestsTable";
 import PartnerNotifications from "./components/PartnerNotifications";
@@ -38,6 +38,10 @@ function App() {
   const [showRegister, setShowRegister] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
+  const resetMatch = window.location.pathname.match(
+    /^\/reset-password\/(.+)$/
+  );
+
   async function loadStats() {
     try {
       const response = await api.get("/api/dashboard/stats");
@@ -56,10 +60,6 @@ function App() {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-  const resetMatch = window.location.pathname.match(
-    /^\/reset-password\/(.+)$/
-  );
-
   if (resetMatch) {
     return (
       <ResetPasswordPage
@@ -71,6 +71,7 @@ function App() {
       />
     );
   }
+
   if (!isAuthenticated) {
     if (showForgotPassword) {
       return (
@@ -79,6 +80,7 @@ function App() {
         />
       );
     }
+
     if (showRegister) {
       return (
         <RegisterPage
@@ -88,11 +90,12 @@ function App() {
     }
 
     return (
-  <LoginPage
-    onShowRegister={() => setShowRegister(true)}
-    onShowForgotPassword={() => setShowForgotPassword(true)}
-  />
-);}
+      <LoginPage
+        onShowRegister={() => setShowRegister(true)}
+        onShowForgotPassword={() => setShowForgotPassword(true)}
+      />
+    );
+  }
 
   if (!isSuperAdmin) {
     return (
@@ -274,4 +277,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
