@@ -22,7 +22,19 @@ const reservationsRoutes = require("./routes/reservations");
 
 const app = express();
 
-app.use(cors());
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5175",
+      "http://localhost:5173",
+      "https://inventory-supplier-platform.vercel.app"
+    ],
+    methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
 app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/events", eventsRoutes);
