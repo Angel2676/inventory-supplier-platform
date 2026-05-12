@@ -41,7 +41,11 @@ router.get("/", authJwt, async (req, res) => {
     }
 
     query += `
-      ORDER BY event_date ASC NULLS LAST, id DESC
+      ORDER BY
+        event_type ASC NULLS LAST,
+        event_subcategory ASC NULLS LAST,
+        event_date ASC NULLS LAST,
+        id DESC
     `;
 
     const result = await pool.query(query, values);
@@ -72,6 +76,10 @@ router.post(
         venue,
         city,
         country,
+
+        event_type,
+        event_subcategory,
+
         status = "active",
         visibility = "public",
         notes
@@ -91,19 +99,32 @@ router.post(
           venue,
           city,
           country,
+
+          event_type,
+          event_subcategory,
+
           status,
           visibility,
           notes
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        VALUES (
+          $1,$2,$3,$4,$5,
+          $6,$7,
+          $8,$9,$10
+        )
         RETURNING *
         `,
         [
           name,
+
           event_date || null,
           venue || null,
           city || null,
           country || null,
+
+          event_type || null,
+          event_subcategory || null,
+
           status,
           visibility,
           notes || null
@@ -142,6 +163,10 @@ router.patch(
         venue,
         city,
         country,
+
+        event_type,
+        event_subcategory,
+
         status,
         visibility,
         notes
@@ -156,10 +181,16 @@ router.patch(
           venue = COALESCE($3, venue),
           city = COALESCE($4, city),
           country = COALESCE($5, country),
-          status = COALESCE($6, status),
-          visibility = COALESCE($7, visibility),
-          notes = COALESCE($8, notes)
-        WHERE id = $9
+
+          event_type = COALESCE($6, event_type),
+          event_subcategory = COALESCE($7, event_subcategory),
+
+          status = COALESCE($8, status),
+          visibility = COALESCE($9, visibility),
+          notes = COALESCE($10, notes)
+
+        WHERE id = $11
+
         RETURNING *
         `,
         [
@@ -168,9 +199,14 @@ router.patch(
           venue || null,
           city || null,
           country || null,
+
+          event_type || null,
+          event_subcategory || null,
+
           status || null,
           visibility || null,
           notes || null,
+
           eventId
         ]
       );
@@ -198,7 +234,6 @@ router.patch(
 /**
  * DELETE /api/events/:id
  * soft delete
- * super_admin + sales_manager
  */
 router.delete(
   "/:id",
@@ -240,8 +275,6 @@ router.delete(
 
 /**
  * GET /api/events/:id/tickets
- * super_admin e sales_manager vedono tickets di qualunque evento.
- * Partner vede tickets solo se autorizzato.
  */
 router.get("/:id/tickets", authJwt, async (req, res) => {
   try {
