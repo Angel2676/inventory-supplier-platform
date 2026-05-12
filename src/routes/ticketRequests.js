@@ -157,6 +157,51 @@ router.get("/", authJwt, async (req, res) => {
         tickets.category,
         tickets.block,
         tickets.price,
+        tickets.currency,
+        events.name AS event_name,
+        events.event_date
+      FROM ticket_requests
+      JOIN users ON users.id = ticket_requests.user_id
+      JOIN tickets ON tickets.id = ticket_requests.ticket_id
+      LEFT JOIN events ON events.id = tickets.event_id
+    `;
+
+    const values = [];
+
+    if (req.user.role !== "super_admin") {
+      query += `
+        WHERE ticket_requests.user_id = $1
+      `;
+      values.push(req.user.id);
+    }
+
+    query += `
+      ORDER BY events.event_date ASC NULLS LAST, ticket_requests.id DESC
+      LIMIT 100
+    `;
+
+    const result = await pool.query(query, values);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore GET /api/ticket-requests:", error);
+
+    res.status(500).json({
+      error: "Errore recupero richieste ticket"
+    });
+  }
+});
+  try {
+    let query = `
+      SELECT
+        ticket_requests.*,
+        users.company_name,
+        users.contact_name,
+        users.email,
+        tickets.supplier_ticket_id,
+        tickets.category,
+        tickets.block,
+        tickets.price,
         tickets.currency
       FROM ticket_requests
       JOIN users ON users.id = ticket_requests.user_id

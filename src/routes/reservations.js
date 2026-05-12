@@ -25,18 +25,31 @@ router.get("/", authJwt, async (req, res) => {
         reservations.created_at,
         reservations.confirmed_at,
         reservations.user_id,
+
         users.company_name,
         users.contact_name,
         users.email,
+
         tickets.id AS ticket_id,
         tickets.supplier_ticket_id,
         tickets.category,
         tickets.block,
         tickets.price,
-        tickets.currency
+        tickets.currency,
+
+        events.name AS event_name,
+        events.event_date
+
       FROM reservations
-      JOIN tickets ON tickets.id = reservations.ticket_id
-      LEFT JOIN users ON users.id = reservations.user_id
+
+      JOIN tickets
+        ON tickets.id = reservations.ticket_id
+
+      LEFT JOIN events
+        ON events.id = tickets.event_id
+
+      LEFT JOIN users
+        ON users.id = reservations.user_id
     `;
 
     const values = [];
@@ -49,7 +62,9 @@ router.get("/", authJwt, async (req, res) => {
     }
 
     query += `
-      ORDER BY reservations.id DESC
+      ORDER BY
+        events.event_date ASC NULLS LAST,
+        reservations.id DESC
       LIMIT 100
     `;
 
@@ -96,6 +111,7 @@ router.post("/", authJwt, requireRole("super_admin"), async (req, res) => {
 
     if (ticketResult.rows.length === 0) {
       await client.query("ROLLBACK");
+
       return res.status(404).json({
         error: "Ticket non trovato"
       });
@@ -105,6 +121,7 @@ router.post("/", authJwt, requireRole("super_admin"), async (req, res) => {
 
     if (ticket.status !== "available") {
       await client.query("ROLLBACK");
+
       return res.status(400).json({
         error: "Ticket non disponibile"
       });
@@ -112,6 +129,7 @@ router.post("/", authJwt, requireRole("super_admin"), async (req, res) => {
 
     if (ticket.available_quantity < quantity) {
       await client.query("ROLLBACK");
+
       return res.status(400).json({
         error: "Quantità non disponibile",
         available_quantity: ticket.available_quantity
@@ -119,7 +137,9 @@ router.post("/", authJwt, requireRole("super_admin"), async (req, res) => {
     }
 
     const reservationCode = `RES-${uuidv4()}`;
-    const reservationMinutes = Number(process.env.RESERVATION_MINUTES || 15);
+    const reservationMinutes = Number(
+      process.env.RESERVATION_MINUTES || 15
+    );
 
     const reservationResult = await client.query(
       `
@@ -236,6 +256,7 @@ router.post(
 
       if (reservationResult.rows.length === 0) {
         await client.query("ROLLBACK");
+
         return res.status(404).json({
           error: "Prenotazione non trovata"
         });
@@ -245,6 +266,7 @@ router.post(
 
       if (reservation.status !== "reserved") {
         await client.query("ROLLBACK");
+
         return res.status(400).json({
           error: "Prenotazione non confermabile",
           current_status: reservation.status
@@ -349,8 +371,6 @@ router.post(
 
 /**
  * GET /api/reservations/:code
- * super_admin vede tutto
- * partner vede solo la propria reservation
  */
 router.get("/:code", authJwt, async (req, res) => {
   try {
@@ -367,19 +387,33 @@ router.get("/:code", authJwt, async (req, res) => {
         reservations.created_at,
         reservations.confirmed_at,
         reservations.user_id,
+
         users.company_name,
         users.contact_name,
         users.email,
+
         tickets.id AS ticket_id,
         tickets.supplier_ticket_id,
         tickets.category,
         tickets.block,
         tickets.row_name,
         tickets.price,
-        tickets.currency
+        tickets.currency,
+
+        events.name AS event_name,
+        events.event_date
+
       FROM reservations
-      JOIN tickets ON tickets.id = reservations.ticket_id
-      LEFT JOIN users ON users.id = reservations.user_id
+
+      JOIN tickets
+        ON tickets.id = reservations.ticket_id
+
+      LEFT JOIN events
+        ON events.id = tickets.event_id
+
+      LEFT JOIN users
+        ON users.id = reservations.user_id
+
       WHERE reservations.reservation_code = $1
       `,
       [reservationCode]
