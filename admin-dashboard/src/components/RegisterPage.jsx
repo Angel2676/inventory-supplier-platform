@@ -9,7 +9,7 @@ function RegisterPage({ onBackToLogin }) {
     password: ""
   });
 
-  const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
   function updateField(field, value) {
@@ -22,14 +22,14 @@ function RegisterPage({ onBackToLogin }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    setMessage("");
+    setSuccess("");
     setError("");
 
     try {
       await api.post("/api/auth/register", form);
 
-      setMessage(
-        "Registrazione ricevuta. Il tuo account è in attesa di approvazione da parte del super admin."
+      setSuccess(
+        "Grazie per la registrazione. Il tuo account è stato creato correttamente e sarà verificato dal nostro team. A breve potrai accedere ai nostri servizi."
       );
 
       setForm({
@@ -42,7 +42,8 @@ function RegisterPage({ onBackToLogin }) {
       console.error(err);
 
       setError(
-        err.response?.data?.error || "Errore durante la registrazione"
+        err.response?.data?.error ||
+          "Errore durante la registrazione"
       );
     }
   }
@@ -52,10 +53,22 @@ function RegisterPage({ onBackToLogin }) {
       <div className="login-card">
         <h1>Registrazione Partner</h1>
 
-        <p>Crea un account partner in attesa di approvazione.</p>
+        <p>
+          Crea il tuo account partner. Dopo la registrazione,
+          il nostro team verificherà la richiesta.
+        </p>
 
-        {message && <div className="success">{message}</div>}
-        {error && <div className="error">{error}</div>}
+        {success && (
+          <div className="success-message">
+            {success}
+          </div>
+        )}
+
+        {error && (
+          <div className="error">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <input
