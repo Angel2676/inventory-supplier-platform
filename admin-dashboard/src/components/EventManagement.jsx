@@ -1,25 +1,81 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
+const EVENT_TYPES = [
+  {
+    value: "football",
+    label: "Calcio",
+    subcategories: [
+      "Serie A",
+      "Premier League",
+      "La Liga",
+      "Bundesliga",
+      "Ligue 1",
+      "Champions League",
+      "Europa League",
+      "Conference League",
+      "Nazionali",
+      "Altro calcio"
+    ]
+  },
+  {
+    value: "concert",
+    label: "Concerti",
+    subcategories: [
+      "Concerti italiani",
+      "Concerti internazionali"
+    ]
+  },
+  {
+    value: "formula_1",
+    label: "Formula 1",
+    subcategories: [
+      "Grand Prix"
+    ]
+  }
+];
+
 function EventManagement() {
   const [events, setEvents] = useState([]);
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [subcategoryFilter, setSubcategoryFilter] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const [form, setForm] = useState({
+  const emptyForm = {
     name: "",
     event_date: "",
     venue: "",
     city: "",
     country: "",
+    event_type: "football",
+    event_subcategory: "Serie A",
     status: "active",
     visibility: "public",
     notes: ""
-  });
+  };
 
-  const [editForm, setEditForm] = useState({ ...form });
+  const [form, setForm] = useState(emptyForm);
+  const [editForm, setEditForm] = useState(emptyForm);
+
+  function getTypeConfig(type) {
+    return EVENT_TYPES.find((item) => item.value === type);
+  }
+
+  function getTypeLabel(type) {
+    return getTypeConfig(type)?.label || "-";
+  }
+
+  function getSubcategories(type) {
+    return getTypeConfig(type)?.subcategories || [];
+  }
+
+  function formatDate(value) {
+    if (!value) return "-";
+    return new Date(value).toLocaleString();
+  }
 
   async function loadEvents() {
     try {
@@ -40,33 +96,53 @@ function EventManagement() {
   }, []);
 
   function updateForm(field, value) {
+    if (field === "event_type") {
+      const firstSubcategory = getSubcategories(value)[0] || "";
+
+      setForm({
+        ...form,
+        event_type: value,
+        event_subcategory: firstSubcategory
+      });
+
+      return;
+    }
+
     setForm({ ...form, [field]: value });
   }
 
   function updateEditForm(field, value) {
+    if (field === "event_type") {
+      const firstSubcategory = getSubcategories(value)[0] || "";
+
+      setEditForm({
+        ...editForm,
+        event_type: value,
+        event_subcategory: firstSubcategory
+      });
+
+      return;
+    }
+
     setEditForm({ ...editForm, [field]: value });
   }
 
   async function createEvent(e) {
     e.preventDefault();
 
+    setMessage("");
+    setError("");
+
     try {
       await api.post("/api/events", {
         ...form,
-        event_date: form.event_date || null
+        event_date: form.event_date || null,
+        event_type: form.event_type || null,
+        event_subcategory: form.event_subcategory || null
       });
 
       setMessage("Evento creato correttamente");
-      setForm({
-        name: "",
-        event_date: "",
-        venue: "",
-        city: "",
-        country: "",
-        status: "active",
-        visibility: "public",
-        notes: ""
-      });
+      setForm(emptyForm);
 
       await loadEvents();
     } catch (err) {
@@ -76,6 +152,9 @@ function EventManagement() {
   }
 
   function startEdit(event) {
+    const eventType = event.event_type || "football";
+    const subcategories = getSubcategories(eventType);
+
     setEditingId(event.id);
 
     setEditForm({
@@ -86,6 +165,11 @@ function EventManagement() {
       venue: event.venue || "",
       city: event.city || "",
       country: event.country || "",
+      event_type: eventType,
+      event_subcategory:
+        event.event_subcategory ||
+        subcategories[0] ||
+        "",
       status: event.status || "active",
       visibility: event.visibility || "public",
       notes: event.notes || ""
@@ -97,13 +181,20 @@ function EventManagement() {
   }
 
   async function saveEdit(eventId) {
+    setMessage("");
+    setError("");
+
     try {
       await api.patch(`/api/events/${eventId}`, {
         ...editForm,
-        event_date: editForm.event_date || null
+        event_date: editForm.event_date || null,
+        event_type: editForm.event_type || null,
+        event_subcategory: editForm.event_subcategory || null
       });
 
       setEditingId(null);
+      setMessage("Evento aggiornato correttamente");
+
       await loadEvents();
     } catch (err) {
       console.error(err);
@@ -114,14 +205,22 @@ function EventManagement() {
   async function deleteEvent(eventId) {
     if (!window.confirm("Vuoi eliminare questo evento?")) return;
 
+    setMessage("");
+    setError("");
+
     try {
       await api.delete(`/api/events/${eventId}`);
+      setMessage("Evento eliminato correttamente");
       await loadEvents();
     } catch (err) {
       console.error(err);
       setError("Errore eliminazione evento");
     }
   }
+
+  const availableSubcategoryFilters = typeFilter
+    ? getSubcategories(typeFilter)
+    : [];
 
   const filteredEvents = events.filter((event) => {
     const text = `
@@ -131,14 +230,30 @@ function EventManagement() {
       ${event.country || ""}
       ${event.status || ""}
       ${event.visibility || ""}
+      ${event.event_type || ""}
+      ${event.event_subcategory || ""}
     `.toLowerCase();
 
-    return text.includes(search.toLowerCase());
+    const matchesSearch = text.includes(search.toLowerCase());
+
+    const matchesType = typeFilter
+      ? event.event_type === typeFilter
+      : true;
+
+    const matchesSubcategory = subcategoryFilter
+      ? event.event_subcategory === subcategoryFilter
+      : true;
+
+    return matchesSearch && matchesType && matchesSubcategory;
   });
 
   return (
     <div className="section">
       <h2>Event Management</h2>
+
+      <p style={{ marginBottom: "18px", color: "#64748b" }}>
+        Gestisci macro aree, sottocategorie, venue, date e visibilità degli eventi.
+      </p>
 
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
@@ -151,6 +266,31 @@ function EventManagement() {
           onChange={(e) => updateForm("name", e.target.value)}
           required
         />
+
+        <select
+          value={form.event_type}
+          onChange={(e) => updateForm("event_type", e.target.value)}
+          required
+        >
+          {EVENT_TYPES.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={form.event_subcategory}
+          onChange={(e) =>
+            updateForm("event_subcategory", e.target.value)
+          }
+        >
+          {getSubcategories(form.event_type).map((subcategory) => (
+            <option key={subcategory} value={subcategory}>
+              {subcategory}
+            </option>
+          ))}
+        </select>
 
         <input
           type="datetime-local"
@@ -209,6 +349,36 @@ function EventManagement() {
       </form>
 
       <div className="filters-bar">
+        <select
+          value={typeFilter}
+          onChange={(e) => {
+            setTypeFilter(e.target.value);
+            setSubcategoryFilter("");
+          }}
+        >
+          <option value="">Tutte le macro aree</option>
+
+          {EVENT_TYPES.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={subcategoryFilter}
+          onChange={(e) => setSubcategoryFilter(e.target.value)}
+          disabled={!typeFilter}
+        >
+          <option value="">Tutte le sottocategorie</option>
+
+          {availableSubcategoryFilters.map((subcategory) => (
+            <option key={subcategory} value={subcategory}>
+              {subcategory}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
           placeholder="Cerca evento, città, venue, status..."
@@ -221,6 +391,8 @@ function EventManagement() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Macro area</th>
+            <th>Sottocategoria</th>
             <th>Evento</th>
             <th>Data</th>
             <th>Venue</th>
@@ -236,6 +408,49 @@ function EventManagement() {
           {filteredEvents.map((event) => (
             <tr key={event.id}>
               <td>{event.id}</td>
+
+              <td>
+                {editingId === event.id ? (
+                  <select
+                    value={editForm.event_type}
+                    onChange={(e) =>
+                      updateEditForm("event_type", e.target.value)
+                    }
+                  >
+                    {EVENT_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  getTypeLabel(event.event_type)
+                )}
+              </td>
+
+              <td>
+                {editingId === event.id ? (
+                  <select
+                    value={editForm.event_subcategory}
+                    onChange={(e) =>
+                      updateEditForm(
+                        "event_subcategory",
+                        e.target.value
+                      )
+                    }
+                  >
+                    {getSubcategories(editForm.event_type).map(
+                      (subcategory) => (
+                        <option key={subcategory} value={subcategory}>
+                          {subcategory}
+                        </option>
+                      )
+                    )}
+                  </select>
+                ) : (
+                  event.event_subcategory || "-"
+                )}
+              </td>
 
               <td>
                 {editingId === event.id ? (
@@ -261,10 +476,8 @@ function EventManagement() {
                       updateEditForm("event_date", e.target.value)
                     }
                   />
-                ) : event.event_date ? (
-                  new Date(event.event_date).toLocaleString()
                 ) : (
-                  "-"
+                  formatDate(event.event_date)
                 )}
               </td>
 
@@ -345,7 +558,7 @@ function EventManagement() {
                 )}
               </td>
 
-              <td>
+              <td className="actions-cell">
                 {editingId === event.id ? (
                   <>
                     <button
