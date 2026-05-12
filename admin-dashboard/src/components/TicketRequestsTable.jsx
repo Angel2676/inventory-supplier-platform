@@ -51,6 +51,13 @@ function TicketRequestsTable() {
     }
   }
 
+  function getTotalPrice(request) {
+    return (
+      Number(request.price || 0) *
+      Number(request.quantity || 0)
+    ).toFixed(2);
+  }
+
   useEffect(() => {
     loadRequests();
 
@@ -63,7 +70,7 @@ function TicketRequestsTable() {
 
   return (
     <div className="section">
-      <h2>Ticket Requests</h2>
+      <h2>{isSuperAdmin ? "Ticket Requests" : "Le mie richieste"}</h2>
 
       {error && <div className="error">{error}</div>}
 
@@ -80,7 +87,8 @@ function TicketRequestsTable() {
             <th>Categoria</th>
             <th>Blocco</th>
             <th>Quantità</th>
-            <th>Prezzo</th>
+            <th>Prezzo unitario</th>
+            <th>Totale</th>
             <th>Status</th>
             <th>Note</th>
 
@@ -101,7 +109,10 @@ function TicketRequestsTable() {
               <td>{request.category}</td>
               <td>{request.block || "-"}</td>
               <td>{request.quantity}</td>
-              <td>€ {request.price}</td>
+              <td>€ {Number(request.price || 0).toFixed(2)}</td>
+              <td>
+                <strong>€ {getTotalPrice(request)}</strong>
+              </td>
 
               <td>
                 <span className={`status-badge status-${request.status}`}>

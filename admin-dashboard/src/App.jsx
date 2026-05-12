@@ -192,8 +192,7 @@ function App() {
           </>
         );
 
-      case "request-create":
-        return <CreateTicketRequestForm onCreated={loadStats} />;
+      
 
       case "requests":
         return <TicketRequestsTable />;

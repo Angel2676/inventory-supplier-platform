@@ -22,6 +22,13 @@ function ReservationsTable() {
     }
   }
 
+  function getTotalPrice(reservation) {
+    return (
+      Number(reservation.price || 0) *
+      Number(reservation.quantity || 0)
+    ).toFixed(2);
+  }
+
   useEffect(() => {
     loadReservations();
 
@@ -34,7 +41,7 @@ function ReservationsTable() {
 
   return (
     <div className="section">
-      <h2>Reservations</h2>
+      <h2>{isSuperAdmin ? "Reservations" : "Le mie reservations"}</h2>
 
       {error && <div className="error">{error}</div>}
 
@@ -50,7 +57,8 @@ function ReservationsTable() {
             <th>Ticket</th>
             <th>Categoria</th>
             <th>Quantità</th>
-            <th>Prezzo</th>
+            <th>Prezzo unitario</th>
+            <th>Totale</th>
             <th>Stato</th>
             <th>Creata</th>
             <th>Confermata</th>
@@ -73,7 +81,10 @@ function ReservationsTable() {
               <td>{reservation.supplier_ticket_id}</td>
               <td>{reservation.category}</td>
               <td>{reservation.quantity}</td>
-              <td>€ {reservation.price}</td>
+              <td>€ {Number(reservation.price || 0).toFixed(2)}</td>
+              <td>
+                <strong>€ {getTotalPrice(reservation)}</strong>
+              </td>
 
               <td>
                 <span className={`status-badge status-${reservation.status}`}>

@@ -20,7 +20,6 @@ function Sidebar({ user, activeSection, setActiveSection, logout }) {
   const partnerItems = [
     { key: "notifications", label: "Le tue notifiche" },
     { key: "tickets", label: "Inventory disponibile" },
-    { key: "request-create", label: "Richiedi tickets" },
     { key: "requests", label: "Le tue richieste" },
     { key: "reservations", label: "Le tue reservations" }
   ];
