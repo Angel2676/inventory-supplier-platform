@@ -9,6 +9,8 @@ const pool = require("../db");
 const sendEmail = require("../services/emailService");
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:5175";
 
 /**
  * Registrazione partner/client
@@ -277,6 +279,171 @@ router.post("/login", async (req, res) => {
 
     res.status(500).json({
       error: "Errore login"
+    });
+  }
+});
+
+/**
+ * Forgot password
+ */
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Email obbligatoria"
+      });
+    }
+
+    const userResult = await pool.query(
+      `
+      SELECT id, email, company_name, contact_name
+      FROM users
+      WHERE email = $1
+      `,
+      [email]
+    );
+
+    /*
+     * Risposta neutra per sicurezza:
+     * non riveliamo se l'email esiste o meno.
+     */
+    if (userResult.rows.length === 0) {
+      return res.json({
+        message:
+          "Se l'email è registrata, riceverai un link per reimpostare la password."
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetExpires = new Date(Date.now() + 1000 * 60 * 60);
+
+    await pool.query(
+      `
+      UPDATE users
+      SET
+        password_reset_token = $1,
+        password_reset_expires = $2
+      WHERE id = $3
+      `,
+      [resetToken, resetExpires, user.id]
+    );
+
+    const resetLink = `${FRONTEND_URL}/reset-password/${resetToken}`;
+
+    sendEmail({
+      to: user.email,
+      subject: "Reset password - Inventory Supplier",
+      text: `Puoi reimpostare la password cliccando questo link: ${resetLink}`,
+      html: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>Reset password</h2>
+
+          <p>Gentile ${user.contact_name || user.company_name || "utente"},</p>
+
+          <p>
+            abbiamo ricevuto una richiesta di reimpostazione password
+            per il tuo account Inventory Supplier.
+          </p>
+
+          <p>
+            Clicca sul link seguente per impostare una nuova password:
+          </p>
+
+          <p>
+            <a href="${resetLink}">${resetLink}</a>
+          </p>
+
+          <p>
+            Il link è valido per 1 ora. Se non hai richiesto tu questa operazione,
+            puoi ignorare questa email.
+          </p>
+
+          <p>
+            Cordiali saluti<br/>
+            Inventory Supplier Platform
+          </p>
+        </div>
+      `
+    }).catch((emailError) => {
+      console.error("Errore invio email reset password:", emailError);
+    });
+
+    res.json({
+      message:
+        "Se l'email è registrata, riceverai un link per reimpostare la password."
+    });
+  } catch (error) {
+    console.error("Errore forgot-password:", error);
+
+    res.status(500).json({
+      error: "Errore richiesta reset password"
+    });
+  }
+});
+
+/**
+ * Reset password
+ */
+router.post("/reset-password/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        error: "Nuova password obbligatoria"
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        error: "La password deve contenere almeno 8 caratteri"
+      });
+    }
+
+    const userResult = await pool.query(
+      `
+      SELECT id
+      FROM users
+      WHERE password_reset_token = $1
+      AND password_reset_expires > NOW()
+      `,
+      [token]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(400).json({
+        error: "Token reset password non valido o scaduto"
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    await pool.query(
+      `
+      UPDATE users
+      SET
+        password_hash = $1,
+        password_reset_token = null,
+        password_reset_expires = null
+      WHERE id = $2
+      `,
+      [passwordHash, userResult.rows[0].id]
+    );
+
+    res.json({
+      message:
+        "Password aggiornata correttamente. Ora puoi effettuare il login."
+    });
+  } catch (error) {
+    console.error("Errore reset-password:", error);
+
+    res.status(500).json({
+      error: "Errore reset password"
     });
   }
 });
