@@ -3,7 +3,7 @@ import { useState } from "react";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
 
-function LoginPage({ onShowRegister }) {
+function LoginPage({ onShowRegister, onShowForgotPassword }) {
   const { login } = useAuth();
 
   const [form, setForm] = useState({
@@ -95,6 +95,13 @@ function LoginPage({ onShowRegister }) {
           >
             Registrati come partner
           </button>
+          <button
+          className="btn btn-secondary"
+          type="button"
+          onClick={onShowForgotPassword}
+        >
+          Password dimenticata?
+        </button>
         </form>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import ForgotPasswordPage from "./components/ForgotPasswordPage";
+import ResetPasswordPage from "./components/ResetPasswordPage";
 import { useEffect, useState } from "react";
 
 import api from "./api";
@@ -34,6 +36,7 @@ function App() {
 
   const [stats, setStats] = useState(null);
   const [showRegister, setShowRegister] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   async function loadStats() {
     try {
@@ -53,7 +56,29 @@ function App() {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+  const resetMatch = window.location.pathname.match(
+    /^\/reset-password\/(.+)$/
+  );
+
+  if (resetMatch) {
+    return (
+      <ResetPasswordPage
+        token={resetMatch[1]}
+        onBackToLogin={() => {
+          window.history.pushState({}, "", "/");
+          window.location.reload();
+        }}
+      />
+    );
+  }
   if (!isAuthenticated) {
+    if (showForgotPassword) {
+      return (
+        <ForgotPasswordPage
+          onBackToLogin={() => setShowForgotPassword(false)}
+        />
+      );
+    }
     if (showRegister) {
       return (
         <RegisterPage
@@ -63,11 +88,11 @@ function App() {
     }
 
     return (
-      <LoginPage
-        onShowRegister={() => setShowRegister(true)}
-      />
-    );
-  }
+    <LoginPage
+      onShowRegister={() => setShowRegister(true)}
+      onShowForgotPassword={() => setShowForgotPassword(true)}
+    />
+  );
 
   if (!isSuperAdmin) {
     return (
