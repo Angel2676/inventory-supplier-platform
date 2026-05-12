@@ -15,7 +15,18 @@ const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
  */
 router.post("/register", async (req, res) => {
   try {
-    const { company_name, contact_name, email, password } = req.body;
+    const {
+      company_name,
+      contact_name,
+      email,
+      password,
+      phone,
+      website,
+      company_address,
+      company_city,
+      company_country,
+      vat_number
+    } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -39,9 +50,7 @@ router.post("/register", async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-
     const verificationToken = crypto.randomBytes(32).toString("hex");
-
     const verificationExpires = new Date(Date.now() + 1000 * 60 * 60 * 24);
 
     const result = await pool.query(
@@ -55,7 +64,13 @@ router.post("/register", async (req, res) => {
         status,
         email_verified,
         email_verification_token,
-        email_verification_expires
+        email_verification_expires,
+        phone,
+        website,
+        company_address,
+        company_city,
+        company_country,
+        vat_number
       )
       VALUES (
         $1,
@@ -66,7 +81,13 @@ router.post("/register", async (req, res) => {
         'pending',
         false,
         $5,
-        $6
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12
       )
       RETURNING
         id,
@@ -76,6 +97,12 @@ router.post("/register", async (req, res) => {
         role,
         status,
         email_verified,
+        phone,
+        website,
+        company_address,
+        company_city,
+        company_country,
+        vat_number,
         created_at
       `,
       [
@@ -84,7 +111,13 @@ router.post("/register", async (req, res) => {
         email,
         passwordHash,
         verificationToken,
-        verificationExpires
+        verificationExpires,
+        phone || null,
+        website || null,
+        company_address || null,
+        company_city || null,
+        company_country || null,
+        vat_number || null
       ]
     );
 
@@ -122,7 +155,7 @@ router.post("/register", async (req, res) => {
 });
 
 /**
- * Verifica email tramite token.
+ * Verifica email tramite token
  */
 router.get("/verify-email/:token", async (req, res) => {
   try {
@@ -164,9 +197,7 @@ router.get("/verify-email/:token", async (req, res) => {
 });
 
 /**
- * Login.
- * Ora il controllo email_verified può essere superato se il super admin
- * ha approvato manualmente l'account impostando email_verified=true.
+ * Login
  */
 router.post("/login", async (req, res) => {
   try {
