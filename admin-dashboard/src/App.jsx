@@ -88,11 +88,11 @@ function App() {
     }
 
     return (
-    <LoginPage
-      onShowRegister={() => setShowRegister(true)}
-      onShowForgotPassword={() => setShowForgotPassword(true)}
-    />
-  );
+  <LoginPage
+    onShowRegister={() => setShowRegister(true)}
+    onShowForgotPassword={() => setShowForgotPassword(true)}
+  />
+);}
 
   if (!isSuperAdmin) {
     return (
