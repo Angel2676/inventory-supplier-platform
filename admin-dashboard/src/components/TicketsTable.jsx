@@ -1,11 +1,47 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
+const EVENT_TYPES = [
+  {
+    value: "football",
+    label: "Calcio",
+    subcategories: [
+      "Serie A",
+      "Premier League",
+      "La Liga",
+      "Bundesliga",
+      "Ligue 1",
+      "Champions League",
+      "Europa League",
+      "Conference League",
+      "Nazionali",
+      "Altro calcio"
+    ]
+  },
+  {
+    value: "concert",
+    label: "Concerti",
+    subcategories: [
+      "Concerti italiani",
+      "Concerti internazionali"
+    ]
+  },
+  {
+    value: "formula_1",
+    label: "Formula 1",
+    subcategories: [
+      "Grand Prix"
+    ]
+  }
+];
+
 function TicketsTable({ canEdit = true }) {
   const [tickets, setTickets] = useState([]);
   const [events, setEvents] = useState([]);
   const [search, setSearch] = useState("");
   const [eventFilter, setEventFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [subcategoryFilter, setSubcategoryFilter] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
   const [editingId, setEditingId] = useState(null);
   const [requestQuantities, setRequestQuantities] = useState({});
@@ -62,6 +98,28 @@ function TicketsTable({ canEdit = true }) {
   function getEventDate(eventId) {
     const event = getEvent(eventId);
     return event?.event_date || null;
+  }
+
+  function getEventType(eventId) {
+    const event = getEvent(eventId);
+    return event?.event_type || "";
+  }
+
+  function getEventSubcategory(eventId) {
+    const event = getEvent(eventId);
+    return event?.event_subcategory || "";
+  }
+
+  function getTypeLabel(type) {
+    return (
+      EVENT_TYPES.find((item) => item.value === type)?.label || "-"
+    );
+  }
+
+  function getSubcategories(type) {
+    return (
+      EVENT_TYPES.find((item) => item.value === type)?.subcategories || []
+    );
   }
 
   function formatDate(value) {
@@ -180,16 +238,24 @@ function TicketsTable({ canEdit = true }) {
     }
   }
 
+  const availableSubcategories = typeFilter
+    ? getSubcategories(typeFilter)
+    : [];
+
   const filteredTickets = tickets
     .filter((ticket) => {
       const eventName = getEventName(ticket.event_id);
       const eventDate = getEventDate(ticket.event_id);
+      const eventType = getEventType(ticket.event_id);
+      const eventSubcategory = getEventSubcategory(ticket.event_id);
 
       const text = `
         ${ticket.id || ""}
         ${ticket.event_id || ""}
         ${eventName || ""}
         ${eventDate || ""}
+        ${eventType || ""}
+        ${eventSubcategory || ""}
         ${ticket.supplier_ticket_id || ""}
         ${ticket.category || ""}
         ${ticket.block || ""}
@@ -205,7 +271,20 @@ function TicketsTable({ canEdit = true }) {
         ? Number(ticket.event_id) === Number(eventFilter)
         : true;
 
-      return matchesSearch && matchesEvent;
+      const matchesType = typeFilter
+        ? eventType === typeFilter
+        : true;
+
+      const matchesSubcategory = subcategoryFilter
+        ? eventSubcategory === subcategoryFilter
+        : true;
+
+      return (
+        matchesSearch &&
+        matchesEvent &&
+        matchesType &&
+        matchesSubcategory
+      );
     })
     .sort((a, b) => {
       const dateA = getEventTime(a.event_id);
@@ -227,16 +306,62 @@ function TicketsTable({ canEdit = true }) {
 
       <div className="filters-bar">
         <select
+          value={typeFilter}
+          onChange={(e) => {
+            setTypeFilter(e.target.value);
+            setSubcategoryFilter("");
+            setEventFilter("");
+          }}
+        >
+          <option value="">Tutte le macro aree</option>
+
+          {EVENT_TYPES.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={subcategoryFilter}
+          onChange={(e) => {
+            setSubcategoryFilter(e.target.value);
+            setEventFilter("");
+          }}
+          disabled={!typeFilter}
+        >
+          <option value="">Tutte le sottocategorie</option>
+
+          {availableSubcategories.map((subcategory) => (
+            <option key={subcategory} value={subcategory}>
+              {subcategory}
+            </option>
+          ))}
+        </select>
+
+        <select
           value={eventFilter}
           onChange={(e) => setEventFilter(e.target.value)}
         >
           <option value="">Tutti gli eventi</option>
 
-          {events.map((event) => (
-            <option key={event.id} value={event.id}>
-              {event.name} — ID {event.id}
-            </option>
-          ))}
+          {events
+            .filter((event) => {
+              const matchesType = typeFilter
+                ? event.event_type === typeFilter
+                : true;
+
+              const matchesSubcategory = subcategoryFilter
+                ? event.event_subcategory === subcategoryFilter
+                : true;
+
+              return matchesType && matchesSubcategory;
+            })
+            .map((event) => (
+              <option key={event.id} value={event.id}>
+                {event.name} — ID {event.id}
+              </option>
+            ))}
         </select>
 
         <select
@@ -259,6 +384,8 @@ function TicketsTable({ canEdit = true }) {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Macro area</th>
+            <th>Sottocategoria</th>
             <th>Evento</th>
             <th>Data evento</th>
             <th>Supplier Ticket</th>
@@ -290,6 +417,10 @@ function TicketsTable({ canEdit = true }) {
             return (
               <tr key={ticket.id}>
                 <td>{ticket.id}</td>
+
+                <td>{getTypeLabel(getEventType(ticket.event_id))}</td>
+
+                <td>{getEventSubcategory(ticket.event_id) || "-"}</td>
 
                 <td>{getEventName(ticket.event_id)}</td>
 

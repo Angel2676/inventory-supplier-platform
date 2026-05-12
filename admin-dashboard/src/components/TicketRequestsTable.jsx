@@ -2,11 +2,47 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
 
+const EVENT_TYPES = [
+  {
+    value: "football",
+    label: "Calcio",
+    subcategories: [
+      "Serie A",
+      "Premier League",
+      "La Liga",
+      "Bundesliga",
+      "Ligue 1",
+      "Champions League",
+      "Europa League",
+      "Conference League",
+      "Nazionali",
+      "Altro calcio"
+    ]
+  },
+  {
+    value: "concert",
+    label: "Concerti",
+    subcategories: [
+      "Concerti italiani",
+      "Concerti internazionali"
+    ]
+  },
+  {
+    value: "formula_1",
+    label: "Formula 1",
+    subcategories: [
+      "Grand Prix"
+    ]
+  }
+];
+
 function TicketRequestsTable() {
   const { user } = useAuth();
 
   const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [subcategoryFilter, setSubcategoryFilter] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
   const [error, setError] = useState("");
 
@@ -58,6 +94,18 @@ function TicketRequestsTable() {
     return new Date(value).toLocaleString();
   }
 
+  function getTypeLabel(type) {
+    return (
+      EVENT_TYPES.find((item) => item.value === type)?.label || "-"
+    );
+  }
+
+  function getSubcategories(type) {
+    return (
+      EVENT_TYPES.find((item) => item.value === type)?.subcategories || []
+    );
+  }
+
   function getTotalPrice(request) {
     return (
       Number(request.price || 0) *
@@ -70,12 +118,18 @@ function TicketRequestsTable() {
     return new Date(value).getTime();
   }
 
+  const availableSubcategories = typeFilter
+    ? getSubcategories(typeFilter)
+    : [];
+
   const filteredRequests = requests
     .filter((request) => {
       const text = `
         ${request.id || ""}
         ${request.event_name || ""}
         ${request.event_date || ""}
+        ${request.event_type || ""}
+        ${request.event_subcategory || ""}
         ${request.supplier_ticket_id || ""}
         ${request.category || ""}
         ${request.block || ""}
@@ -87,7 +141,17 @@ function TicketRequestsTable() {
         ${request.email || ""}
       `.toLowerCase();
 
-      return text.includes(search.toLowerCase());
+      const matchesSearch = text.includes(search.toLowerCase());
+
+      const matchesType = typeFilter
+        ? request.event_type === typeFilter
+        : true;
+
+      const matchesSubcategory = subcategoryFilter
+        ? request.event_subcategory === subcategoryFilter
+        : true;
+
+      return matchesSearch && matchesType && matchesSubcategory;
     })
     .sort((a, b) => {
       const dateA = getEventTime(a.event_date);
@@ -117,12 +181,35 @@ function TicketRequestsTable() {
       {error && <div className="error">{error}</div>}
 
       <div className="filters-bar">
-        <input
-          type="text"
-          placeholder="Cerca per evento, ticket, categoria, status, partner..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <select
+          value={typeFilter}
+          onChange={(e) => {
+            setTypeFilter(e.target.value);
+            setSubcategoryFilter("");
+          }}
+        >
+          <option value="">Tutte le macro aree</option>
+
+          {EVENT_TYPES.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={subcategoryFilter}
+          onChange={(e) => setSubcategoryFilter(e.target.value)}
+          disabled={!typeFilter}
+        >
+          <option value="">Tutte le sottocategorie</option>
+
+          {availableSubcategories.map((subcategory) => (
+            <option key={subcategory} value={subcategory}>
+              {subcategory}
+            </option>
+          ))}
+        </select>
 
         <select
           value={sortDirection}
@@ -131,6 +218,13 @@ function TicketRequestsTable() {
           <option value="asc">Data evento: più vicina</option>
           <option value="desc">Data evento: più lontana</option>
         </select>
+
+        <input
+          type="text"
+          placeholder="Cerca per evento, ticket, categoria, status, partner..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       <table className="tickets-table">
@@ -142,6 +236,8 @@ function TicketRequestsTable() {
             {isSuperAdmin && <th>Contact</th>}
             {isSuperAdmin && <th>Email</th>}
 
+            <th>Macro area</th>
+            <th>Sottocategoria</th>
             <th>Evento</th>
             <th>Data evento</th>
             <th>Ticket</th>
@@ -165,6 +261,10 @@ function TicketRequestsTable() {
               {isSuperAdmin && <td>{request.company_name || "-"}</td>}
               {isSuperAdmin && <td>{request.contact_name || "-"}</td>}
               {isSuperAdmin && <td>{request.email || "-"}</td>}
+
+              <td>{getTypeLabel(request.event_type)}</td>
+
+              <td>{request.event_subcategory || "-"}</td>
 
               <td>{request.event_name || "-"}</td>
 
