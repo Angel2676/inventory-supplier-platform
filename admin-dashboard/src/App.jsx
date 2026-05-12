@@ -9,7 +9,6 @@ import AuditLogsTable from "./components/AuditLogsTable";
 import CsvUpload from "./components/CsvUpload";
 import CreateTicketForm from "./components/CreateTicketForm";
 import CreateReservationForm from "./components/CreateReservationForm";
-import CreateTicketRequestForm from "./components/CreateTicketRequestForm";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import ForgotPasswordPage from "./components/ForgotPasswordPage";
@@ -26,6 +25,8 @@ import NotificationCenter from "./components/NotificationCenter";
 import EventManagement from "./components/EventManagement";
 import SystemActivityTimeline from "./components/SystemActivityTimeline";
 import Sidebar from "./components/Sidebar";
+import WhatsAppButton from "./components/WhatsAppButton";
+import IntroScreen from "./components/IntroScreen";
 
 import { useAuth } from "./context/AuthContext";
 
@@ -38,6 +39,7 @@ function App() {
   const [showRegister, setShowRegister] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [activeSection, setActiveSection] = useState("tickets");
+  const [showIntro, setShowIntro] = useState(true);
 
   const resetMatch = window.location.pathname.match(
     /^\/reset-password\/(.+)$/
@@ -51,6 +53,14 @@ function App() {
       console.error(error);
     }
   }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 1800);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -71,40 +81,60 @@ function App() {
     }
   }, [isAuthenticated, user]);
 
+  if (showIntro && !isAuthenticated && !resetMatch) {
+    return <IntroScreen />;
+  }
+
   if (resetMatch) {
     return (
-      <ResetPasswordPage
-        token={resetMatch[1]}
-        onBackToLogin={() => {
-          window.history.pushState({}, "", "/");
-          window.location.reload();
-        }}
-      />
+      <>
+        <ResetPasswordPage
+          token={resetMatch[1]}
+          onBackToLogin={() => {
+            window.history.pushState({}, "", "/");
+            window.location.reload();
+          }}
+        />
+
+        <WhatsAppButton />
+      </>
     );
   }
 
   if (!isAuthenticated) {
     if (showForgotPassword) {
       return (
-        <ForgotPasswordPage
-          onBackToLogin={() => setShowForgotPassword(false)}
-        />
+        <>
+          <ForgotPasswordPage
+            onBackToLogin={() => setShowForgotPassword(false)}
+          />
+
+          <WhatsAppButton />
+        </>
       );
     }
 
     if (showRegister) {
       return (
-        <RegisterPage
-          onBackToLogin={() => setShowRegister(false)}
-        />
+        <>
+          <RegisterPage
+            onBackToLogin={() => setShowRegister(false)}
+          />
+
+          <WhatsAppButton />
+        </>
       );
     }
 
     return (
-      <LoginPage
-        onShowRegister={() => setShowRegister(true)}
-        onShowForgotPassword={() => setShowForgotPassword(true)}
-      />
+      <>
+        <LoginPage
+          onShowRegister={() => setShowRegister(true)}
+          onShowForgotPassword={() => setShowForgotPassword(true)}
+        />
+
+        <WhatsAppButton />
+      </>
     );
   }
 
@@ -192,8 +222,6 @@ function App() {
           </>
         );
 
-      
-
       case "requests":
         return <TicketRequestsTable />;
 
@@ -206,36 +234,40 @@ function App() {
   }
 
   return (
-    <div className="dashboard-shell">
-      <Sidebar
-        user={user}
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-        logout={logout}
-      />
+    <>
+      <div className="dashboard-shell">
+        <Sidebar
+          user={user}
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          logout={logout}
+        />
 
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <div>
-            <h1>
-              {isSuperAdmin
-                ? "Inventory Supplier Dashboard"
-                : "Partner Ticket Portal"}
-            </h1>
+        <main className="dashboard-main">
+          <header className="dashboard-header">
+            <div>
+              <h1>
+                {isSuperAdmin
+                  ? "SportManiaTravel Admin Dashboard"
+                  : "SportManiaTravel Partner Portal"}
+              </h1>
 
-            <p>
-              {user?.company_name || user?.email} · {user?.role}
-            </p>
+              <p>
+                {user?.company_name || user?.email} · {user?.role}
+              </p>
+            </div>
+          </header>
+
+          <div className="dashboard-content">
+            {isSuperAdmin
+              ? renderAdminSection()
+              : renderPartnerSection()}
           </div>
-        </header>
+        </main>
+      </div>
 
-        <div className="dashboard-content">
-          {isSuperAdmin
-            ? renderAdminSection()
-            : renderPartnerSection()}
-        </div>
-      </main>
-    </div>
+      <WhatsAppButton />
+    </>
   );
 }
 
