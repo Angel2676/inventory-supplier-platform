@@ -45,11 +45,14 @@ router.patch("/:id/approve", authJwt, requireRole("super_admin"), async (req, re
 
     const result = await pool.query(
       `
-      UPDATE users
+     UPDATE users
       SET
         status = 'approved',
         approved_at = NOW(),
-        approved_by = $1
+        approved_by = $1,
+        email_verified = true,
+        email_verification_token = null,
+        email_verification_expires = null
       WHERE id = $2
       RETURNING
         id,
@@ -58,6 +61,8 @@ router.patch("/:id/approve", authJwt, requireRole("super_admin"), async (req, re
         email,
         role,
         status,
+        email_verified,
+        created_at,
         approved_at,
         approved_by
       `,
