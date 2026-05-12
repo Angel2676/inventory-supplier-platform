@@ -6,22 +6,16 @@ const crypto = require("crypto");
 const router = express.Router();
 
 const pool = require("../db");
-const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../services/emailService");
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "dev-secret-change-me";
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
 /**
  * Registrazione partner/client
  */
 router.post("/register", async (req, res) => {
   try {
-    const {
-      company_name,
-      contact_name,
-      email,
-      password
-    } = req.body;
+    const { company_name, contact_name, email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -46,13 +40,9 @@ router.post("/register", async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const verificationToken = crypto
-      .randomBytes(32)
-      .toString("hex");
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
-    const verificationExpires = new Date(
-      Date.now() + 1000 * 60 * 60 * 24
-    );
+    const verificationExpires = new Date(Date.now() + 1000 * 60 * 60 * 24);
 
     const result = await pool.query(
       `
@@ -85,6 +75,7 @@ router.post("/register", async (req, res) => {
         email,
         role,
         status,
+        email_verified,
         created_at
       `,
       [
@@ -97,57 +88,28 @@ router.post("/register", async (req, res) => {
       ]
     );
 
-    try {
-      await sendEmail({
-        to: email,
-        subject:
-          "Registrazione ricevuta - Inventory Supplier",
-        text:
-          "Grazie per la registrazione. Il tuo account partner è stato ricevuto correttamente. A breve il nostro team verificherà la richiesta e potrai accedere ai nostri servizi.",
-        html: `
-          <div style="font-family: Arial, sans-serif;">
-            <h2>Registrazione ricevuta</h2>
-
-            <p>
-              Gentile ${
-                contact_name ||
-                company_name ||
-                "Partner"
-              },
-            </p>
-
-            <p>
-              grazie per la registrazione alla piattaforma
-              Inventory Supplier.
-            </p>
-
-            <p>
-              Il tuo account partner è stato ricevuto
-              correttamente.
-            </p>
-
-            <p>
-              A breve il nostro team verificherà la
-              richiesta e potrai accedere ai nostri servizi.
-            </p>
-
-            <p>
-              Cordiali saluti<br/>
-              Inventory Supplier Platform
-            </p>
-          </div>
-        `
-      });
-    } catch (emailError) {
-      console.error(
-        "Errore invio email registrazione:",
-        emailError
-      );
-    }
+    sendEmail({
+      to: email,
+      subject: "Registrazione ricevuta - Inventory Supplier",
+      text:
+        "Grazie per la registrazione. Il tuo account partner è stato ricevuto correttamente. A breve il nostro team verificherà la richiesta e potrai accedere ai nostri servizi.",
+      html: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>Registrazione ricevuta</h2>
+          <p>Gentile ${contact_name || company_name || "Partner"},</p>
+          <p>grazie per la registrazione alla piattaforma Inventory Supplier.</p>
+          <p>Il tuo account partner è stato ricevuto correttamente.</p>
+          <p>A breve il nostro team verificherà la richiesta e potrai accedere ai nostri servizi.</p>
+          <p>Cordiali saluti<br/>Inventory Supplier Platform</p>
+        </div>
+      `
+    }).catch((emailError) => {
+      console.error("Errore invio email registrazione:", emailError);
+    });
 
     res.status(201).json({
       message:
-        "Grazie per la registrazione. Il tuo account è stato creato correttamente e sarà verificato dal nostro team.",
+        "Grazie per la registrazione. Il tuo account è stato creato correttamente e sarà verificato dal nostro team. A breve potrai accedere ai nostri servizi.",
       user: result.rows[0]
     });
   } catch (error) {
@@ -160,58 +122,51 @@ router.post("/register", async (req, res) => {
 });
 
 /**
- * Verifica email
+ * Verifica email tramite token.
  */
-router.get(
-  "/verify-email/:token",
-  async (req, res) => {
-    try {
-      const { token } = req.params;
+router.get("/verify-email/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
 
-      const result = await pool.query(
-        `
-        SELECT *
-        FROM users
-        WHERE email_verification_token = $1
-        `,
-        [token]
-      );
+    const result = await pool.query(
+      `
+      UPDATE users
+      SET
+        email_verified = true,
+        email_verification_token = null,
+        email_verification_expires = null
+      WHERE email_verification_token = $1
+      AND email_verification_expires > NOW()
+      RETURNING id, email, status, email_verified
+      `,
+      [token]
+    );
 
-      if (result.rows.length === 0) {
-        return res.status(400).send(
-          "Token non valido"
-        );
-      }
-
-      const user = result.rows[0];
-
-      await pool.query(
-        `
-        UPDATE users
-        SET
-          email_verified = true,
-          email_verification_token = null,
-          email_verification_expires = null
-        WHERE id = $1
-        `,
-        [user.id]
-      );
-
-      res.send(
-        "Email verificata correttamente"
-      );
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).send(
-        "Errore verifica email"
-      );
+    if (result.rows.length === 0) {
+      return res.status(400).send(`
+        <h2>Link non valido o scaduto</h2>
+        <p>Richiedi una nuova registrazione o contatta l'amministratore.</p>
+      `);
     }
+
+    res.send(`
+      <h2>Email verificata correttamente</h2>
+      <p>Il tuo account è ora verificato. Attendi l'approvazione del super admin.</p>
+    `);
+  } catch (error) {
+    console.error("Errore verify email:", error);
+
+    res.status(500).send(`
+      <h2>Errore verifica email</h2>
+      <p>Si è verificato un errore durante la verifica.</p>
+    `);
   }
-);
+});
 
 /**
- * Login
+ * Login.
+ * Ora il controllo email_verified può essere superato se il super admin
+ * ha approvato manualmente l'account impostando email_verified=true.
  */
 router.post("/login", async (req, res) => {
   try {
@@ -219,8 +174,7 @@ router.post("/login", async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({
-        error:
-          "Email e password sono obbligatorie"
+        error: "Email e password sono obbligatorie"
       });
     }
 
@@ -241,10 +195,7 @@ router.post("/login", async (req, res) => {
 
     const user = result.rows[0];
 
-    const passwordValid = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
+    const passwordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordValid) {
       return res.status(401).json({
@@ -252,10 +203,15 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    if (!user.email_verified) {
+      return res.status(403).json({
+        error: "Email non ancora verificata"
+      });
+    }
+
     if (user.status !== "approved") {
       return res.status(403).json({
-        error:
-          "Account non ancora approvato"
+        error: "Account non ancora approvato"
       });
     }
 
@@ -273,8 +229,7 @@ router.post("/login", async (req, res) => {
     );
 
     res.json({
-      message:
-        "Login effettuato correttamente",
+      message: "Login effettuato correttamente",
       token,
       user: {
         id: user.id,
@@ -282,7 +237,8 @@ router.post("/login", async (req, res) => {
         contact_name: user.contact_name,
         email: user.email,
         role: user.role,
-        status: user.status
+        status: user.status,
+        email_verified: user.email_verified
       }
     });
   } catch (error) {
