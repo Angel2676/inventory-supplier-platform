@@ -4,29 +4,55 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const router = express.Router();
-const pool = require("../db");
-const sendEmail = require("../services/emailService");
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
-const BACKEND_URL = process.env.BACKEND_URL || "http://127.0.0.1:3000";
+const pool = require("../db");
+const sendEmail = require("../utils/sendEmail");
+
+const JWT_SECRET =
+  process.env.JWT_SECRET || "dev-secret-change-me";
 
 /**
- * Registrazione partner/client.
- * L'utente nasce pending e deve verificare l'email.
+ * Registrazione partner/client
  */
 router.post("/register", async (req, res) => {
   try {
-    const { company_name, contact_name, email, password } = req.body;
+    const {
+      company_name,
+      contact_name,
+      email,
+      password
+    } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
-        error: "email e password sono obbligatorie"
+        error: "Email e password sono obbligatorie"
+      });
+    }
+
+    const existingUser = await pool.query(
+      `
+      SELECT id
+      FROM users
+      WHERE email = $1
+      `,
+      [email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({
+        error: "Email già registrata"
       });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationToken = crypto
+      .randomBytes(32)
+      .toString("hex");
+
+    const verificationExpires = new Date(
+      Date.now() + 1000 * 60 * 60 * 24
+    );
 
     const result = await pool.query(
       `
@@ -42,12 +68,15 @@ router.post("/register", async (req, res) => {
         email_verification_expires
       )
       VALUES (
-        $1, $2, $3, $4,
+        $1,
+        $2,
+        $3,
+        $4,
         'partner',
         'pending',
         false,
         $5,
-        NOW() + interval '24 hours'
+        $6
       )
       RETURNING
         id,
@@ -56,7 +85,6 @@ router.post("/register", async (req, res) => {
         email,
         role,
         status,
-        email_verified,
         created_at
       `,
       [
@@ -64,38 +92,66 @@ router.post("/register", async (req, res) => {
         contact_name || null,
         email,
         passwordHash,
-        verificationToken
+        verificationToken,
+        verificationExpires
       ]
     );
 
-    const verifyLink = `${BACKEND_URL}/api/auth/verify-email/${verificationToken}`;
+    try {
+      await sendEmail({
+        to: email,
+        subject:
+          "Registrazione ricevuta - Inventory Supplier",
+        text:
+          "Grazie per la registrazione. Il tuo account partner è stato ricevuto correttamente. A breve il nostro team verificherà la richiesta e potrai accedere ai nostri servizi.",
+        html: `
+          <div style="font-family: Arial, sans-serif;">
+            <h2>Registrazione ricevuta</h2>
 
-    await sendEmail({
-      to: email,
-      subject: "Verifica il tuo account Inventory Supplier",
-      text: `Clicca questo link per verificare il tuo account: ${verifyLink}`,
-      html: `
-        <p>Gentile ${contact_name || company_name || "Partner"},</p>
-        <p>grazie per la registrazione.</p>
-        <p>Per verificare il tuo account clicca sul link seguente:</p>
-        <p><a href="${verifyLink}">${verifyLink}</a></p>
-        <p>Il link è valido per 24 ore.</p>
-      `
-    });
+            <p>
+              Gentile ${
+                contact_name ||
+                company_name ||
+                "Partner"
+              },
+            </p>
+
+            <p>
+              grazie per la registrazione alla piattaforma
+              Inventory Supplier.
+            </p>
+
+            <p>
+              Il tuo account partner è stato ricevuto
+              correttamente.
+            </p>
+
+            <p>
+              A breve il nostro team verificherà la
+              richiesta e potrai accedere ai nostri servizi.
+            </p>
+
+            <p>
+              Cordiali saluti<br/>
+              Inventory Supplier Platform
+            </p>
+          </div>
+        `
+      });
+    } catch (emailError) {
+      console.error(
+        "Errore invio email registrazione:",
+        emailError
+      );
+    }
 
     res.status(201).json({
       message:
-        "Registrazione ricevuta. Controlla la tua email per verificare l'account. Dopo la verifica, il super admin dovrà approvarlo.",
+        "Grazie per la registrazione. Il tuo account è stato creato correttamente e sarà verificato dal nostro team.",
       user: result.rows[0]
     });
   } catch (error) {
     console.error("Errore register:", error);
-
-    if (error.code === "23505") {
-      return res.status(409).json({
-        error: "Email già registrata"
-      });
-    }
 
     res.status(500).json({
       error: "Errore registrazione utente"
@@ -104,50 +160,58 @@ router.post("/register", async (req, res) => {
 });
 
 /**
- * Verifica email.
+ * Verifica email
  */
-router.get("/verify-email/:token", async (req, res) => {
-  try {
-    const { token } = req.params;
+router.get(
+  "/verify-email/:token",
+  async (req, res) => {
+    try {
+      const { token } = req.params;
 
-    const result = await pool.query(
-      `
-      UPDATE users
-      SET
-        email_verified = true,
-        email_verification_token = null,
-        email_verification_expires = null
-      WHERE email_verification_token = $1
-      AND email_verification_expires > NOW()
-      RETURNING id, email, status, email_verified
-      `,
-      [token]
-    );
+      const result = await pool.query(
+        `
+        SELECT *
+        FROM users
+        WHERE email_verification_token = $1
+        `,
+        [token]
+      );
 
-    if (result.rows.length === 0) {
-      return res.status(400).send(`
-        <h2>Link non valido o scaduto</h2>
-        <p>Richiedi una nuova registrazione o contatta l'amministratore.</p>
-      `);
+      if (result.rows.length === 0) {
+        return res.status(400).send(
+          "Token non valido"
+        );
+      }
+
+      const user = result.rows[0];
+
+      await pool.query(
+        `
+        UPDATE users
+        SET
+          email_verified = true,
+          email_verification_token = null,
+          email_verification_expires = null
+        WHERE id = $1
+        `,
+        [user.id]
+      );
+
+      res.send(
+        "Email verificata correttamente"
+      );
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).send(
+        "Errore verifica email"
+      );
     }
-
-    res.send(`
-      <h2>Email verificata correttamente</h2>
-      <p>Il tuo account è ora verificato. Attendi l'approvazione del super admin.</p>
-    `);
-  } catch (error) {
-    console.error("Errore verify email:", error);
-
-    res.status(500).send(`
-      <h2>Errore verifica email</h2>
-      <p>Si è verificato un errore durante la verifica.</p>
-    `);
   }
-});
+);
 
 /**
- * Login.
- * Solo utenti verified + approved possono accedere.
+ * Login
  */
 router.post("/login", async (req, res) => {
   try {
@@ -155,7 +219,8 @@ router.post("/login", async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({
-        error: "email e password sono obbligatorie"
+        error:
+          "Email e password sono obbligatorie"
       });
     }
 
@@ -176,7 +241,10 @@ router.post("/login", async (req, res) => {
 
     const user = result.rows[0];
 
-    const passwordValid = await bcrypt.compare(password, user.password_hash);
+    const passwordValid = await bcrypt.compare(
+      password,
+      user.password_hash
+    );
 
     if (!passwordValid) {
       return res.status(401).json({
@@ -184,15 +252,10 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    if (!user.email_verified) {
-      return res.status(403).json({
-        error: "Email non ancora verificata"
-      });
-    }
-
     if (user.status !== "approved") {
       return res.status(403).json({
-        error: "Account non ancora approvato"
+        error:
+          "Account non ancora approvato"
       });
     }
 
@@ -210,7 +273,8 @@ router.post("/login", async (req, res) => {
     );
 
     res.json({
-      message: "Login effettuato correttamente",
+      message:
+        "Login effettuato correttamente",
       token,
       user: {
         id: user.id,
@@ -218,8 +282,7 @@ router.post("/login", async (req, res) => {
         contact_name: user.contact_name,
         email: user.email,
         role: user.role,
-        status: user.status,
-        email_verified: user.email_verified
+        status: user.status
       }
     });
   } catch (error) {
