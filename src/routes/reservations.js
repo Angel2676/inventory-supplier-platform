@@ -38,7 +38,9 @@ router.get("/", authJwt, async (req, res) => {
         tickets.currency,
 
         events.name AS event_name,
-        events.event_date
+        events.event_date,
+        events.event_type,
+        events.event_subcategory
 
       FROM reservations
 
@@ -401,7 +403,9 @@ router.get("/:code", authJwt, async (req, res) => {
         tickets.currency,
 
         events.name AS event_name,
-        events.event_date
+        events.event_date,
+        events.event_type,
+        events.event_subcategory
 
       FROM reservations
 
