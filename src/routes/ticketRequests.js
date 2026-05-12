@@ -65,7 +65,7 @@ router.post("/", authJwt, async (req, res) => {
 
     const pendingQuantity = pendingResult.rows[0].pending_quantity;
     const effectivelyAvailable =
-      ticket.available_quantity - pendingQuantity;
+      Number(ticket.available_quantity) - Number(pendingQuantity);
 
     if (effectivelyAvailable < Number(quantity)) {
       await client.query("ROLLBACK");
@@ -144,26 +144,37 @@ router.post("/", authJwt, async (req, res) => {
 /**
  * Super admin vede tutte le richieste.
  * Partner vede solo le proprie.
+ * Include nome evento e data evento.
  */
 router.get("/", authJwt, async (req, res) => {
   try {
     let query = `
       SELECT
         ticket_requests.*,
+
         users.company_name,
         users.contact_name,
         users.email,
+
         tickets.supplier_ticket_id,
         tickets.category,
         tickets.block,
         tickets.price,
         tickets.currency,
+
         events.name AS event_name,
         events.event_date
+
       FROM ticket_requests
-      JOIN users ON users.id = ticket_requests.user_id
-      JOIN tickets ON tickets.id = ticket_requests.ticket_id
-      LEFT JOIN events ON events.id = tickets.event_id
+
+      JOIN users
+        ON users.id = ticket_requests.user_id
+
+      JOIN tickets
+        ON tickets.id = ticket_requests.ticket_id
+
+      LEFT JOIN events
+        ON events.id = tickets.event_id
     `;
 
     const values = [];
@@ -176,49 +187,9 @@ router.get("/", authJwt, async (req, res) => {
     }
 
     query += `
-      ORDER BY events.event_date ASC NULLS LAST, ticket_requests.id DESC
-      LIMIT 100
-    `;
-
-    const result = await pool.query(query, values);
-
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Errore GET /api/ticket-requests:", error);
-
-    res.status(500).json({
-      error: "Errore recupero richieste ticket"
-    });
-  }
-});
-  try {
-    let query = `
-      SELECT
-        ticket_requests.*,
-        users.company_name,
-        users.contact_name,
-        users.email,
-        tickets.supplier_ticket_id,
-        tickets.category,
-        tickets.block,
-        tickets.price,
-        tickets.currency
-      FROM ticket_requests
-      JOIN users ON users.id = ticket_requests.user_id
-      JOIN tickets ON tickets.id = ticket_requests.ticket_id
-    `;
-
-    const values = [];
-
-    if (req.user.role !== "super_admin") {
-      query += `
-        WHERE ticket_requests.user_id = $1
-      `;
-      values.push(req.user.id);
-    }
-
-    query += `
-      ORDER BY ticket_requests.id DESC
+      ORDER BY
+        events.event_date ASC NULLS LAST,
+        ticket_requests.id DESC
       LIMIT 100
     `;
 
@@ -296,7 +267,7 @@ router.patch(
         });
       }
 
-      if (ticket.available_quantity < request.quantity) {
+      if (Number(ticket.available_quantity) < Number(request.quantity)) {
         await client.query("ROLLBACK");
         return res.status(400).json({
           error: "Quantità non più disponibile",
