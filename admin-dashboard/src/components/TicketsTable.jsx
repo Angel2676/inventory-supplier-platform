@@ -3,8 +3,13 @@ import api from "../api";
 
 function TicketsTable({ canEdit = true }) {
   const [tickets, setTickets] = useState([]);
+  const [events, setEvents] = useState([]);
   const [search, setSearch] = useState("");
+  const [eventFilter, setEventFilter] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [requestQuantities, setRequestQuantities] = useState({});
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const [editForm, setEditForm] = useState({
     price: "",
@@ -18,15 +23,35 @@ function TicketsTable({ canEdit = true }) {
       setTickets(response.data.tickets || []);
     } catch (err) {
       console.error("Errore caricamento tickets:", err);
+      setError("Errore caricamento tickets");
+    }
+  }
+
+  async function loadEvents() {
+    try {
+      const response = await api.get("/api/events");
+      setEvents(response.data || []);
+    } catch (err) {
+      console.error("Errore caricamento eventi:", err);
     }
   }
 
   useEffect(() => {
     loadTickets();
+    loadEvents();
 
-    const interval = setInterval(loadTickets, 10000);
+    const interval = setInterval(() => {
+      loadTickets();
+      loadEvents();
+    }, 10000);
+
     return () => clearInterval(interval);
   }, []);
+
+  function getEventName(eventId) {
+    const event = events.find((item) => Number(item.id) === Number(eventId));
+    return event ? event.name : `Evento ID ${eventId}`;
+  }
 
   function startEdit(ticket) {
     setEditingId(ticket.id);
@@ -60,6 +85,7 @@ function TicketsTable({ canEdit = true }) {
       await loadTickets();
     } catch (err) {
       console.error("Errore aggiornamento ticket:", err);
+      setError("Errore aggiornamento ticket");
     }
   }
 
@@ -71,13 +97,72 @@ function TicketsTable({ canEdit = true }) {
       await loadTickets();
     } catch (err) {
       console.error("Errore eliminazione ticket:", err);
+      setError("Errore eliminazione ticket");
+    }
+  }
+
+  function updateRequestQuantity(ticketId, value) {
+    setRequestQuantities({
+      ...requestQuantities,
+      [ticketId]: value
+    });
+  }
+
+  async function requestTicket(ticket) {
+    setMessage("");
+    setError("");
+
+    const quantity = Number(requestQuantities[ticket.id] || 1);
+
+    if (!quantity || quantity <= 0) {
+      setError("Inserisci una quantità valida");
+      return;
+    }
+
+    if (quantity > Number(ticket.available_quantity)) {
+      setError("Quantità richiesta superiore alla disponibilità");
+      return;
+    }
+
+    try {
+      await api.post("/api/ticket-requests", {
+        ticket_id: ticket.id,
+        quantity,
+        notes: `Richiesta inviata da Tickets Inventory per ${getEventName(
+          ticket.event_id
+        )}`
+      });
+
+      setMessage("Richiesta tickets inviata correttamente");
+
+      setRequestQuantities({
+        ...requestQuantities,
+        [ticket.id]: 1
+      });
+
+      await loadTickets();
+    } catch (err) {
+      console.error("Errore richiesta ticket:", err);
+
+      const data = err.response?.data;
+
+      if (data?.effectively_available !== undefined) {
+        setError(
+          `${data.error}. Disponibili: ${data.available_quantity}, già in pending: ${data.pending_quantity}, realmente disponibili: ${data.effectively_available}`
+        );
+      } else {
+        setError(data?.error || "Errore invio richiesta ticket");
+      }
     }
   }
 
   const filteredTickets = tickets.filter((ticket) => {
+    const eventName = getEventName(ticket.event_id);
+
     const text = `
       ${ticket.id || ""}
       ${ticket.event_id || ""}
+      ${eventName || ""}
       ${ticket.supplier_ticket_id || ""}
       ${ticket.category || ""}
       ${ticket.block || ""}
@@ -87,14 +172,36 @@ function TicketsTable({ canEdit = true }) {
       ${ticket.status || ""}
     `.toLowerCase();
 
-    return text.includes(search.toLowerCase());
+    const matchesSearch = text.includes(search.toLowerCase());
+
+    const matchesEvent = eventFilter
+      ? Number(ticket.event_id) === Number(eventFilter)
+      : true;
+
+    return matchesSearch && matchesEvent;
   });
 
   return (
     <div className="section">
       <h2>Tickets Inventory</h2>
 
+      {message && <div className="success-message">{message}</div>}
+      {error && <div className="error">{error}</div>}
+
       <div className="filters-bar">
+        <select
+          value={eventFilter}
+          onChange={(e) => setEventFilter(e.target.value)}
+        >
+          <option value="">Tutti gli eventi</option>
+
+          {events.map((event) => (
+            <option key={event.id} value={event.id}>
+              {event.name} — ID {event.id}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
           placeholder="Cerca ticket, categoria, blocco, evento..."
@@ -107,7 +214,7 @@ function TicketsTable({ canEdit = true }) {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Event</th>
+            <th>Evento</th>
             <th>Supplier Ticket</th>
             <th>Category</th>
             <th>Block</th>
@@ -115,129 +222,187 @@ function TicketsTable({ canEdit = true }) {
             <th>Seats</th>
             <th>Quantity</th>
             <th>Available</th>
-            <th>Low Stock</th>
-            <th>Price</th>
+            {canEdit && <th>Low Stock</th>}
+            <th>Prezzo unitario</th>
+            {!canEdit && <th>Quantità richiesta</th>}
+            {!canEdit && <th>Totale</th>}
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {filteredTickets.map((ticket) => (
-            <tr key={ticket.id}>
-              <td>{ticket.id}</td>
-              <td>{ticket.event_id}</td>
-              <td>{ticket.supplier_ticket_id}</td>
-              <td>{ticket.category}</td>
-              <td>{ticket.block || "-"}</td>
-              <td>{ticket.row_name || "-"}</td>
-              <td>
-                {ticket.seat_from || "-"} - {ticket.seat_to || "-"}
-              </td>
-              <td>{ticket.quantity}</td>
+          {filteredTickets.map((ticket) => {
+            const requestQuantity = Number(
+              requestQuantities[ticket.id] || 1
+            );
 
-              <td>
-                {editingId === ticket.id ? (
-                  <input
-                    className="table-input"
-                    type="number"
-                    value={editForm.available_quantity}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        available_quantity: e.target.value
-                      })
-                    }
-                  />
-                ) : (
-                  ticket.available_quantity
-                )}
-              </td>
+            const unitPrice = Number(
+              ticket.final_price || ticket.price || 0
+            );
 
-              <td>
-                {editingId === ticket.id ? (
-                  <input
-                    className="table-input"
-                    type="number"
-                    value={editForm.low_stock_threshold}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        low_stock_threshold: e.target.value
-                      })
-                    }
-                  />
-                ) : (
-                  ticket.low_stock_threshold
-                )}
-              </td>
+            const totalPrice = (
+              unitPrice * requestQuantity
+            ).toFixed(2);
 
-              <td>
-                {editingId === ticket.id ? (
-                  <input
-                    className="table-input"
-                    type="number"
-                    step="0.01"
-                    value={editForm.price}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        price: e.target.value
-                      })
-                    }
-                  />
-                ) : (
-                  `€ ${ticket.final_price || ticket.price}`
-                )}
-              </td>
+            return (
+              <tr key={ticket.id}>
+                <td>{ticket.id}</td>
 
-              <td>
-                <span className={`status-badge status-${ticket.status}`}>
-                  {ticket.status}
-                </span>
-              </td>
+                <td>{getEventName(ticket.event_id)}</td>
 
-              <td className="actions-cell">
-                {canEdit ? (
-                  editingId === ticket.id ? (
-                    <>
-                      <button
-                        className="btn btn-save"
-                        onClick={() => saveEdit(ticket.id)}
-                      >
-                        Salva
-                      </button>
+                <td>{ticket.supplier_ticket_id}</td>
 
-                      <button
-                        className="btn btn-secondary"
-                        onClick={cancelEdit}
-                      >
-                        Annulla
-                      </button>
-                    </>
+                <td>{ticket.category}</td>
+
+                <td>{ticket.block || "-"}</td>
+
+                <td>{ticket.row_name || "-"}</td>
+
+                <td>
+                  {ticket.seat_from || "-"} - {ticket.seat_to || "-"}
+                </td>
+
+                <td>{ticket.quantity}</td>
+
+                <td>
+                  {editingId === ticket.id ? (
+                    <input
+                      className="table-input"
+                      type="number"
+                      value={editForm.available_quantity}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          available_quantity: e.target.value
+                        })
+                      }
+                    />
                   ) : (
-                    <>
-                      <button
-                        className="btn btn-edit"
-                        onClick={() => startEdit(ticket)}
-                      >
-                        Modifica
-                      </button>
+                    ticket.available_quantity
+                  )}
+                </td>
 
-                      <button
-                        className="btn btn-delete"
-                        onClick={() => deleteTicket(ticket.id)}
-                      >
-                        Elimina
-                      </button>
-                    </>
-                  )
-                ) : (
-                  "-"
+                {canEdit && (
+                  <td>
+                    {editingId === ticket.id ? (
+                      <input
+                        className="table-input"
+                        type="number"
+                        value={editForm.low_stock_threshold}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            low_stock_threshold: e.target.value
+                          })
+                        }
+                      />
+                    ) : (
+                      ticket.low_stock_threshold
+                    )}
+                  </td>
                 )}
-              </td>
-            </tr>
-          ))}
+
+                <td>
+                  {editingId === ticket.id ? (
+                    <input
+                      className="table-input"
+                      type="number"
+                      step="0.01"
+                      value={editForm.price}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          price: e.target.value
+                        })
+                      }
+                    />
+                  ) : (
+                    `€ ${unitPrice.toFixed(2)}`
+                  )}
+                </td>
+
+                {!canEdit && (
+                  <td>
+                    <input
+                      className="table-input"
+                      type="number"
+                      min="1"
+                      max={ticket.available_quantity}
+                      value={requestQuantities[ticket.id] || 1}
+                      onChange={(e) =>
+                        updateRequestQuantity(
+                          ticket.id,
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                )}
+
+                {!canEdit && (
+                  <td>
+                    <strong>€ {totalPrice}</strong>
+                  </td>
+                )}
+
+                <td>
+                  <span className={`status-badge status-${ticket.status}`}>
+                    {ticket.status}
+                  </span>
+                </td>
+
+                <td className="actions-cell">
+                  {canEdit ? (
+                    editingId === ticket.id ? (
+                      <>
+                        <button
+                          className="btn btn-save"
+                          onClick={() => saveEdit(ticket.id)}
+                        >
+                          Salva
+                        </button>
+
+                        <button
+                          className="btn btn-secondary"
+                          onClick={cancelEdit}
+                        >
+                          Annulla
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          className="btn btn-edit"
+                          onClick={() => startEdit(ticket)}
+                        >
+                          Modifica
+                        </button>
+
+                        <button
+                          className="btn btn-delete"
+                          onClick={() => deleteTicket(ticket.id)}
+                        >
+                          Elimina
+                        </button>
+                      </>
+                    )
+                  ) : (
+                    <button
+                      className="btn btn-save"
+                      onClick={() => requestTicket(ticket)}
+                      disabled={
+                        Number(ticket.available_quantity) <= 0 ||
+                        ticket.status !== "available"
+                      }
+                    >
+                      Richiedi tickets
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
