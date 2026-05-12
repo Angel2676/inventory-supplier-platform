@@ -496,3 +496,156 @@ body {
   border: 1px solid #86efac;
   font-weight: 500;
 }
+.dashboard-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f3f6fb;
+}
+
+.sidebar {
+  width: 280px;
+  min-height: 100vh;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.sidebar-brand h2 {
+  font-size: 18px;
+}
+
+.sidebar-brand p {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.sidebar-user {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 22px;
+}
+
+.sidebar-user strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.sidebar-user span {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.sidebar-link {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+.sidebar-link.active {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.sidebar-logout {
+  border: none;
+  background: #dc2626;
+  color: #ffffff;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 24px;
+  overflow-x: hidden;
+}
+
+.dashboard-header {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-header h1 {
+  font-size: 28px;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.dashboard-header p {
+  color: #64748b;
+}
+
+.dashboard-content {
+  max-width: 100%;
+}
+
+@media (max-width: 900px) {
+  .dashboard-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    position: relative;
+  }
+
+  .sidebar-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .dashboard-main {
+    padding: 16px;
+  }
+}

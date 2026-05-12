@@ -25,7 +25,7 @@ import BusinessAnalytics from "./components/BusinessAnalytics";
 import NotificationCenter from "./components/NotificationCenter";
 import EventManagement from "./components/EventManagement";
 import SystemActivityTimeline from "./components/SystemActivityTimeline";
-import CollapsibleSection from "./components/CollapsibleSection";
+import Sidebar from "./components/Sidebar";
 
 import { useAuth } from "./context/AuthContext";
 
@@ -37,6 +37,7 @@ function App() {
   const [stats, setStats] = useState(null);
   const [showRegister, setShowRegister] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [activeSection, setActiveSection] = useState("tickets");
 
   const resetMatch = window.location.pathname.match(
     /^\/reset-password\/(.+)$/
@@ -59,6 +60,16 @@ function App() {
     const interval = setInterval(loadStats, 10000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+
+    if (user.role === "super_admin") {
+      setActiveSection("analytics");
+    } else {
+      setActiveSection("tickets");
+    }
+  }, [isAuthenticated, user]);
 
   if (resetMatch) {
     return (
@@ -97,182 +108,134 @@ function App() {
     );
   }
 
-  if (!isSuperAdmin) {
-    return (
-      <div className="app-container partner-dashboard">
-        <header className="topbar">
-          <div>
-            <h1>Partner Ticket Portal</h1>
-            <p>
-              {user?.company_name || user?.email} · Area Partner
-            </p>
-          </div>
+  function renderAdminSection() {
+    switch (activeSection) {
+      case "notifications":
+        return (
+          <>
+            <AdminPendingAlert />
+            <NotificationCenter />
+          </>
+        );
 
-          <button className="btn btn-delete" onClick={logout}>
-            Logout
-          </button>
-        </header>
+      case "analytics":
+        return (
+          <>
+            {stats && <DashboardStats stats={stats} />}
+            <BusinessAnalytics />
+          </>
+        );
 
-        {stats && <DashboardStats stats={stats} />}
+      case "events":
+        return <EventManagement />;
 
-        <CollapsibleSection
-          title="Le tue notifiche"
-          subtitle="Aggiornamenti su richieste, approvazioni e reservations"
-          defaultOpen={true}
-        >
-          <NotificationCenter />
-          <PartnerNotifications />
-        </CollapsibleSection>
+      case "inventory-create":
+        return (
+          <>
+            <CreateTicketForm onCreated={loadStats} />
+            <CsvUpload onUploaded={loadStats} />
+          </>
+        );
 
-        <CollapsibleSection
-          title="Inventory disponibile"
-          subtitle="Consulta eventi, categorie, prezzi e disponibilità"
-          defaultOpen={true}
-        >
-          <TicketsTable canEdit={false} />
-        </CollapsibleSection>
+      case "tickets":
+        return <TicketsTable canEdit={true} />;
 
-        <CollapsibleSection
-          title="Richiedi tickets"
-          subtitle="Invia una richiesta al super admin per approvazione"
-          defaultOpen={true}
-        >
-          <CreateTicketRequestForm onCreated={loadStats} />
-        </CollapsibleSection>
+      case "inventory-intelligence":
+        return (
+          <>
+            <LowStockAlerts />
+            <InventoryStatusTable />
+          </>
+        );
 
-        <CollapsibleSection
-          title="Le tue richieste"
-          subtitle="Controlla richieste pending, approvate o rifiutate"
-          defaultOpen={true}
-        >
-          <TicketRequestsTable />
-        </CollapsibleSection>
+      case "reservation-create":
+        return <CreateReservationForm onCreated={loadStats} />;
 
-        <CollapsibleSection
-          title="Le tue reservations"
-          subtitle="Consulta le reservations confermate o scadute"
-        >
-          <ReservationsTable />
-        </CollapsibleSection>
-      </div>
-    );
+      case "requests":
+        return <TicketRequestsTable />;
+
+      case "reservations":
+        return <ReservationsTable />;
+
+      case "timeline":
+        return <SystemActivityTimeline />;
+
+      case "users":
+        return <UsersTable />;
+
+      case "access":
+        return <PartnerEventAccessTable />;
+
+      case "audit":
+        return <AuditLogsTable />;
+
+      default:
+        return <BusinessAnalytics />;
+    }
+  }
+
+  function renderPartnerSection() {
+    switch (activeSection) {
+      case "notifications":
+        return (
+          <>
+            <NotificationCenter />
+            <PartnerNotifications />
+          </>
+        );
+
+      case "tickets":
+        return (
+          <>
+            {stats && <DashboardStats stats={stats} />}
+            <TicketsTable canEdit={false} />
+          </>
+        );
+
+      case "request-create":
+        return <CreateTicketRequestForm onCreated={loadStats} />;
+
+      case "requests":
+        return <TicketRequestsTable />;
+
+      case "reservations":
+        return <ReservationsTable />;
+
+      default:
+        return <TicketsTable canEdit={false} />;
+    }
   }
 
   return (
-    <div className="app-container">
-      <header className="topbar">
-        <div>
-          <h1>Inventory Supplier Dashboard</h1>
-          <p>
-            {user?.company_name || user?.email} · {user?.role}
-          </p>
+    <div className="dashboard-shell">
+      <Sidebar
+        user={user}
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        logout={logout}
+      />
+
+      <main className="dashboard-main">
+        <header className="dashboard-header">
+          <div>
+            <h1>
+              {isSuperAdmin
+                ? "Inventory Supplier Dashboard"
+                : "Partner Ticket Portal"}
+            </h1>
+
+            <p>
+              {user?.company_name || user?.email} · {user?.role}
+            </p>
+          </div>
+        </header>
+
+        <div className="dashboard-content">
+          {isSuperAdmin
+            ? renderAdminSection()
+            : renderPartnerSection()}
         </div>
-
-        <button className="btn btn-delete" onClick={logout}>
-          Logout
-        </button>
-      </header>
-
-      {stats && <DashboardStats stats={stats} />}
-
-      <AdminPendingAlert />
-
-      <CollapsibleSection
-        title="Notification Center"
-        subtitle="Notifiche operative, richieste approvate/rifiutate e alert"
-        defaultOpen={true}
-      >
-        <NotificationCenter />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Business Analytics"
-        subtitle="KPI, valore stock, approval rate, top events e top partners"
-        defaultOpen={true}
-      >
-        <BusinessAnalytics />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Event Management"
-        subtitle="Crea, modifica e gestisci eventi, venue, status e visibility"
-      >
-        <EventManagement />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Create Inventory"
-        subtitle="Crea nuovi tickets o carica inventory tramite CSV"
-      >
-        <CreateTicketForm onCreated={loadStats} />
-        <CsvUpload onUploaded={loadStats} />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Tickets Inventory"
-        subtitle="Stock disponibile, prezzi, soglie low stock e ricerca inventory"
-        defaultOpen={true}
-      >
-        <TicketsTable canEdit={true} />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Inventory Intelligence"
-        subtitle="Disponibilità reale, pending, reserved, confirmed e health status"
-      >
-        <LowStockAlerts />
-        <InventoryStatusTable />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Create Reservation"
-        subtitle="Crea reservation dirette"
-      >
-        <CreateReservationForm onCreated={loadStats} />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Ticket Requests"
-        subtitle="Richieste partner pending, approved o rejected"
-        defaultOpen={true}
-      >
-        <TicketRequestsTable />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Reservations"
-        subtitle="Reservation confirmed, reserved, expired e storico operativo"
-      >
-        <ReservationsTable />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="System Activity Timeline"
-        subtitle="Timeline realtime delle operazioni principali"
-      >
-        <SystemActivityTimeline />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Users & Roles"
-        subtitle="Gestione utenti, approvazioni partner e ruoli RBAC"
-      >
-        <UsersTable />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Partner Event Access"
-        subtitle="Assegna eventi visibili ai singoli partner"
-      >
-        <PartnerEventAccessTable />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Audit Logs"
-        subtitle="Log tecnico completo delle operazioni di sistema"
-      >
-        <AuditLogsTable />
-      </CollapsibleSection>
+      </main>
     </div>
   );
 }
