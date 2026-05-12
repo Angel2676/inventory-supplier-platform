@@ -1,26 +1,32 @@
 const { Pool } = require("pg");
 
-const isProduction = process.env.DATABASE_URL;
+const isRender =
+  process.env.RENDER === "true" ||
+  process.env.NODE_ENV === "production";
+
+const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
 
 const pool = new Pool(
-  isProduction
+  hasDatabaseUrl
     ? {
         connectionString: process.env.DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false
-        }
+        ssl: isRender
+          ? {
+              rejectUnauthorized: false
+            }
+          : false
       }
     : {
         user: process.env.DB_USER || "postgres",
         host: process.env.DB_HOST || "localhost",
-        database:
-          process.env.DB_NAME || "inventory_supplier",
+        database: process.env.DB_NAME || "inventory_supplier",
         password: process.env.DB_PASSWORD || "",
-        port: process.env.DB_PORT || 5432
+        port: Number(process.env.DB_PORT || 5432)
       }
 );
 
-pool.connect()
+pool
+  .connect()
   .then(() => {
     console.log("PostgreSQL connected successfully");
   })
