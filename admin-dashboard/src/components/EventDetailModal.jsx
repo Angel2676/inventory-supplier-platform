@@ -1,9 +1,4 @@
-function EventDetailModal({
-  event,
-  tickets = [],
-  onClose,
-  onViewTickets
-}) {
+function EventDetailModal({ event, tickets = [], onClose, onViewTickets }) {
   if (!event) return null;
 
   const eventTickets = tickets.filter(
@@ -32,61 +27,47 @@ function EventDetailModal({
 
   return (
     <div className="event-modal-overlay">
-      <div className="event-modal">
-        <button
-          className="event-modal-close"
-          type="button"
-          onClick={onClose}
-        >
+      <div className="event-modal-premium">
+        <button className="event-modal-close" type="button" onClick={onClose}>
           ×
         </button>
 
         <div
-          className="event-modal-hero"
+          className="event-modal-premium-hero"
           style={{
             backgroundImage: event.image_url
-              ? `url(${event.image_url})`
+              ? `linear-gradient(180deg, rgba(15,23,42,0.15), rgba(15,23,42,0.88)), url(${event.image_url})`
               : "linear-gradient(135deg, #0f172a, #2563eb)"
           }}
         >
           {event.logo_url && (
-            <img
-              className="event-modal-logo"
-              src={event.logo_url}
-              alt={event.name}
-            />
+            <img className="event-modal-premium-logo" src={event.logo_url} alt={event.name} />
           )}
+
+          <div className="event-modal-premium-title">
+            <span>{event.event_subcategory || event.event_type || "Event"}</span>
+            <h2>{event.name}</h2>
+            <p>{formatDate(event.event_date)}</p>
+          </div>
         </div>
 
-        <div className="event-modal-body">
-          <span className="event-modal-category">
-            {event.event_subcategory || event.event_type || "Event"}
-          </span>
+        <div className="event-modal-premium-body">
+          <div className="event-modal-location-card">
+            <strong>{event.venue || "Venue TBC"}</strong>
+            <span>
+              {event.city || "-"}
+              {event.country ? ` · ${event.country}` : ""}
+            </span>
+          </div>
 
-          <h2>{event.name}</h2>
-
-          <p className="event-modal-date">
-            {formatDate(event.event_date)}
-          </p>
-
-          <p className="event-modal-location">
-            {event.venue || "Venue TBC"}
-            {event.city ? ` · ${event.city}` : ""}
-            {event.country ? ` · ${event.country}` : ""}
-          </p>
-
-          <div className="event-modal-stats">
+          <div className="event-modal-stats-premium">
             <div>
               <strong>{availableQuantity}</strong>
               <span>Available tickets</span>
             </div>
 
             <div>
-              <strong>
-                {startingPrice
-                  ? `€${startingPrice.toFixed(2)}`
-                  : "TBC"}
-              </strong>
+              <strong>{startingPrice ? `€${startingPrice.toFixed(2)}` : "TBC"}</strong>
               <span>Starting price</span>
             </div>
 
@@ -96,17 +77,13 @@ function EventDetailModal({
             </div>
           </div>
 
-          <div className="event-modal-actions">
-            <button
-              className="btn btn-save"
-              type="button"
-              onClick={onViewTickets}
-            >
+          <div className="event-modal-actions-premium">
+            <button className="btn btn-save" type="button" onClick={onViewTickets}>
               Vedi tickets disponibili
             </button>
 
             <a
-              className="btn btn-secondary"
+              className="event-whatsapp-action"
               href={`https://wa.me/393392986384?text=${whatsappText}`}
               target="_blank"
               rel="noreferrer"
