@@ -29,9 +29,7 @@ const EVENT_TYPES = [
   {
     value: "formula_1",
     label: "Formula 1",
-    subcategories: [
-      "Grand Prix"
-    ]
+    subcategories: ["Grand Prix"]
   }
 ];
 
@@ -52,6 +50,8 @@ function EventManagement() {
     country: "",
     event_type: "football",
     event_subcategory: "Serie A",
+    image_url: "",
+    logo_url: "",
     status: "active",
     visibility: "public",
     notes: ""
@@ -75,6 +75,38 @@ function EventManagement() {
   function formatDate(value) {
     if (!value) return "-";
     return new Date(value).toLocaleString();
+  }
+
+  function EventPreview({ event }) {
+    return (
+      <div className="event-preview-card">
+        <div
+          className="event-preview-image"
+          style={{
+            backgroundImage: event.image_url
+              ? `url(${event.image_url})`
+              : "linear-gradient(135deg, #0f172a, #2563eb)"
+          }}
+        >
+          {event.logo_url && (
+            <img
+              className="event-preview-logo"
+              src={event.logo_url}
+              alt="Event logo"
+            />
+          )}
+        </div>
+
+        <div className="event-preview-info">
+          <strong>{event.name || "Evento"}</strong>
+          <span>
+            {getTypeLabel(event.event_type)} ·{" "}
+            {event.event_subcategory || "-"}
+          </span>
+          <small>{event.city || "-"} · {formatDate(event.event_date)}</small>
+        </div>
+      </div>
+    );
   }
 
   async function loadEvents() {
@@ -138,7 +170,9 @@ function EventManagement() {
         ...form,
         event_date: form.event_date || null,
         event_type: form.event_type || null,
-        event_subcategory: form.event_subcategory || null
+        event_subcategory: form.event_subcategory || null,
+        image_url: form.image_url || null,
+        logo_url: form.logo_url || null
       });
 
       setMessage("Evento creato correttamente");
@@ -159,17 +193,14 @@ function EventManagement() {
 
     setEditForm({
       name: event.name || "",
-      event_date: event.event_date
-        ? event.event_date.slice(0, 16)
-        : "",
+      event_date: event.event_date ? event.event_date.slice(0, 16) : "",
       venue: event.venue || "",
       city: event.city || "",
       country: event.country || "",
       event_type: eventType,
-      event_subcategory:
-        event.event_subcategory ||
-        subcategories[0] ||
-        "",
+      event_subcategory: event.event_subcategory || subcategories[0] || "",
+      image_url: event.image_url || "",
+      logo_url: event.logo_url || "",
       status: event.status || "active",
       visibility: event.visibility || "public",
       notes: event.notes || ""
@@ -189,7 +220,9 @@ function EventManagement() {
         ...editForm,
         event_date: editForm.event_date || null,
         event_type: editForm.event_type || null,
-        event_subcategory: editForm.event_subcategory || null
+        event_subcategory: editForm.event_subcategory || null,
+        image_url: editForm.image_url || null,
+        logo_url: editForm.logo_url || null
       });
 
       setEditingId(null);
@@ -232,13 +265,13 @@ function EventManagement() {
       ${event.visibility || ""}
       ${event.event_type || ""}
       ${event.event_subcategory || ""}
+      ${event.image_url || ""}
+      ${event.logo_url || ""}
     `.toLowerCase();
 
     const matchesSearch = text.includes(search.toLowerCase());
 
-    const matchesType = typeFilter
-      ? event.event_type === typeFilter
-      : true;
+    const matchesType = typeFilter ? event.event_type === typeFilter : true;
 
     const matchesSubcategory = subcategoryFilter
       ? event.event_subcategory === subcategoryFilter
@@ -252,7 +285,8 @@ function EventManagement() {
       <h2>Event Management</h2>
 
       <p style={{ marginBottom: "18px", color: "#64748b" }}>
-        Gestisci macro aree, sottocategorie, venue, date e visibilità degli eventi.
+        Gestisci macro aree, sottocategorie, immagini, loghi, venue, date e
+        visibilità degli eventi.
       </p>
 
       {message && <div className="success">{message}</div>}
@@ -281,9 +315,7 @@ function EventManagement() {
 
         <select
           value={form.event_subcategory}
-          onChange={(e) =>
-            updateForm("event_subcategory", e.target.value)
-          }
+          onChange={(e) => updateForm("event_subcategory", e.target.value)}
         >
           {getSubcategories(form.event_type).map((subcategory) => (
             <option key={subcategory} value={subcategory}>
@@ -319,6 +351,20 @@ function EventManagement() {
           onChange={(e) => updateForm("country", e.target.value)}
         />
 
+        <input
+          type="url"
+          placeholder="Image URL evento"
+          value={form.image_url}
+          onChange={(e) => updateForm("image_url", e.target.value)}
+        />
+
+        <input
+          type="url"
+          placeholder="Logo URL competizione/artista"
+          value={form.logo_url}
+          onChange={(e) => updateForm("logo_url", e.target.value)}
+        />
+
         <select
           value={form.status}
           onChange={(e) => updateForm("status", e.target.value)}
@@ -347,6 +393,10 @@ function EventManagement() {
           Crea evento
         </button>
       </form>
+
+      {(form.image_url || form.logo_url || form.name) && (
+        <EventPreview event={form} />
+      )}
 
       <div className="filters-bar">
         <select
@@ -391,6 +441,7 @@ function EventManagement() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Preview</th>
             <th>Macro area</th>
             <th>Sottocategoria</th>
             <th>Evento</th>
@@ -398,6 +449,8 @@ function EventManagement() {
             <th>Venue</th>
             <th>Città</th>
             <th>Paese</th>
+            <th>Image URL</th>
+            <th>Logo URL</th>
             <th>Status</th>
             <th>Visibility</th>
             <th>Azioni</th>
@@ -408,6 +461,10 @@ function EventManagement() {
           {filteredEvents.map((event) => (
             <tr key={event.id}>
               <td>{event.id}</td>
+
+              <td>
+                <EventPreview event={event} />
+              </td>
 
               <td>
                 {editingId === event.id ? (
@@ -433,10 +490,7 @@ function EventManagement() {
                   <select
                     value={editForm.event_subcategory}
                     onChange={(e) =>
-                      updateEditForm(
-                        "event_subcategory",
-                        e.target.value
-                      )
+                      updateEditForm("event_subcategory", e.target.value)
                     }
                   >
                     {getSubcategories(editForm.event_type).map(
@@ -457,9 +511,7 @@ function EventManagement() {
                   <input
                     className="table-input"
                     value={editForm.name}
-                    onChange={(e) =>
-                      updateEditForm("name", e.target.value)
-                    }
+                    onChange={(e) => updateEditForm("name", e.target.value)}
                   />
                 ) : (
                   event.name
@@ -486,9 +538,7 @@ function EventManagement() {
                   <input
                     className="table-input"
                     value={editForm.venue}
-                    onChange={(e) =>
-                      updateEditForm("venue", e.target.value)
-                    }
+                    onChange={(e) => updateEditForm("venue", e.target.value)}
                   />
                 ) : (
                   event.venue || "-"
@@ -500,9 +550,7 @@ function EventManagement() {
                   <input
                     className="table-input"
                     value={editForm.city}
-                    onChange={(e) =>
-                      updateEditForm("city", e.target.value)
-                    }
+                    onChange={(e) => updateEditForm("city", e.target.value)}
                   />
                 ) : (
                   event.city || "-"
@@ -514,12 +562,48 @@ function EventManagement() {
                   <input
                     className="table-input"
                     value={editForm.country}
-                    onChange={(e) =>
-                      updateEditForm("country", e.target.value)
-                    }
+                    onChange={(e) => updateEditForm("country", e.target.value)}
                   />
                 ) : (
                   event.country || "-"
+                )}
+              </td>
+
+              <td>
+                {editingId === event.id ? (
+                  <input
+                    className="table-input"
+                    type="url"
+                    value={editForm.image_url}
+                    onChange={(e) =>
+                      updateEditForm("image_url", e.target.value)
+                    }
+                  />
+                ) : event.image_url ? (
+                  <a href={event.image_url} target="_blank" rel="noreferrer">
+                    Apri
+                  </a>
+                ) : (
+                  "-"
+                )}
+              </td>
+
+              <td>
+                {editingId === event.id ? (
+                  <input
+                    className="table-input"
+                    type="url"
+                    value={editForm.logo_url}
+                    onChange={(e) =>
+                      updateEditForm("logo_url", e.target.value)
+                    }
+                  />
+                ) : event.logo_url ? (
+                  <a href={event.logo_url} target="_blank" rel="noreferrer">
+                    Apri
+                  </a>
+                ) : (
+                  "-"
                 )}
               </td>
 

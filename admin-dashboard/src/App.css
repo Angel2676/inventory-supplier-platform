@@ -720,3 +720,53 @@ body {
   transform: translateY(-2px);
   background: #16a34a;
 }
+.event-preview-card {
+  width: 220px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.event-preview-image {
+  height: 92px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.event-preview-logo {
+  position: absolute;
+  left: 12px;
+  bottom: -18px;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  background: white;
+  border-radius: 12px;
+  padding: 5px;
+  border: 1px solid #e5e7eb;
+}
+
+.event-preview-info {
+  padding: 24px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-preview-info strong {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.event-preview-info span {
+  color: #475569;
+  font-size: 12px;
+}
+
+.event-preview-info small {
+  color: #64748b;
+  font-size: 11px;
+}
