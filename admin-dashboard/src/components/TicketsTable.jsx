@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import EventInventoryCards from "./EventInventoryCards";
 
 const EVENT_TYPES = [
   {
@@ -241,6 +242,26 @@ function TicketsTable({ canEdit = true }) {
 
   const availableSubcategories = typeFilter ? getSubcategories(typeFilter) : [];
 
+  const filteredEventsForCards = events.filter((event) => {
+    const matchesType = typeFilter ? event.event_type === typeFilter : true;
+
+    const matchesSubcategory = subcategoryFilter
+      ? event.event_subcategory === subcategoryFilter
+      : true;
+
+    const matchesEvent = eventFilter
+      ? Number(event.id) === Number(eventFilter)
+      : true;
+
+    const eventTickets = tickets.filter(
+      (ticket) => Number(ticket.event_id) === Number(event.id)
+    );
+
+    const hasTickets = eventTickets.length > 0;
+
+    return matchesType && matchesSubcategory && matchesEvent && hasTickets;
+  });
+
   const filteredTickets = tickets
     .filter((ticket) => {
       const eventName = getEventName(ticket.event_id);
@@ -368,6 +389,20 @@ function TicketsTable({ canEdit = true }) {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
+
+      {!canEdit && (
+        <EventInventoryCards
+          events={filteredEventsForCards}
+          tickets={tickets}
+          onSelectEvent={(eventId) => {
+            setEventFilter(String(eventId));
+            window.scrollTo({
+              top: document.body.scrollHeight,
+              behavior: "smooth"
+            });
+          }}
+        />
+      )}
 
       <table className="tickets-table">
         <thead>
