@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+
 import EventInventoryCards from "./EventInventoryCards";
 import EventCategoryBanners from "./EventCategoryBanners";
+import EventDetailModal from "./EventDetailModal";
 
 const EVENT_TYPES = [
   {
@@ -35,14 +37,21 @@ const EVENT_TYPES = [
 function TicketsTable({ canEdit = true }) {
   const [tickets, setTickets] = useState([]);
   const [events, setEvents] = useState([]);
+
   const [search, setSearch] = useState("");
   const [eventFilter, setEventFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [subcategoryFilter, setSubcategoryFilter] = useState("");
+
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   const [sortDirection, setSortDirection] = useState("asc");
+
   const [editingId, setEditingId] = useState(null);
+
   const [requestQuantities, setRequestQuantities] = useState({});
   const [requestNotes, setRequestNotes] = useState({});
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -55,10 +64,11 @@ function TicketsTable({ canEdit = true }) {
   async function loadTickets() {
     try {
       const response = await api.get("/api/tickets");
+
       setTickets(response.data.tickets || []);
       setError("");
     } catch (err) {
-      console.error("Errore caricamento tickets:", err);
+      console.error(err);
       setError("Errore caricamento tickets");
     }
   }
@@ -68,7 +78,7 @@ function TicketsTable({ canEdit = true }) {
       const response = await api.get("/api/events");
       setEvents(response.data || []);
     } catch (err) {
-      console.error("Errore caricamento eventi:", err);
+      console.error(err);
     }
   }
 
@@ -115,6 +125,7 @@ function TicketsTable({ canEdit = true }) {
 
   function formatDate(value) {
     if (!value) return "-";
+
     return new Date(value).toLocaleString();
   }
 
@@ -155,9 +166,10 @@ function TicketsTable({ canEdit = true }) {
       });
 
       setEditingId(null);
+
       await loadTickets();
     } catch (err) {
-      console.error("Errore aggiornamento ticket:", err);
+      console.error(err);
       setError("Errore aggiornamento ticket");
     }
   }
@@ -167,9 +179,10 @@ function TicketsTable({ canEdit = true }) {
 
     try {
       await api.delete(`/api/tickets/${ticketId}`);
+
       await loadTickets();
     } catch (err) {
-      console.error("Errore eliminazione ticket:", err);
+      console.error(err);
       setError("Errore eliminazione ticket");
     }
   }
@@ -210,9 +223,7 @@ function TicketsTable({ canEdit = true }) {
         quantity,
         notes:
           requestNotes[ticket.id] ||
-          `Richiesta inviata da Tickets Inventory per ${getEventName(
-            ticket.event_id
-          )}`
+          `Richiesta inviata per ${getEventName(ticket.event_id)}`
       });
 
       setMessage("Richiesta tickets inviata correttamente");
@@ -229,24 +240,22 @@ function TicketsTable({ canEdit = true }) {
 
       await loadTickets();
     } catch (err) {
-      console.error("Errore richiesta ticket:", err);
+      console.error(err);
 
       const data = err.response?.data;
 
-      if (data?.effectively_available !== undefined) {
-        setError(
-          `${data.error}. Disponibili: ${data.available_quantity}, già in pending: ${data.pending_quantity}, realmente disponibili: ${data.effectively_available}`
-        );
-      } else {
-        setError(data?.error || "Errore invio richiesta ticket");
-      }
+      setError(data?.error || "Errore invio richiesta ticket");
     }
   }
 
-  const availableSubcategories = typeFilter ? getSubcategories(typeFilter) : [];
+  const availableSubcategories = typeFilter
+    ? getSubcategories(typeFilter)
+    : [];
 
   const filteredEventsForCards = events.filter((event) => {
-    const matchesType = typeFilter ? event.event_type === typeFilter : true;
+    const matchesType = typeFilter
+      ? event.event_type === typeFilter
+      : true;
 
     const matchesSubcategory = subcategoryFilter
       ? event.event_subcategory === subcategoryFilter
@@ -256,35 +265,26 @@ function TicketsTable({ canEdit = true }) {
       ? Number(event.id) === Number(eventFilter)
       : true;
 
-    const eventTickets = tickets.filter(
+    const hasTickets = tickets.some(
       (ticket) => Number(ticket.event_id) === Number(event.id)
     );
 
-    const hasTickets = eventTickets.length > 0;
-
-    return matchesType && matchesSubcategory && matchesEvent && hasTickets;
+    return (
+      matchesType &&
+      matchesSubcategory &&
+      matchesEvent &&
+      hasTickets
+    );
   });
 
   const filteredTickets = tickets
     .filter((ticket) => {
       const eventName = getEventName(ticket.event_id);
-      const eventDate = getEventDate(ticket.event_id);
-      const eventType = getEventType(ticket.event_id);
-      const eventSubcategory = getEventSubcategory(ticket.event_id);
 
       const text = `
-        ${ticket.id || ""}
-        ${ticket.event_id || ""}
         ${eventName || ""}
-        ${eventDate || ""}
-        ${eventType || ""}
-        ${eventSubcategory || ""}
-        ${ticket.supplier_ticket_id || ""}
         ${ticket.category || ""}
         ${ticket.block || ""}
-        ${ticket.row_name || ""}
-        ${ticket.seat_from || ""}
-        ${ticket.seat_to || ""}
         ${ticket.status || ""}
       `.toLowerCase();
 
@@ -294,13 +294,20 @@ function TicketsTable({ canEdit = true }) {
         ? Number(ticket.event_id) === Number(eventFilter)
         : true;
 
-      const matchesType = typeFilter ? eventType === typeFilter : true;
-
-      const matchesSubcategory = subcategoryFilter
-        ? eventSubcategory === subcategoryFilter
+      const matchesType = typeFilter
+        ? getEventType(ticket.event_id) === typeFilter
         : true;
 
-      return matchesSearch && matchesEvent && matchesType && matchesSubcategory;
+      const matchesSubcategory = subcategoryFilter
+        ? getEventSubcategory(ticket.event_id) === subcategoryFilter
+        : true;
+
+      return (
+        matchesSearch &&
+        matchesEvent &&
+        matchesType &&
+        matchesSubcategory
+      );
     })
     .sort((a, b) => {
       const dateA = getEventTime(a.event_id);
@@ -315,10 +322,59 @@ function TicketsTable({ canEdit = true }) {
 
   return (
     <div className="section">
-      <h2>{canEdit ? "Tickets Inventory" : "Inventory disponibile"}</h2>
+      <h2>
+        {canEdit
+          ? "Tickets Inventory"
+          : "Inventory disponibile"}
+      </h2>
 
-      {message && <div className="success-message">{message}</div>}
+      {message && (
+        <div className="success-message">{message}</div>
+      )}
+
       {error && <div className="error">{error}</div>}
+
+      {!canEdit && (
+        <>
+          <EventCategoryBanners
+            onSelectType={(type) => {
+              setTypeFilter(type);
+              setSubcategoryFilter("");
+              setEventFilter("");
+            }}
+          />
+
+          <EventInventoryCards
+            events={filteredEventsForCards}
+            tickets={tickets}
+            onSelectEvent={(eventId) => {
+              const event = events.find(
+                (item) => Number(item.id) === Number(eventId)
+              );
+
+              setSelectedEvent(event);
+            }}
+          />
+        </>
+      )}
+
+      {selectedEvent && (
+        <EventDetailModal
+          event={selectedEvent}
+          tickets={tickets}
+          onClose={() => setSelectedEvent(null)}
+          onViewTickets={() => {
+            setEventFilter(String(selectedEvent.id));
+
+            setSelectedEvent(null);
+
+            window.scrollTo({
+              top: document.body.scrollHeight,
+              behavior: "smooth"
+            });
+          }}
+        />
+      )}
 
       <div className="filters-bar">
         <select
@@ -356,90 +412,41 @@ function TicketsTable({ canEdit = true }) {
         </select>
 
         <select
-          value={eventFilter}
-          onChange={(e) => setEventFilter(e.target.value)}
-        >
-          <option value="">Tutti gli eventi</option>
-
-          {events
-            .filter((event) => {
-              const matchesType = typeFilter
-                ? event.event_type === typeFilter
-                : true;
-
-              const matchesSubcategory = subcategoryFilter
-                ? event.event_subcategory === subcategoryFilter
-                : true;
-
-              return matchesType && matchesSubcategory;
-            })
-            .map((event) => (
-              <option key={event.id} value={event.id}>
-                {event.name} — ID {event.id}
-              </option>
-            ))}
-        </select>
-
-        <select
           value={sortDirection}
           onChange={(e) => setSortDirection(e.target.value)}
         >
-          <option value="asc">Data evento: più vicina</option>
-          <option value="desc">Data evento: più lontana</option>
+          <option value="asc">
+            Data evento: più vicina
+          </option>
+
+          <option value="desc">
+            Data evento: più lontana
+          </option>
         </select>
 
         <input
           type="text"
-          placeholder="Cerca ticket, evento, categoria, blocco, status..."
+          placeholder="Cerca ticket, evento, categoria..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {!canEdit && (
-        <>
-          <EventCategoryBanners
-            onSelectType={(type) => {
-              setTypeFilter(type);
-              setSubcategoryFilter("");
-              setEventFilter("");
-            }}
-          />
-
-          <EventInventoryCards
-            events={filteredEventsForCards}
-            tickets={tickets}
-            onSelectEvent={(eventId) => {
-              setEventFilter(String(eventId));
-              window.scrollTo({
-                top: document.body.scrollHeight,
-                behavior: "smooth"
-              });
-            }}
-          />
-        </>
-      )}
-
       <table className="tickets-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Macro area</th>
-            <th>Sottocategoria</th>
             <th>Evento</th>
             <th>Data evento</th>
-            <th>Supplier Ticket</th>
-            <th>Category</th>
+            <th>Categoria</th>
             <th>Block</th>
-            <th>Row</th>
-            <th>Seats</th>
-            <th>Quantity</th>
             <th>Available</th>
-            {canEdit && <th>Low Stock</th>}
-            <th>Prezzo unitario</th>
-            {!canEdit && <th>Quantità richiesta</th>}
-            {!canEdit && <th>Note richiesta</th>}
+            <th>Prezzo</th>
+
+            {!canEdit && <th>Qty</th>}
+            {!canEdit && <th>Note</th>}
             {!canEdit && <th>Totale</th>}
+
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -447,82 +454,35 @@ function TicketsTable({ canEdit = true }) {
 
         <tbody>
           {filteredTickets.map((ticket) => {
-            const requestQuantity = Number(requestQuantities[ticket.id] || 1);
-            const unitPrice = Number(ticket.final_price || ticket.price || 0);
-            const totalPrice = (unitPrice * requestQuantity).toFixed(2);
+            const requestQuantity = Number(
+              requestQuantities[ticket.id] || 1
+            );
+
+            const unitPrice = Number(
+              ticket.final_price || ticket.price || 0
+            );
+
+            const totalPrice = (
+              unitPrice * requestQuantity
+            ).toFixed(2);
 
             return (
               <tr key={ticket.id}>
                 <td>{ticket.id}</td>
-                <td>{getTypeLabel(getEventType(ticket.event_id))}</td>
-                <td>{getEventSubcategory(ticket.event_id) || "-"}</td>
+
                 <td>{getEventName(ticket.event_id)}</td>
-                <td>{formatDate(getEventDate(ticket.event_id))}</td>
-                <td>{ticket.supplier_ticket_id}</td>
+
+                <td>
+                  {formatDate(getEventDate(ticket.event_id))}
+                </td>
+
                 <td>{ticket.category}</td>
+
                 <td>{ticket.block || "-"}</td>
-                <td>{ticket.row_name || "-"}</td>
-                <td>
-                  {ticket.seat_from || "-"} - {ticket.seat_to || "-"}
-                </td>
-                <td>{ticket.quantity}</td>
 
-                <td>
-                  {editingId === ticket.id ? (
-                    <input
-                      className="table-input"
-                      type="number"
-                      value={editForm.available_quantity}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          available_quantity: e.target.value
-                        })
-                      }
-                    />
-                  ) : (
-                    ticket.available_quantity
-                  )}
-                </td>
+                <td>{ticket.available_quantity}</td>
 
-                {canEdit && (
-                  <td>
-                    {editingId === ticket.id ? (
-                      <input
-                        className="table-input"
-                        type="number"
-                        value={editForm.low_stock_threshold}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            low_stock_threshold: e.target.value
-                          })
-                        }
-                      />
-                    ) : (
-                      ticket.low_stock_threshold
-                    )}
-                  </td>
-                )}
-
-                <td>
-                  {editingId === ticket.id ? (
-                    <input
-                      className="table-input"
-                      type="number"
-                      step="0.01"
-                      value={editForm.price}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          price: e.target.value
-                        })
-                      }
-                    />
-                  ) : (
-                    `€ ${unitPrice.toFixed(2)}`
-                  )}
-                </td>
+                <td>€ {unitPrice.toFixed(2)}</td>
 
                 {!canEdit && (
                   <td>
@@ -531,9 +491,14 @@ function TicketsTable({ canEdit = true }) {
                       type="number"
                       min="1"
                       max={ticket.available_quantity}
-                      value={requestQuantities[ticket.id] || 1}
+                      value={
+                        requestQuantities[ticket.id] || 1
+                      }
                       onChange={(e) =>
-                        updateRequestQuantity(ticket.id, e.target.value)
+                        updateRequestQuantity(
+                          ticket.id,
+                          e.target.value
+                        )
                       }
                     />
                   </td>
@@ -545,9 +510,14 @@ function TicketsTable({ canEdit = true }) {
                       className="table-input"
                       type="text"
                       placeholder="Note per admin..."
-                      value={requestNotes[ticket.id] || ""}
+                      value={
+                        requestNotes[ticket.id] || ""
+                      }
                       onChange={(e) =>
-                        updateRequestNote(ticket.id, e.target.value)
+                        updateRequestNote(
+                          ticket.id,
+                          e.target.value
+                        )
                       }
                     />
                   </td>
@@ -560,53 +530,42 @@ function TicketsTable({ canEdit = true }) {
                 )}
 
                 <td>
-                  <span className={`status-badge status-${ticket.status}`}>
+                  <span
+                    className={`status-badge status-${ticket.status}`}
+                  >
                     {ticket.status}
                   </span>
                 </td>
 
                 <td className="actions-cell">
                   {canEdit ? (
-                    editingId === ticket.id ? (
-                      <>
-                        <button
-                          className="btn btn-save"
-                          onClick={() => saveEdit(ticket.id)}
-                        >
-                          Salva
-                        </button>
+                    <>
+                      <button
+                        className="btn btn-edit"
+                        onClick={() => startEdit(ticket)}
+                      >
+                        Modifica
+                      </button>
 
-                        <button
-                          className="btn btn-secondary"
-                          onClick={cancelEdit}
-                        >
-                          Annulla
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          className="btn btn-edit"
-                          onClick={() => startEdit(ticket)}
-                        >
-                          Modifica
-                        </button>
-
-                        <button
-                          className="btn btn-delete"
-                          onClick={() => deleteTicket(ticket.id)}
-                        >
-                          Elimina
-                        </button>
-                      </>
-                    )
+                      <button
+                        className="btn btn-delete"
+                        onClick={() =>
+                          deleteTicket(ticket.id)
+                        }
+                      >
+                        Elimina
+                      </button>
+                    </>
                   ) : (
                     <button
                       className="btn btn-save"
-                      onClick={() => requestTicket(ticket)}
+                      onClick={() =>
+                        requestTicket(ticket)
+                      }
                       disabled={
-                        Number(ticket.available_quantity) <= 0 ||
-                        ticket.status !== "available"
+                        Number(
+                          ticket.available_quantity
+                        ) <= 0
                       }
                     >
                       Richiedi tickets
