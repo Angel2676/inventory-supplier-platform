@@ -1,4 +1,4 @@
-async function sendEmail({ to, subject, text, html }) {
+async function sendEmail({ to, subject, text, html, attachments = [] }) {
   if (!process.env.RESEND_API_KEY) {
     console.log("Email non inviata: RESEND_API_KEY non configurata", {
       to,
@@ -8,19 +8,30 @@ async function sendEmail({ to, subject, text, html }) {
   }
 
   try {
+    const payload = {
+      from:
+        process.env.EMAIL_FROM ||
+        "Inventory Supplier <noreply@sportmaniatravel.net>",
+      to,
+      subject,
+      text,
+      html
+    };
+
+    if (attachments.length > 0) {
+      payload.attachments = attachments.map((attachment) => ({
+        filename: attachment.filename,
+        content: attachment.content.toString("base64")
+      }));
+    }
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM || "Inventory Supplier <onboarding@resend.dev>",
-        to,
-        subject,
-        text,
-        html
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();
