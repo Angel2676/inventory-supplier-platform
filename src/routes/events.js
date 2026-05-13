@@ -8,8 +8,6 @@ const requireRole = require("../middleware/requireRole");
 
 /**
  * GET /api/events
- * super_admin e sales_manager vedono tutti gli eventi non deleted.
- * Partner vede solo eventi autorizzati, active e public.
  */
 router.get("/", authJwt, async (req, res) => {
   try {
@@ -62,7 +60,6 @@ router.get("/", authJwt, async (req, res) => {
 
 /**
  * POST /api/events
- * super_admin + sales_manager
  */
 router.post(
   "/",
@@ -76,10 +73,10 @@ router.post(
         venue,
         city,
         country,
-
         event_type,
         event_subcategory,
-
+        image_url,
+        logo_url,
         status = "active",
         visibility = "public",
         notes
@@ -99,32 +96,31 @@ router.post(
           venue,
           city,
           country,
-
           event_type,
           event_subcategory,
-
+          image_url,
+          logo_url,
           status,
           visibility,
           notes
         )
         VALUES (
           $1,$2,$3,$4,$5,
-          $6,$7,
-          $8,$9,$10
+          $6,$7,$8,$9,
+          $10,$11,$12
         )
         RETURNING *
         `,
         [
           name,
-
           event_date || null,
           venue || null,
           city || null,
           country || null,
-
           event_type || null,
           event_subcategory || null,
-
+          image_url || null,
+          logo_url || null,
           status,
           visibility,
           notes || null
@@ -147,7 +143,6 @@ router.post(
 
 /**
  * PATCH /api/events/:id
- * super_admin + sales_manager
  */
 router.patch(
   "/:id",
@@ -163,10 +158,10 @@ router.patch(
         venue,
         city,
         country,
-
         event_type,
         event_subcategory,
-
+        image_url,
+        logo_url,
         status,
         visibility,
         notes
@@ -181,16 +176,14 @@ router.patch(
           venue = COALESCE($3, venue),
           city = COALESCE($4, city),
           country = COALESCE($5, country),
-
           event_type = COALESCE($6, event_type),
           event_subcategory = COALESCE($7, event_subcategory),
-
-          status = COALESCE($8, status),
-          visibility = COALESCE($9, visibility),
-          notes = COALESCE($10, notes)
-
-        WHERE id = $11
-
+          image_url = COALESCE($8, image_url),
+          logo_url = COALESCE($9, logo_url),
+          status = COALESCE($10, status),
+          visibility = COALESCE($11, visibility),
+          notes = COALESCE($12, notes)
+        WHERE id = $13
         RETURNING *
         `,
         [
@@ -199,14 +192,13 @@ router.patch(
           venue || null,
           city || null,
           country || null,
-
           event_type || null,
           event_subcategory || null,
-
+          image_url || null,
+          logo_url || null,
           status || null,
           visibility || null,
           notes || null,
-
           eventId
         ]
       );
@@ -233,7 +225,6 @@ router.patch(
 
 /**
  * DELETE /api/events/:id
- * soft delete
  */
 router.delete(
   "/:id",
