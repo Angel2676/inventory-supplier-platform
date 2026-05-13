@@ -8,6 +8,28 @@ async function sendEmail({ to, subject, text, html, attachments = [] }) {
   }
 
   try {
+    const normalizedAttachments = attachments.map((attachment) => {
+      const isBuffer = Buffer.isBuffer(attachment.content);
+
+      return {
+        filename: attachment.filename,
+        content: isBuffer
+          ? attachment.content.toString("base64")
+          : attachment.content,
+        content_type: attachment.content_type || "application/pdf"
+      };
+    });
+
+    console.log("Invio email Resend:", {
+      to,
+      subject,
+      attachments: normalizedAttachments.map((a) => ({
+        filename: a.filename,
+        content_type: a.content_type,
+        content_length: a.content?.length || 0
+      }))
+    });
+
     const payload = {
       from:
         process.env.EMAIL_FROM ||
@@ -18,11 +40,8 @@ async function sendEmail({ to, subject, text, html, attachments = [] }) {
       html
     };
 
-    if (attachments.length > 0) {
-      payload.attachments = attachments.map((attachment) => ({
-        filename: attachment.filename,
-        content: attachment.content.toString("base64")
-      }));
+    if (normalizedAttachments.length > 0) {
+      payload.attachments = normalizedAttachments;
     }
 
     const response = await fetch("https://api.resend.com/emails", {
@@ -44,7 +63,8 @@ async function sendEmail({ to, subject, text, html, attachments = [] }) {
     console.log("Email inviata con Resend:", {
       to,
       subject,
-      id: data.id
+      id: data.id,
+      attachments_count: normalizedAttachments.length
     });
   } catch (error) {
     console.error("Errore sendEmail Resend:", error);
