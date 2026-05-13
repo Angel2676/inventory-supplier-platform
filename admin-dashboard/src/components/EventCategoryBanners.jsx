@@ -3,19 +3,22 @@ function EventCategoryBanners({ onSelectType }) {
     {
       type: "football",
       title: "Football Events",
-      subtitle: "Serie A, Premier League, Champions League and top European matches.",
+      subtitle:
+        "Serie A, Premier League, Champions League and top European matches.",
       label: "Explore football"
     },
     {
       type: "concert",
       title: "Live Concerts",
-      subtitle: "Italian and international concerts with real-time ticket availability.",
+      subtitle:
+        "Italian and international concerts with real-time ticket availability.",
       label: "Explore concerts"
     },
     {
       type: "formula_1",
       title: "Formula 1",
-      subtitle: "Grand Prix inventory and premium motorsport ticket access.",
+      subtitle:
+        "Grand Prix inventory and premium motorsport ticket access.",
       label: "Explore F1"
     }
   ];

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import EventInventoryCards from "./EventInventoryCards";
 import EventCategoryBanners from "./EventCategoryBanners";
+
 const EVENT_TYPES = [
   {
     value: "football",
@@ -119,7 +120,9 @@ function TicketsTable({ canEdit = true }) {
 
   function getEventTime(eventId) {
     const eventDate = getEventDate(eventId);
+
     if (!eventDate) return Number.MAX_SAFE_INTEGER;
+
     return new Date(eventDate).getTime();
   }
 
@@ -327,6 +330,7 @@ function TicketsTable({ canEdit = true }) {
           }}
         >
           <option value="">Tutte le macro aree</option>
+
           {EVENT_TYPES.map((type) => (
             <option key={type.value} value={type.value}>
               {type.label}
@@ -343,6 +347,7 @@ function TicketsTable({ canEdit = true }) {
           disabled={!typeFilter}
         >
           <option value="">Tutte le sottocategorie</option>
+
           {availableSubcategories.map((subcategory) => (
             <option key={subcategory} value={subcategory}>
               {subcategory}
@@ -355,6 +360,7 @@ function TicketsTable({ canEdit = true }) {
           onChange={(e) => setEventFilter(e.target.value)}
         >
           <option value="">Tutti gli eventi</option>
+
           {events
             .filter((event) => {
               const matchesType = typeFilter
@@ -391,26 +397,27 @@ function TicketsTable({ canEdit = true }) {
       </div>
 
       {!canEdit && (
-        {!canEdit && (
-        <EventCategoryBanners
-          onSelectType={(type) => {
-            setTypeFilter(type);
-            setSubcategoryFilter("");
-            setEventFilter("");
-          }}
-        />
-      )}
-        <EventInventoryCards
-          events={filteredEventsForCards}
-          tickets={tickets}
-          onSelectEvent={(eventId) => {
-            setEventFilter(String(eventId));
-            window.scrollTo({
-              top: document.body.scrollHeight,
-              behavior: "smooth"
-            });
-          }}
-        />
+        <>
+          <EventCategoryBanners
+            onSelectType={(type) => {
+              setTypeFilter(type);
+              setSubcategoryFilter("");
+              setEventFilter("");
+            }}
+          />
+
+          <EventInventoryCards
+            events={filteredEventsForCards}
+            tickets={tickets}
+            onSelectEvent={(eventId) => {
+              setEventFilter(String(eventId));
+              window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: "smooth"
+              });
+            }}
+          />
+        </>
       )}
 
       <table className="tickets-table">
