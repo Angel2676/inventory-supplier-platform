@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import EventInventoryCards from "./EventInventoryCards";
-
+import EventCategoryBanners from "./EventCategoryBanners";
 const EVENT_TYPES = [
   {
     value: "football",
@@ -391,6 +391,15 @@ function TicketsTable({ canEdit = true }) {
       </div>
 
       {!canEdit && (
+        {!canEdit && (
+        <EventCategoryBanners
+          onSelectType={(type) => {
+            setTypeFilter(type);
+            setSubcategoryFilter("");
+            setEventFilter("");
+          }}
+        />
+      )}
         <EventInventoryCards
           events={filteredEventsForCards}
           tickets={tickets}
