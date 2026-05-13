@@ -1,18 +1,20 @@
-const generateReservationPdf = require("../services/generateReservationPdf");
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 
 const router = express.Router();
 
 const pool = require("../db");
+
 const authJwt = require("../middleware/authJwt");
 const requireRole = require("../middleware/requireRole");
+
 const createAuditLog = require("../services/auditLogService");
 const sendEmail = require("../services/emailService");
 const { createNotification } = require("../services/notificationService");
+const generateReservationPdf = require("../services/generateReservationPdf");
 
 /**
- * Partner/client crea una richiesta ticket pending.
+ * Partner/client crea richiesta ticket
  */
 router.post("/", authJwt, async (req, res) => {
   const client = await pool.connect();
@@ -40,6 +42,7 @@ router.post("/", authJwt, async (req, res) => {
 
     if (ticketResult.rows.length === 0) {
       await client.query("ROLLBACK");
+
       return res.status(404).json({
         error: "Ticket non trovato"
       });
@@ -49,6 +52,7 @@ router.post("/", authJwt, async (req, res) => {
 
     if (ticket.status !== "available") {
       await client.query("ROLLBACK");
+
       return res.status(400).json({
         error: "Ticket non disponibile"
       });
@@ -65,11 +69,13 @@ router.post("/", authJwt, async (req, res) => {
     );
 
     const pendingQuantity = pendingResult.rows[0].pending_quantity;
+
     const effectivelyAvailable =
-      Number(ticket.available_quantity) - Number(pendingQuantity);
+      ticket.available_quantity - pendingQuantity;
 
     if (effectivelyAvailable < Number(quantity)) {
       await client.query("ROLLBACK");
+
       return res.status(400).json({
         error: "Quantità non disponibile considerando richieste pending",
         available_quantity: ticket.available_quantity,
@@ -106,8 +112,7 @@ router.post("/", authJwt, async (req, res) => {
       metadata: {
         user_id: req.user.id,
         ticket_id: Number(ticket_id),
-        quantity: Number(quantity),
-        notes: notes || null
+        quantity: Number(quantity)
       }
     });
 
@@ -115,7 +120,7 @@ router.post("/", authJwt, async (req, res) => {
       role_target: "super_admin",
       type: "TICKET_REQUEST_CREATED",
       title: "Nuova richiesta ticket",
-      message: `Nuova richiesta ticket creata dal partner user_id ${req.user.id}`,
+      message: `Nuova richiesta ticket dal partner ${req.user.id}`,
       metadata: {
         user_id: req.user.id,
         ticket_id: Number(ticket_id),
@@ -143,9 +148,7 @@ router.post("/", authJwt, async (req, res) => {
 });
 
 /**
- * Super admin vede tutte le richieste.
- * Partner vede solo le proprie.
- * Include nome evento e data evento.
+ * GET richieste
  */
 router.get("/", authJwt, async (req, res) => {
   try {
@@ -160,14 +163,19 @@ router.get("/", authJwt, async (req, res) => {
         tickets.supplier_ticket_id,
         tickets.category,
         tickets.block,
+        tickets.row_name,
+        tickets.seat_from,
+        tickets.seat_to,
         tickets.price,
         tickets.currency,
 
         events.name AS event_name,
         events.event_date,
+        events.venue,
+        events.city,
+        events.country,
         events.event_type,
         events.event_subcategory
-
 
       FROM ticket_requests
 
@@ -187,13 +195,12 @@ router.get("/", authJwt, async (req, res) => {
       query += `
         WHERE ticket_requests.user_id = $1
       `;
+
       values.push(req.user.id);
     }
 
     query += `
-      ORDER BY
-        events.event_date ASC NULLS LAST,
-        ticket_requests.id DESC
+      ORDER BY ticket_requests.id DESC
       LIMIT 100
     `;
 
@@ -210,8 +217,7 @@ router.get("/", authJwt, async (req, res) => {
 });
 
 /**
- * Super admin approva richiesta.
- * Crea automaticamente una reservation confirmed.
+ * APPROVA richiesta
  */
 router.patch(
   "/:id/approve",
@@ -237,6 +243,7 @@ router.patch(
 
       if (requestResult.rows.length === 0) {
         await client.query("ROLLBACK");
+
         return res.status(404).json({
           error: "Richiesta non trovata"
         });
@@ -246,15 +253,15 @@ router.patch(
 
       if (request.status !== "pending") {
         await client.query("ROLLBACK");
+
         return res.status(400).json({
-          error: "Richiesta non approvabile",
-          current_status: request.status
+          error: "Richiesta non approvabile"
         });
       }
 
       const ticketResult = await client.query(
         `
-        SELECT id, available_quantity, status
+        SELECT *
         FROM tickets
         WHERE id = $1
         FOR UPDATE
@@ -262,20 +269,21 @@ router.patch(
         [request.ticket_id]
       );
 
-      const ticket = ticketResult.rows[0];
-
-      if (!ticket || ticket.status !== "available") {
+      if (ticketResult.rows.length === 0) {
         await client.query("ROLLBACK");
-        return res.status(400).json({
-          error: "Ticket non disponibile"
+
+        return res.status(404).json({
+          error: "Ticket non trovato"
         });
       }
 
-      if (Number(ticket.available_quantity) < Number(request.quantity)) {
+      const ticket = ticketResult.rows[0];
+
+      if (ticket.available_quantity < request.quantity) {
         await client.query("ROLLBACK");
+
         return res.status(400).json({
-          error: "Quantità non più disponibile",
-          available_quantity: ticket.available_quantity
+          error: "Quantità non disponibile"
         });
       }
 
@@ -335,6 +343,67 @@ router.patch(
         [req.user.id, requestId]
       );
 
+      const userResult = await client.query(
+        `
+        SELECT
+          id,
+          company_name,
+          contact_name,
+          email
+        FROM users
+        WHERE id = $1
+        `,
+        [request.user_id]
+      );
+
+      const requestUser = userResult.rows[0];
+
+      const detailsResult = await client.query(
+        `
+        SELECT
+          tickets.supplier_ticket_id,
+          tickets.category,
+          tickets.block,
+          tickets.row_name,
+          tickets.seat_from,
+          tickets.seat_to,
+          tickets.price,
+
+          events.name AS event_name,
+          events.event_date,
+          events.venue,
+          events.city,
+          events.country,
+          events.event_type,
+          events.event_subcategory
+
+        FROM tickets
+
+        LEFT JOIN events
+          ON events.id = tickets.event_id
+
+        WHERE tickets.id = $1
+        `,
+        [request.ticket_id]
+      );
+
+      const details = detailsResult.rows[0];
+
+      const pdfBuffer = await generateReservationPdf({
+        request_id: requestId,
+        reservation_code: reservationCode,
+        approved_at: new Date(),
+
+        company_name: requestUser.company_name,
+        contact_name: requestUser.contact_name,
+        email: requestUser.email,
+
+        quantity: request.quantity,
+        notes: request.notes,
+
+        ...details
+      });
+
       await client.query("COMMIT");
 
       await createAuditLog({
@@ -344,64 +413,70 @@ router.patch(
         resource_id: requestId.toString(),
         metadata: {
           approved_by: req.user.id,
-          user_id: request.user_id,
-          ticket_id: request.ticket_id,
-          quantity: request.quantity,
           reservation_code: reservationCode
-        }
-      });
-
-      await createAuditLog({
-        client_id: null,
-        action: "CREATE_RESERVATION_FROM_REQUEST",
-        resource_type: "reservation",
-        resource_id: reservationCode,
-        metadata: {
-          user_id: request.user_id,
-          ticket_id: request.ticket_id,
-          quantity: request.quantity,
-          ticket_request_id: requestId
         }
       });
 
       await createNotification({
         user_id: request.user_id,
         type: "TICKET_REQUEST_APPROVED",
-        title: "Richiesta ticket approvata",
-        message: `La tua richiesta ticket n. ${requestId} è stata approvata.`,
+        title: "Richiesta approvata",
+        message: `Richiesta ${requestId} approvata`,
         metadata: {
           request_id: requestId,
-          ticket_id: request.ticket_id,
-          quantity: request.quantity,
           reservation_code: reservationCode
         }
       });
 
-      const userResult = await pool.query(
-        `
-        SELECT email, company_name, contact_name
-        FROM users
-        WHERE id = $1
-        `,
-        [request.user_id]
-      );
-
-      const requestUser = userResult.rows[0];
-
       if (requestUser?.email) {
         await sendEmail({
           to: requestUser.email,
-          subject: "Richiesta tickets approvata",
-          text: `La tua richiesta tickets n. ${requestId} è stata approvata.`,
+
+          subject: "Reservation confirmation",
+
+          text: `
+La tua richiesta ticket è stata approvata.
+
+Reservation Code:
+${reservationCode}
+          `,
+
           html: `
-            <p>Gentile ${
-              requestUser.contact_name ||
-              requestUser.company_name ||
-              "Partner"
-            },</p>
-            <p>La tua richiesta tickets n. <strong>${requestId}</strong> è stata approvata.</p>
-            <p>Una reservation confermata è stata creata automaticamente nel tuo account.</p>
-          `
+            <div style="font-family: Arial, sans-serif;">
+              <h2>SportManiaTravel</h2>
+
+              <p>
+                Gentile ${
+                  requestUser.contact_name ||
+                  requestUser.company_name ||
+                  "Partner"
+                },
+              </p>
+
+              <p>
+                La tua richiesta ticket
+                <strong>#${requestId}</strong>
+                è stata approvata.
+              </p>
+
+              <p>
+                Reservation Code:
+                <strong>${reservationCode}</strong>
+              </p>
+
+              <p>
+                In allegato trovi il PDF ufficiale
+                con tutti i dettagli della reservation.
+              </p>
+            </div>
+          `,
+
+          attachments: [
+            {
+              filename: `reservation-${reservationCode}.pdf`,
+              content: pdfBuffer
+            }
+          ]
         });
       }
 
@@ -425,7 +500,7 @@ router.patch(
 );
 
 /**
- * Super admin rifiuta richiesta.
+ * RIFIUTA richiesta
  */
 router.patch(
   "/:id/reject",
@@ -434,6 +509,7 @@ router.patch(
   async (req, res) => {
     try {
       const requestId = req.params.id;
+
       const { rejection_reason } = req.body;
 
       const result = await pool.query(
@@ -457,135 +533,9 @@ router.patch(
 
       if (result.rows.length === 0) {
         return res.status(404).json({
-          error: "Richiesta non trovata o non più pending"
+          error: "Richiesta non trovata"
         });
       }
-
-      await createAuditLog({
-        client_id: null,
-        action: "REJECT_TICKET_REQUEST",
-        resource_type: "ticket_request",
-        resource_id: requestId.toString(),
-        metadata: {
-          rejected_by: req.user.id,
-          user_id: result.rows[0].user_id,
-          rejection_reason: rejection_reason || null
-        }
-      });
-
-      await createNotification({
-        user_id: result.rows[0].user_id,
-        type: "TICKET_REQUEST_REJECTED",
-        title: "Richiesta ticket rifiutata",
-        message: `La tua richiesta ticket n. ${requestId} è stata rifiutata.`,
-        metadata: {
-          request_id: requestId,
-          rejection_reason: rejection_reason || null
-        }
-      });
-
-      const userResult = await pool.query(
-        `
-        SELECT email, company_name, contact_name
-        FROM users
-        WHERE id = $1
-        `,
-        [result.rows[0].user_id]
-      );
-
-      const requestUser = userResult.rows[0];
-
-      if (requestUser?.email) {
-        const eventResult = await pool.query(
-    `
-    SELECT
-      events.name AS event_name,
-      events.event_date,
-      events.venue,
-      events.city,
-      events.country,
-      events.event_type,
-      events.event_subcategory,
-      tickets.supplier_ticket_id,
-      tickets.category,
-      tickets.block,
-      tickets.row_name,
-      tickets.seat_from,
-      tickets.seat_to,
-      tickets.price
-    FROM tickets
-    JOIN events ON events.id = tickets.event_id
-    WHERE tickets.id = $1
-    `,
-      [request.ticket_id]
-  );
-
-  const eventData = eventResult.rows[0];
-
-  const pdfBuffer = await generateReservationPdf({
-    request_id: requestId,
-    reservation_code: reservationCode,
-    approved_at: new Date(),
-
-    company_name: requestUser.company_name,
-    contact_name: requestUser.contact_name,
-    email: requestUser.email,
-
-    quantity: request.quantity,
-    notes: request.notes,
-
-    ...eventData
-  });
-
-  await sendEmail({
-    to: requestUser.email,
-
-    subject: "Richiesta tickets approvata",
-
-    text: `La tua richiesta tickets n. ${requestId} è stata approvata.`,
-
-    html: `
-      <div style="font-family: Arial, sans-serif;">
-        <h2>SportManiaTravel</h2>
-
-        <p>
-          Gentile ${
-            requestUser.contact_name ||
-            requestUser.company_name ||
-            "Partner"
-          },
-        </p>
-
-        <p>
-          La tua richiesta tickets n.
-          <strong>${requestId}</strong>
-          è stata approvata.
-        </p>
-
-        <p>
-          Reservation Code:
-          <strong>${reservationCode}</strong>
-        </p>
-
-        <p>
-          In allegato trovi il PDF ufficiale con tutti i dettagli della reservation.
-        </p>
-
-        <br />
-
-        <p>
-          SportManiaTravel Inventory Supplier Platform
-        </p>
-      </div>
-    `,
-
-    attachments: [
-      {
-        filename: `reservation-${reservationCode}.pdf`,
-        content: pdfBuffer
-      }
-    ]
-});
 
       res.json({
         message: "Richiesta rifiutata correttamente",
