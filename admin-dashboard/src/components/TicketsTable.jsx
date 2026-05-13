@@ -21,17 +21,12 @@ const EVENT_TYPES = [
   {
     value: "concert",
     label: "Concerti",
-    subcategories: [
-      "Concerti italiani",
-      "Concerti internazionali"
-    ]
+    subcategories: ["Concerti italiani", "Concerti internazionali"]
   },
   {
     value: "formula_1",
     label: "Formula 1",
-    subcategories: [
-      "Grand Prix"
-    ]
+    subcategories: ["Grand Prix"]
   }
 ];
 
@@ -45,6 +40,7 @@ function TicketsTable({ canEdit = true }) {
   const [sortDirection, setSortDirection] = useState("asc");
   const [editingId, setEditingId] = useState(null);
   const [requestQuantities, setRequestQuantities] = useState({});
+  const [requestNotes, setRequestNotes] = useState({});
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -96,30 +92,23 @@ function TicketsTable({ canEdit = true }) {
   }
 
   function getEventDate(eventId) {
-    const event = getEvent(eventId);
-    return event?.event_date || null;
+    return getEvent(eventId)?.event_date || null;
   }
 
   function getEventType(eventId) {
-    const event = getEvent(eventId);
-    return event?.event_type || "";
+    return getEvent(eventId)?.event_type || "";
   }
 
   function getEventSubcategory(eventId) {
-    const event = getEvent(eventId);
-    return event?.event_subcategory || "";
+    return getEvent(eventId)?.event_subcategory || "";
   }
 
   function getTypeLabel(type) {
-    return (
-      EVENT_TYPES.find((item) => item.value === type)?.label || "-"
-    );
+    return EVENT_TYPES.find((item) => item.value === type)?.label || "-";
   }
 
   function getSubcategories(type) {
-    return (
-      EVENT_TYPES.find((item) => item.value === type)?.subcategories || []
-    );
+    return EVENT_TYPES.find((item) => item.value === type)?.subcategories || [];
   }
 
   function formatDate(value) {
@@ -129,9 +118,7 @@ function TicketsTable({ canEdit = true }) {
 
   function getEventTime(eventId) {
     const eventDate = getEventDate(eventId);
-
     if (!eventDate) return Number.MAX_SAFE_INTEGER;
-
     return new Date(eventDate).getTime();
   }
 
@@ -190,6 +177,13 @@ function TicketsTable({ canEdit = true }) {
     });
   }
 
+  function updateRequestNote(ticketId, value) {
+    setRequestNotes({
+      ...requestNotes,
+      [ticketId]: value
+    });
+  }
+
   async function requestTicket(ticket) {
     setMessage("");
     setError("");
@@ -210,9 +204,11 @@ function TicketsTable({ canEdit = true }) {
       await api.post("/api/ticket-requests", {
         ticket_id: ticket.id,
         quantity,
-        notes: `Richiesta inviata da Tickets Inventory per ${getEventName(
-          ticket.event_id
-        )}`
+        notes:
+          requestNotes[ticket.id] ||
+          `Richiesta inviata da Tickets Inventory per ${getEventName(
+            ticket.event_id
+          )}`
       });
 
       setMessage("Richiesta tickets inviata correttamente");
@@ -220,6 +216,11 @@ function TicketsTable({ canEdit = true }) {
       setRequestQuantities({
         ...requestQuantities,
         [ticket.id]: 1
+      });
+
+      setRequestNotes({
+        ...requestNotes,
+        [ticket.id]: ""
       });
 
       await loadTickets();
@@ -238,9 +239,7 @@ function TicketsTable({ canEdit = true }) {
     }
   }
 
-  const availableSubcategories = typeFilter
-    ? getSubcategories(typeFilter)
-    : [];
+  const availableSubcategories = typeFilter ? getSubcategories(typeFilter) : [];
 
   const filteredTickets = tickets
     .filter((ticket) => {
@@ -271,20 +270,13 @@ function TicketsTable({ canEdit = true }) {
         ? Number(ticket.event_id) === Number(eventFilter)
         : true;
 
-      const matchesType = typeFilter
-        ? eventType === typeFilter
-        : true;
+      const matchesType = typeFilter ? eventType === typeFilter : true;
 
       const matchesSubcategory = subcategoryFilter
         ? eventSubcategory === subcategoryFilter
         : true;
 
-      return (
-        matchesSearch &&
-        matchesEvent &&
-        matchesType &&
-        matchesSubcategory
-      );
+      return matchesSearch && matchesEvent && matchesType && matchesSubcategory;
     })
     .sort((a, b) => {
       const dateA = getEventTime(a.event_id);
@@ -314,7 +306,6 @@ function TicketsTable({ canEdit = true }) {
           }}
         >
           <option value="">Tutte le macro aree</option>
-
           {EVENT_TYPES.map((type) => (
             <option key={type.value} value={type.value}>
               {type.label}
@@ -331,7 +322,6 @@ function TicketsTable({ canEdit = true }) {
           disabled={!typeFilter}
         >
           <option value="">Tutte le sottocategorie</option>
-
           {availableSubcategories.map((subcategory) => (
             <option key={subcategory} value={subcategory}>
               {subcategory}
@@ -344,7 +334,6 @@ function TicketsTable({ canEdit = true }) {
           onChange={(e) => setEventFilter(e.target.value)}
         >
           <option value="">Tutti gli eventi</option>
-
           {events
             .filter((event) => {
               const matchesType = typeFilter
@@ -398,6 +387,7 @@ function TicketsTable({ canEdit = true }) {
             {canEdit && <th>Low Stock</th>}
             <th>Prezzo unitario</th>
             {!canEdit && <th>Quantità richiesta</th>}
+            {!canEdit && <th>Note richiesta</th>}
             {!canEdit && <th>Totale</th>}
             <th>Status</th>
             <th>Actions</th>
@@ -406,38 +396,24 @@ function TicketsTable({ canEdit = true }) {
 
         <tbody>
           {filteredTickets.map((ticket) => {
-            const requestQuantity = Number(
-              requestQuantities[ticket.id] || 1
-            );
-
+            const requestQuantity = Number(requestQuantities[ticket.id] || 1);
             const unitPrice = Number(ticket.final_price || ticket.price || 0);
-
             const totalPrice = (unitPrice * requestQuantity).toFixed(2);
 
             return (
               <tr key={ticket.id}>
                 <td>{ticket.id}</td>
-
                 <td>{getTypeLabel(getEventType(ticket.event_id))}</td>
-
                 <td>{getEventSubcategory(ticket.event_id) || "-"}</td>
-
                 <td>{getEventName(ticket.event_id)}</td>
-
                 <td>{formatDate(getEventDate(ticket.event_id))}</td>
-
                 <td>{ticket.supplier_ticket_id}</td>
-
                 <td>{ticket.category}</td>
-
                 <td>{ticket.block || "-"}</td>
-
                 <td>{ticket.row_name || "-"}</td>
-
                 <td>
                   {ticket.seat_from || "-"} - {ticket.seat_to || "-"}
                 </td>
-
                 <td>{ticket.quantity}</td>
 
                 <td>
@@ -507,6 +483,20 @@ function TicketsTable({ canEdit = true }) {
                       value={requestQuantities[ticket.id] || 1}
                       onChange={(e) =>
                         updateRequestQuantity(ticket.id, e.target.value)
+                      }
+                    />
+                  </td>
+                )}
+
+                {!canEdit && (
+                  <td>
+                    <input
+                      className="table-input"
+                      type="text"
+                      placeholder="Note per admin..."
+                      value={requestNotes[ticket.id] || ""}
+                      onChange={(e) =>
+                        updateRequestNote(ticket.id, e.target.value)
                       }
                     />
                   </td>
