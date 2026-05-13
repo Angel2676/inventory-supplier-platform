@@ -27,6 +27,7 @@ import SystemActivityTimeline from "./components/SystemActivityTimeline";
 import Sidebar from "./components/Sidebar";
 import WhatsAppButton from "./components/WhatsAppButton";
 import IntroScreen from "./components/IntroScreen";
+import PartnerHero from "./components/PartnerHero";
 
 import { useAuth } from "./context/AuthContext";
 
@@ -217,10 +218,11 @@ function App() {
       case "tickets":
         return (
           <>
+            <PartnerHero user={user} stats={stats} />
             {stats && <DashboardStats stats={stats} />}
             <TicketsTable canEdit={false} />
           </>
-        );
+          );
 
       case "requests":
         return <TicketRequestsTable />;

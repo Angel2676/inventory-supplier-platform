@@ -770,3 +770,76 @@ body {
   color: #64748b;
   font-size: 11px;
 }
+.partner-hero {
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(37, 99, 235, 0.88)),
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.35), transparent 32%);
+  color: #ffffff;
+  border-radius: 28px;
+  padding: 34px;
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 28px;
+  align-items: center;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
+.partner-hero-label {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.partner-hero h1 {
+  font-size: 34px;
+  margin-bottom: 12px;
+}
+
+.partner-hero p {
+  color: #dbeafe;
+  max-width: 660px;
+  line-height: 1.6;
+}
+
+.partner-hero-stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.partner-hero-stats div {
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.partner-hero-stats strong {
+  display: block;
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.partner-hero-stats span {
+  color: #bfdbfe;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .partner-hero {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+
+  .partner-hero h1 {
+    font-size: 26px;
+  }
+}
