@@ -1,3 +1,4 @@
+const generateReservationPdf = require("../services/generateReservationPdf");
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 
@@ -495,23 +496,96 @@ router.patch(
       const requestUser = userResult.rows[0];
 
       if (requestUser?.email) {
-        await sendEmail({
-          to: requestUser.email,
-          subject: "Richiesta tickets rifiutata",
-          text: `La tua richiesta tickets n. ${requestId} è stata rifiutata.`,
-          html: `
-            <p>Gentile ${
-              requestUser.contact_name ||
-              requestUser.company_name ||
-              "Partner"
-            },</p>
-            <p>La tua richiesta tickets n. <strong>${requestId}</strong> è stata rifiutata.</p>
-            <p><strong>Motivo:</strong> ${
-              rejection_reason || "Non specificato"
-            }</p>
-          `
-        });
+        const eventResult = await pool.query(
+    `
+    SELECT
+      events.name AS event_name,
+      events.event_date,
+      events.venue,
+      events.city,
+      events.country,
+      events.event_type,
+      events.event_subcategory,
+      tickets.supplier_ticket_id,
+      tickets.category,
+      tickets.block,
+      tickets.row_name,
+      tickets.seat_from,
+      tickets.seat_to,
+      tickets.price
+    FROM tickets
+    JOIN events ON events.id = tickets.event_id
+    WHERE tickets.id = $1
+    `,
+      [request.ticket_id]
+  );
+
+  const eventData = eventResult.rows[0];
+
+  const pdfBuffer = await generateReservationPdf({
+    request_id: requestId,
+    reservation_code: reservationCode,
+    approved_at: new Date(),
+
+    company_name: requestUser.company_name,
+    contact_name: requestUser.contact_name,
+    email: requestUser.email,
+
+    quantity: request.quantity,
+    notes: request.notes,
+
+    ...eventData
+  });
+
+  await sendEmail({
+    to: requestUser.email,
+
+    subject: "Richiesta tickets approvata",
+
+    text: `La tua richiesta tickets n. ${requestId} è stata approvata.`,
+
+    html: `
+      <div style="font-family: Arial, sans-serif;">
+        <h2>SportManiaTravel</h2>
+
+        <p>
+          Gentile ${
+            requestUser.contact_name ||
+            requestUser.company_name ||
+            "Partner"
+          },
+        </p>
+
+        <p>
+          La tua richiesta tickets n.
+          <strong>${requestId}</strong>
+          è stata approvata.
+        </p>
+
+        <p>
+          Reservation Code:
+          <strong>${reservationCode}</strong>
+        </p>
+
+        <p>
+          In allegato trovi il PDF ufficiale con tutti i dettagli della reservation.
+        </p>
+
+        <br />
+
+        <p>
+          SportManiaTravel Inventory Supplier Platform
+        </p>
+      </div>
+    `,
+
+    attachments: [
+      {
+        filename: `reservation-${reservationCode}.pdf`,
+        content: pdfBuffer
       }
+    ]
+});
 
       res.json({
         message: "Richiesta rifiutata correttamente",
