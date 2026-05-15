@@ -403,87 +403,89 @@ function TicketsTable({ canEdit = true }) {
         />
       )}
 
-      <div className="filters-bar">
-        <select
-          value={typeFilter}
-          onChange={(e) => {
-            setTypeFilter(e.target.value);
-            setSubcategoryFilter("");
-            setTeamFilter("");
-            setEventFilter("");
-          }}
-        >
-          <option value="">Tutte le macro aree</option>
+      {canEdit && (
+        <div className="filters-bar">
+          <select
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setSubcategoryFilter("");
+              setTeamFilter("");
+              setEventFilter("");
+            }}
+          >
+            <option value="">Tutte le macro aree</option>
 
-          {EVENT_TYPES.map((type) => (
-            <option key={type.value} value={type.value}>
-              {type.label}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={subcategoryFilter}
-          onChange={(e) => {
-            setSubcategoryFilter(e.target.value);
-            setTeamFilter("");
-            setEventFilter("");
-          }}
-          disabled={!typeFilter}
-        >
-          <option value="">Tutte le sottocategorie</option>
-
-          {availableSubcategories.map((subcategory) => (
-            <option key={subcategory} value={subcategory}>
-              {subcategory}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={teamFilter}
-          onChange={(e) => {
-            setTeamFilter(e.target.value);
-            setEventFilter("");
-          }}
-        >
-          <option value="">Tutti i team</option>
-
-          {Array.from(
-            new Set(
-              filteredEventsForTeams
-                .map((event) => event.team_name)
-                .filter(Boolean)
-            )
-          )
-            .sort()
-            .map((team) => (
-              <option key={team} value={team}>
-                {team}
+            {EVENT_TYPES.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
               </option>
             ))}
-        </select>
+          </select>
 
-        <select
-          value={sortDirection}
-          onChange={(e) => setSortDirection(e.target.value)}
-        >
-          <option value="asc">Data evento: più vicina</option>
-          <option value="desc">Data evento: più lontana</option>
-        </select>
+          <select
+            value={subcategoryFilter}
+            onChange={(e) => {
+              setSubcategoryFilter(e.target.value);
+              setTeamFilter("");
+              setEventFilter("");
+            }}
+            disabled={!typeFilter}
+          >
+            <option value="">Tutte le sottocategorie</option>
 
-        <input
-          type="text"
-          placeholder="Cerca ticket, evento, squadra, categoria..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+            {availableSubcategories.map((subcategory) => (
+              <option key={subcategory} value={subcategory}>
+                {subcategory}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={teamFilter}
+            onChange={(e) => {
+              setTeamFilter(e.target.value);
+              setEventFilter("");
+            }}
+          >
+            <option value="">Tutti i team</option>
+
+            {Array.from(
+              new Set(
+                filteredEventsForTeams
+                  .map((event) => event.team_name)
+                  .filter(Boolean)
+              )
+            )
+              .sort()
+              .map((team) => (
+                <option key={team} value={team}>
+                  {team}
+                </option>
+              ))}
+          </select>
+
+          <select
+            value={sortDirection}
+            onChange={(e) => setSortDirection(e.target.value)}
+          >
+            <option value="asc">Data evento: più vicina</option>
+            <option value="desc">Data evento: più lontana</option>
+          </select>
+
+          <input
+            type="text"
+            placeholder="Cerca ticket, evento, squadra, categoria..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      )}
 
       {!teamFilter && !canEdit && (
         <EmptyState
-          title="Select a team to view events"
-          message="Use the team search or dropdown above to select a team and browse available events."
+          title="Select a team, artist or category"
+          message="Use the selector above to choose a team, artist or category and browse available events."
           showWhatsApp={false}
         />
       )}
@@ -491,7 +493,7 @@ function TicketsTable({ canEdit = true }) {
       {teamFilter && filteredTickets.length === 0 && (
         <EmptyState
           title="No tickets available"
-          message="No tickets match your current filters. Try changing category, team, event or contact SportManiaTravel."
+          message="No tickets match your current filters. Try changing team, artist, event or contact SportManiaTravel."
         />
       )}
 
@@ -500,7 +502,7 @@ function TicketsTable({ canEdit = true }) {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Team</th>
+              <th>Team / Artist</th>
               <th>Evento</th>
               <th>Data evento</th>
               <th>Categoria</th>
@@ -519,9 +521,7 @@ function TicketsTable({ canEdit = true }) {
 
           <tbody>
             {filteredTickets.map((ticket) => {
-              const requestQuantity = Number(
-                requestQuantities[ticket.id] || 1
-              );
+              const requestQuantity = Number(requestQuantities[ticket.id] || 1);
 
               const unitPrice = Number(ticket.final_price || ticket.price || 0);
 
