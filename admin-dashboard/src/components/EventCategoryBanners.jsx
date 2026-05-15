@@ -1,4 +1,4 @@
-function EventCategoryBanners({ onSelectType }) {
+function EventCategoryBanners({ selectedType = "", onSelectType }) {
   const categories = [
     {
       type: "football",
@@ -17,30 +17,39 @@ function EventCategoryBanners({ onSelectType }) {
     {
       type: "formula_1",
       title: "Formula 1",
-      subtitle:
-        "Grand Prix inventory and premium motorsport ticket access.",
+      subtitle: "Grand Prix inventory and premium motorsport ticket access.",
       label: "Explore F1"
     }
   ];
 
   return (
     <div className="category-banners-grid">
-      {categories.map((category) => (
-        <button
-          key={category.type}
-          type="button"
-          className={`category-banner category-${category.type}`}
-          onClick={() => onSelectType(category.type)}
-        >
-          <div>
-            <span>SportManiaTravel</span>
-            <h3>{category.title}</h3>
-            <p>{category.subtitle}</p>
-          </div>
+      {categories.map((category) => {
+        const isSelected = selectedType === category.type;
 
-          <strong>{category.label}</strong>
-        </button>
-      ))}
+        return (
+          <button
+            key={category.type}
+            type="button"
+            className={`category-banner category-${category.type} ${
+              isSelected ? "category-banner-selected" : ""
+            }`}
+            onClick={() => onSelectType(category.type)}
+          >
+            {isSelected && (
+              <div className="category-selected-badge">✓ Selected</div>
+            )}
+
+            <div>
+              <span>SportManiaTravel</span>
+              <h3>{category.title}</h3>
+              <p>{category.subtitle}</p>
+            </div>
+
+            <strong>{isSelected ? "Selected" : category.label}</strong>
+          </button>
+        );
+      })}
     </div>
   );
 }

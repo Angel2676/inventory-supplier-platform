@@ -29,15 +29,10 @@ body {
   align-items: center;
   margin-bottom: 28px;
   padding: 22px 28px;
-  background: linear-gradient(
-    135deg,
-    #0f172a,
-    #1e293b
-  );
+  background: linear-gradient(135deg, #0f172a, #1e293b);
   border-radius: 20px;
   color: white;
-  box-shadow:
-    0 10px 25px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
 }
 
 .topbar h1 {
@@ -59,8 +54,7 @@ body {
   border-radius: 18px;
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow:
-    0 4px 18px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
   border: 1px solid #e5e7eb;
 }
 
@@ -81,8 +75,7 @@ body {
 
 .stats-grid {
   display: grid;
-  grid-template-columns:
-    repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
   margin-bottom: 24px;
 }
@@ -90,18 +83,13 @@ body {
 /* STAT CARDS */
 
 .stat-card {
-  background: linear-gradient(
-    135deg,
-    #ffffff,
-    #f8fafc
-  );
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
 
   border-radius: 18px;
   padding: 22px;
   border: 1px solid #e5e7eb;
 
-  box-shadow:
-    0 3px 14px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 3px 14px rgba(15, 23, 42, 0.05);
 
   transition: all 0.2s ease;
 }
@@ -109,8 +97,7 @@ body {
 .stat-card:hover {
   transform: translateY(-2px);
 
-  box-shadow:
-    0 8px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
 .stat-card h2 {
@@ -261,8 +248,7 @@ body {
 
 .ticket-form {
   display: grid;
-  grid-template-columns:
-    repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
   margin-bottom: 20px;
 }
@@ -288,8 +274,7 @@ body {
 .login-card input:focus {
   outline: none;
   border-color: #2563eb;
-  box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 /* FILTERS */
@@ -309,12 +294,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    linear-gradient(
-      135deg,
-      #0f172a,
-      #1e293b
-    );
+  background: linear-gradient(135deg, #0f172a, #1e293b);
   padding: 20px;
 }
 
@@ -324,8 +304,7 @@ body {
   background: white;
   padding: 34px;
   border-radius: 24px;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
 }
 
 .login-card h1 {
@@ -773,7 +752,11 @@ body {
 .partner-hero {
   background:
     linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(37, 99, 235, 0.88)),
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.35), transparent 32%);
+    radial-gradient(
+      circle at top right,
+      rgba(34, 197, 94, 0.35),
+      transparent 32%
+    );
   color: #ffffff;
   border-radius: 28px;
   padding: 34px;
@@ -985,19 +968,31 @@ body {
 .category-football {
   background:
     linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(37, 99, 235, 0.86)),
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.48), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(34, 197, 94, 0.48),
+      transparent 36%
+    );
 }
 
 .category-concert {
   background:
     linear-gradient(135deg, rgba(88, 28, 135, 0.92), rgba(219, 39, 119, 0.82)),
-    radial-gradient(circle at top right, rgba(250, 204, 21, 0.38), transparent 34%);
+    radial-gradient(
+      circle at top right,
+      rgba(250, 204, 21, 0.38),
+      transparent 34%
+    );
 }
 
 .category-formula_1 {
   background:
     linear-gradient(135deg, rgba(127, 29, 29, 0.94), rgba(220, 38, 38, 0.86)),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.32), transparent 34%);
+    radial-gradient(
+      circle at top right,
+      rgba(255, 255, 255, 0.32),
+      transparent 34%
+    );
 }
 .event-modal-overlay {
   position: fixed;
@@ -1449,67 +1444,111 @@ body {
 .team-default {
   background:
     linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(37, 99, 235, 0.88)),
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.4), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(34, 197, 94, 0.4),
+      transparent 36%
+    );
 }
 
 .team-inter {
   background:
     linear-gradient(135deg, #020617, #1d4ed8),
-    radial-gradient(circle at top right, rgba(59, 130, 246, 0.5), transparent 38%);
+    radial-gradient(
+      circle at top right,
+      rgba(59, 130, 246, 0.5),
+      transparent 38%
+    );
 }
 
 .team-milan {
   background:
     linear-gradient(135deg, #111827, #b91c1c),
-    radial-gradient(circle at top right, rgba(239, 68, 68, 0.45), transparent 38%);
+    radial-gradient(
+      circle at top right,
+      rgba(239, 68, 68, 0.45),
+      transparent 38%
+    );
 }
 
 .team-juventus {
   background:
     linear-gradient(135deg, #020617, #334155),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.28), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(255, 255, 255, 0.28),
+      transparent 36%
+    );
 }
 
 .team-napoli {
   background:
     linear-gradient(135deg, #0369a1, #38bdf8),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.35), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(255, 255, 255, 0.35),
+      transparent 36%
+    );
 }
 
 .team-roma {
   background:
     linear-gradient(135deg, #7f1d1d, #f59e0b),
-    radial-gradient(circle at top right, rgba(251, 191, 36, 0.38), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(251, 191, 36, 0.38),
+      transparent 36%
+    );
 }
 
 .team-lazio {
   background:
     linear-gradient(135deg, #0f172a, #7dd3fc),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.32), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(255, 255, 255, 0.32),
+      transparent 36%
+    );
 }
 
 .team-atalanta {
   background:
     linear-gradient(135deg, #020617, #2563eb),
-    radial-gradient(circle at top right, rgba(14, 165, 233, 0.42), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(14, 165, 233, 0.42),
+      transparent 36%
+    );
 }
 
 .team-fiorentina {
   background:
     linear-gradient(135deg, #3b0764, #9333ea),
-    radial-gradient(circle at top right, rgba(216, 180, 254, 0.38), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(216, 180, 254, 0.38),
+      transparent 36%
+    );
 }
 
 .team-torino {
   background:
     linear-gradient(135deg, #450a0a, #991b1b),
-    radial-gradient(circle at top right, rgba(248, 113, 113, 0.38), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(248, 113, 113, 0.38),
+      transparent 36%
+    );
 }
 .team-cards-section {
   margin: 28px 0 30px;
   background:
     linear-gradient(135deg, #ffffff, #f8fafc),
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 36%);
+    radial-gradient(
+      circle at top right,
+      rgba(37, 99, 235, 0.08),
+      transparent 36%
+    );
   border: 1px solid #e5e7eb;
   border-radius: 28px;
   padding: 26px;
@@ -1658,7 +1697,11 @@ body {
   margin-top: 22px !important;
   background:
     linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(37, 99, 235, 0.88)),
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.38), transparent 36%) !important;
+    radial-gradient(
+      circle at top right,
+      rgba(34, 197, 94, 0.38),
+      transparent 36%
+    ) !important;
   color: white !important;
   border-radius: 26px !important;
   padding: 22px !important;
@@ -1773,7 +1816,11 @@ body {
 .team-selector-gradient-bar {
   background:
     linear-gradient(135deg, #6d28d9, #2563eb, #06b6d4),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.35), transparent 34%);
+    radial-gradient(
+      circle at top right,
+      rgba(255, 255, 255, 0.35),
+      transparent 34%
+    );
   border-radius: 26px;
   padding: 22px;
   display: grid;
@@ -1904,4 +1951,43 @@ body {
     border-left: none;
     padding-left: 0;
   }
+}
+.category-banner-selected {
+  transform: translateY(-6px) scale(1.015);
+  outline: 3px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 5px rgba(37, 99, 235, 0.28),
+    0 30px 70px rgba(15, 23, 42, 0.34);
+}
+
+.category-banner-selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 26px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18),
+    transparent 42%
+  );
+  pointer-events: none;
+}
+
+.category-selected-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  background: #ffffff;
+  color: #2563eb;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+}
+
+.category-banner-selected strong {
+  background: #ffffff;
+  color: #2563eb;
 }

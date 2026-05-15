@@ -352,6 +352,7 @@ function TicketsTable({ canEdit = true }) {
       {!canEdit && (
         <>
           <EventCategoryBanners
+            selectedType={typeFilter}
             onSelectType={(type) => {
               setTypeFilter(type);
               setSubcategoryFilter("");
