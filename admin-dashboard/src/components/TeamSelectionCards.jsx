@@ -1,6 +1,22 @@
 function TeamSelectionCards({ events = [], tickets = [], onSelectTeam }) {
   const teamsMap = new Map();
 
+  const TEAM_THEMES = {
+    Inter: "team-inter",
+    Milan: "team-milan",
+    Juventus: "team-juventus",
+    Napoli: "team-napoli",
+    Roma: "team-roma",
+    Lazio: "team-lazio",
+    Atalanta: "team-atalanta",
+    Fiorentina: "team-fiorentina",
+    Torino: "team-torino"
+  };
+
+  function getTeamTheme(teamName) {
+    return TEAM_THEMES[teamName] || "team-default";
+  }
+
   events.forEach((event) => {
     if (!event.team_name) return;
 
@@ -66,33 +82,42 @@ function TeamSelectionCards({ events = [], tickets = [], onSelectTeam }) {
             <button
               key={team.name}
               type="button"
-              className="team-card"
+              className={`team-card team-card-premium ${getTeamTheme(
+                team.name
+              )}`}
               onClick={() => onSelectTeam(team.name)}
             >
-              <div className="team-card-logo-wrap">
-                {team.logo_url ? (
-                  <img
-                    src={team.logo_url}
-                    alt={team.name}
-                    className="team-card-logo"
-                  />
-                ) : (
-                  <span>{team.name.slice(0, 2).toUpperCase()}</span>
-                )}
+              <div className="team-card-top">
+                <div className="team-card-logo-wrap premium-logo">
+                  {team.logo_url ? (
+                    <img
+                      src={team.logo_url}
+                      alt={team.name}
+                      className="team-card-logo"
+                    />
+                  ) : (
+                    <span>{team.name.slice(0, 2).toUpperCase()}</span>
+                  )}
+                </div>
+
+                <span className="team-card-badge">Team</span>
               </div>
 
-              <div>
+              <div className="team-card-main">
                 <h4>{team.name}</h4>
-                <p>{team.events.length} events</p>
+                <p>{team.events.length} events available</p>
               </div>
 
-              <div className="team-card-footer">
-                <span>{available} available</span>
-                <strong>
+              <div className="team-card-footer premium-footer">
+                <span>
+                  <strong>{available}</strong> available
+                </span>
+
+                <span>
                   {startingPrice
                     ? `From €${startingPrice.toFixed(2)}`
                     : "Price TBC"}
-                </strong>
+                </span>
               </div>
             </button>
           );

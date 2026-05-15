@@ -1377,3 +1377,131 @@ body {
 .team-card-footer strong {
   color: #2563eb;
 }
+
+.team-card-premium {
+  min-height: 210px;
+  color: #ffffff;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.team-card-premium::after {
+  content: "";
+  position: absolute;
+  inset: auto -40px -70px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.team-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 2;
+}
+
+.premium-logo {
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 34px rgba(2, 6, 23, 0.22);
+}
+
+.team-card-badge {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.team-card-main {
+  position: relative;
+  z-index: 2;
+  margin-top: 24px;
+}
+
+.team-card-premium h4 {
+  color: #ffffff;
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.team-card-premium p {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.premium-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 26px;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.premium-footer strong {
+  color: #ffffff;
+}
+
+.team-default {
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(37, 99, 235, 0.88)),
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.4), transparent 36%);
+}
+
+.team-inter {
+  background:
+    linear-gradient(135deg, #020617, #1d4ed8),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.5), transparent 38%);
+}
+
+.team-milan {
+  background:
+    linear-gradient(135deg, #111827, #b91c1c),
+    radial-gradient(circle at top right, rgba(239, 68, 68, 0.45), transparent 38%);
+}
+
+.team-juventus {
+  background:
+    linear-gradient(135deg, #020617, #334155),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.28), transparent 36%);
+}
+
+.team-napoli {
+  background:
+    linear-gradient(135deg, #0369a1, #38bdf8),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.35), transparent 36%);
+}
+
+.team-roma {
+  background:
+    linear-gradient(135deg, #7f1d1d, #f59e0b),
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.38), transparent 36%);
+}
+
+.team-lazio {
+  background:
+    linear-gradient(135deg, #0f172a, #7dd3fc),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.32), transparent 36%);
+}
+
+.team-atalanta {
+  background:
+    linear-gradient(135deg, #020617, #2563eb),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.42), transparent 36%);
+}
+
+.team-fiorentina {
+  background:
+    linear-gradient(135deg, #3b0764, #9333ea),
+    radial-gradient(circle at top right, rgba(216, 180, 254, 0.38), transparent 36%);
+}
+
+.team-torino {
+  background:
+    linear-gradient(135deg, #450a0a, #991b1b),
+    radial-gradient(circle at top right, rgba(248, 113, 113, 0.38), transparent 36%);
+}
