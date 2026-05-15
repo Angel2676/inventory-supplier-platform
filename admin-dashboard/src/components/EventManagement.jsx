@@ -21,10 +21,7 @@ const EVENT_TYPES = [
   {
     value: "concert",
     label: "Concerti",
-    subcategories: [
-      "Concerti italiani",
-      "Concerti internazionali"
-    ]
+    subcategories: ["Concerti italiani", "Concerti internazionali"]
   },
   {
     value: "formula_1",
@@ -38,6 +35,7 @@ function EventManagement() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [subcategoryFilter, setSubcategoryFilter] = useState("");
+  const [teamFilter, setTeamFilter] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -50,6 +48,8 @@ function EventManagement() {
     country: "",
     event_type: "football",
     event_subcategory: "Serie A",
+    team_name: "",
+    team_logo_url: "",
     image_url: "",
     logo_url: "",
     status: "active",
@@ -95,15 +95,28 @@ function EventManagement() {
               alt="Event logo"
             />
           )}
+
+          {event.team_logo_url && (
+            <img
+              className="event-preview-team-logo"
+              src={event.team_logo_url}
+              alt={event.team_name || "Team logo"}
+            />
+          )}
         </div>
 
         <div className="event-preview-info">
           <strong>{event.name || "Evento"}</strong>
+
           <span>
             {getTypeLabel(event.event_type)} ·{" "}
             {event.event_subcategory || "-"}
           </span>
-          <small>{event.city || "-"} · {formatDate(event.event_date)}</small>
+
+          <small>
+            {event.team_name ? `${event.team_name} · ` : ""}
+            {event.city || "-"} · {formatDate(event.event_date)}
+          </small>
         </div>
       </div>
     );
@@ -134,7 +147,9 @@ function EventManagement() {
       setForm({
         ...form,
         event_type: value,
-        event_subcategory: firstSubcategory
+        event_subcategory: firstSubcategory,
+        team_name: value === "football" ? form.team_name : "",
+        team_logo_url: value === "football" ? form.team_logo_url : ""
       });
 
       return;
@@ -150,7 +165,9 @@ function EventManagement() {
       setEditForm({
         ...editForm,
         event_type: value,
-        event_subcategory: firstSubcategory
+        event_subcategory: firstSubcategory,
+        team_name: value === "football" ? editForm.team_name : "",
+        team_logo_url: value === "football" ? editForm.team_logo_url : ""
       });
 
       return;
@@ -171,6 +188,8 @@ function EventManagement() {
         event_date: form.event_date || null,
         event_type: form.event_type || null,
         event_subcategory: form.event_subcategory || null,
+        team_name: form.team_name || null,
+        team_logo_url: form.team_logo_url || null,
         image_url: form.image_url || null,
         logo_url: form.logo_url || null
       });
@@ -199,6 +218,8 @@ function EventManagement() {
       country: event.country || "",
       event_type: eventType,
       event_subcategory: event.event_subcategory || subcategories[0] || "",
+      team_name: event.team_name || "",
+      team_logo_url: event.team_logo_url || "",
       image_url: event.image_url || "",
       logo_url: event.logo_url || "",
       status: event.status || "active",
@@ -221,6 +242,8 @@ function EventManagement() {
         event_date: editForm.event_date || null,
         event_type: editForm.event_type || null,
         event_subcategory: editForm.event_subcategory || null,
+        team_name: editForm.team_name || null,
+        team_logo_url: editForm.team_logo_url || null,
         image_url: editForm.image_url || null,
         logo_url: editForm.logo_url || null
       });
@@ -255,6 +278,24 @@ function EventManagement() {
     ? getSubcategories(typeFilter)
     : [];
 
+  const availableTeamFilters = Array.from(
+    new Set(
+      events
+        .filter((event) => {
+          const matchesType = typeFilter
+            ? event.event_type === typeFilter
+            : true;
+
+          const matchesSubcategory = subcategoryFilter
+            ? event.event_subcategory === subcategoryFilter
+            : true;
+
+          return matchesType && matchesSubcategory && event.team_name;
+        })
+        .map((event) => event.team_name)
+    )
+  ).sort();
+
   const filteredEvents = events.filter((event) => {
     const text = `
       ${event.name || ""}
@@ -265,6 +306,8 @@ function EventManagement() {
       ${event.visibility || ""}
       ${event.event_type || ""}
       ${event.event_subcategory || ""}
+      ${event.team_name || ""}
+      ${event.team_logo_url || ""}
       ${event.image_url || ""}
       ${event.logo_url || ""}
     `.toLowerCase();
@@ -277,7 +320,9 @@ function EventManagement() {
       ? event.event_subcategory === subcategoryFilter
       : true;
 
-    return matchesSearch && matchesType && matchesSubcategory;
+    const matchesTeam = teamFilter ? event.team_name === teamFilter : true;
+
+    return matchesSearch && matchesType && matchesSubcategory && matchesTeam;
   });
 
   return (
@@ -285,8 +330,8 @@ function EventManagement() {
       <h2>Event Management</h2>
 
       <p style={{ marginBottom: "18px", color: "#64748b" }}>
-        Gestisci macro aree, sottocategorie, immagini, loghi, venue, date e
-        visibilità degli eventi.
+        Gestisci macro aree, competizioni, squadre, immagini, loghi, venue,
+        date e visibilità degli eventi.
       </p>
 
       {message && <div className="success">{message}</div>}
@@ -323,6 +368,20 @@ function EventManagement() {
             </option>
           ))}
         </select>
+
+        <input
+          type="text"
+          placeholder="Squadra / Team / Artista"
+          value={form.team_name}
+          onChange={(e) => updateForm("team_name", e.target.value)}
+        />
+
+        <input
+          type="url"
+          placeholder="Team Logo URL"
+          value={form.team_logo_url}
+          onChange={(e) => updateForm("team_logo_url", e.target.value)}
+        />
 
         <input
           type="datetime-local"
@@ -394,9 +453,10 @@ function EventManagement() {
         </button>
       </form>
 
-      {(form.image_url || form.logo_url || form.name) && (
-        <EventPreview event={form} />
-      )}
+      {(form.image_url ||
+        form.logo_url ||
+        form.team_logo_url ||
+        form.name) && <EventPreview event={form} />}
 
       <div className="filters-bar">
         <select
@@ -404,6 +464,7 @@ function EventManagement() {
           onChange={(e) => {
             setTypeFilter(e.target.value);
             setSubcategoryFilter("");
+            setTeamFilter("");
           }}
         >
           <option value="">Tutte le macro aree</option>
@@ -417,7 +478,10 @@ function EventManagement() {
 
         <select
           value={subcategoryFilter}
-          onChange={(e) => setSubcategoryFilter(e.target.value)}
+          onChange={(e) => {
+            setSubcategoryFilter(e.target.value);
+            setTeamFilter("");
+          }}
           disabled={!typeFilter}
         >
           <option value="">Tutte le sottocategorie</option>
@@ -429,9 +493,23 @@ function EventManagement() {
           ))}
         </select>
 
+        <select
+          value={teamFilter}
+          onChange={(e) => setTeamFilter(e.target.value)}
+          disabled={availableTeamFilters.length === 0}
+        >
+          <option value="">Tutte le squadre / team</option>
+
+          {availableTeamFilters.map((team) => (
+            <option key={team} value={team}>
+              {team}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
-          placeholder="Cerca evento, città, venue, status..."
+          placeholder="Cerca evento, città, squadra, venue..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -443,7 +521,8 @@ function EventManagement() {
             <th>ID</th>
             <th>Preview</th>
             <th>Macro area</th>
-            <th>Sottocategoria</th>
+            <th>Competizione</th>
+            <th>Squadra / Team</th>
             <th>Evento</th>
             <th>Data</th>
             <th>Venue</th>
@@ -451,6 +530,7 @@ function EventManagement() {
             <th>Paese</th>
             <th>Image URL</th>
             <th>Logo URL</th>
+            <th>Team Logo</th>
             <th>Status</th>
             <th>Visibility</th>
             <th>Azioni</th>
@@ -503,6 +583,20 @@ function EventManagement() {
                   </select>
                 ) : (
                   event.event_subcategory || "-"
+                )}
+              </td>
+
+              <td>
+                {editingId === event.id ? (
+                  <input
+                    className="table-input"
+                    value={editForm.team_name}
+                    onChange={(e) =>
+                      updateEditForm("team_name", e.target.value)
+                    }
+                  />
+                ) : (
+                  event.team_name || "-"
                 )}
               </td>
 
@@ -600,6 +694,29 @@ function EventManagement() {
                   />
                 ) : event.logo_url ? (
                   <a href={event.logo_url} target="_blank" rel="noreferrer">
+                    Apri
+                  </a>
+                ) : (
+                  "-"
+                )}
+              </td>
+
+              <td>
+                {editingId === event.id ? (
+                  <input
+                    className="table-input"
+                    type="url"
+                    value={editForm.team_logo_url}
+                    onChange={(e) =>
+                      updateEditForm("team_logo_url", e.target.value)
+                    }
+                  />
+                ) : event.team_logo_url ? (
+                  <a
+                    href={event.team_logo_url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Apri
                   </a>
                 ) : (

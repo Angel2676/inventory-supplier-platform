@@ -1278,3 +1278,15 @@ body {
   line-height: 1.6;
   margin-bottom: 24px;
 }
+.event-preview-team-logo {
+  position: absolute;
+  right: 12px;
+  bottom: -18px;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  background: white;
+  border-radius: 12px;
+  padding: 5px;
+  border: 1px solid #e5e7eb;
+}
