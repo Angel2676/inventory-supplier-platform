@@ -66,29 +66,25 @@ function TeamSelectionCards({
   if (teams.length === 0) return null;
 
   return (
-    <div className="team-selector-card">
-      <div className="team-selector-header">
-        <span>Step 2</span>
-        <h3>Select team / artist / category</h3>
-        <p>
-          Search or select a team, artist or category to display available
-          events and tickets.
-        </p>
+    <div className="team-selector-premium">
+      <div className="team-selector-title-row">
+        <div className="team-selector-icon">◎</div>
+
+        <div>
+          <h3>Select team / artist / category</h3>
+          <p>
+            Search or select a team, artist or category to view available events
+            and tickets.
+          </p>
+        </div>
       </div>
 
-      <div className="team-selector-controls">
-        <input
-          type="text"
-          placeholder="Search Inter, Coldplay, Ferrari..."
-          value={teamSearch}
-          onChange={(e) => setTeamSearch(e.target.value)}
-        />
-
+      <div className="team-selector-gradient-bar">
         <select
           value={selectedTeam}
           onChange={(e) => onSelectTeam(e.target.value)}
         >
-          <option value="">Select from list</option>
+          <option value="">Select team, artist or category</option>
 
           {filteredTeams.map((team) => (
             <option key={team.name} value={team.name}>
@@ -97,7 +93,50 @@ function TeamSelectionCards({
           ))}
         </select>
 
-        {selectedTeam && (
+        <span className="team-selector-or">OR</span>
+
+        <input
+          type="text"
+          placeholder="Search team, artist, category..."
+          value={teamSearch}
+          onChange={(e) => setTeamSearch(e.target.value)}
+        />
+      </div>
+
+      {selectedTeamData && (
+        <div className="selected-team-premium-card">
+          <div className="selected-team-logo-premium">
+            {selectedTeamData.logo_url ? (
+              <img
+                src={selectedTeamData.logo_url}
+                alt={selectedTeamData.name}
+              />
+            ) : (
+              <span>{selectedTeamData.name.slice(0, 2).toUpperCase()}</span>
+            )}
+          </div>
+
+          <div className="selected-team-main-info">
+            <div>
+              <h4>{selectedTeamData.name}</h4>
+              <span className="selected-badge">Selected</span>
+            </div>
+
+            <p>
+              {selectedTeamData.events.length} events available ·{" "}
+              {getAvailableQuantity(selectedTeamData)} tickets available
+            </p>
+          </div>
+
+          <div className="selected-team-price">
+            <span>Starting from</span>
+            <strong>
+              {getStartingPrice(selectedTeamData)
+                ? `€${getStartingPrice(selectedTeamData).toFixed(2)}`
+                : "TBC"}
+            </strong>
+          </div>
+
           <button
             type="button"
             className="btn btn-secondary"
@@ -106,39 +145,8 @@ function TeamSelectionCards({
               onSelectTeam("");
             }}
           >
-            Reset
+            Reset selection
           </button>
-        )}
-      </div>
-
-      {selectedTeamData && (
-        <div className="selected-team-card">
-          <div className="selected-team-logo">
-            {selectedTeamData.logo_url ? (
-              <img src={selectedTeamData.logo_url} alt={selectedTeamData.name} />
-            ) : (
-              <span>{selectedTeamData.name.slice(0, 2).toUpperCase()}</span>
-            )}
-          </div>
-
-          <div>
-            <h4>{selectedTeamData.name}</h4>
-            <p>{selectedTeamData.events.length} events available</p>
-          </div>
-
-          <div className="selected-team-stats">
-            <strong>{getAvailableQuantity(selectedTeamData)}</strong>
-            <span>available tickets</span>
-          </div>
-
-          <div className="selected-team-stats">
-            <strong>
-              {getStartingPrice(selectedTeamData)
-                ? `€${getStartingPrice(selectedTeamData).toFixed(2)}`
-                : "TBC"}
-            </strong>
-            <span>starting price</span>
-          </div>
         </div>
       )}
     </div>
