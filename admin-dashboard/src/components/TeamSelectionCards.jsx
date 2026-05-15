@@ -8,22 +8,6 @@ function TeamSelectionCards({
 }) {
   const [teamSearch, setTeamSearch] = useState("");
 
-  const TEAM_THEMES = {
-    Inter: "team-inter",
-    Milan: "team-milan",
-    Juventus: "team-juventus",
-    Napoli: "team-napoli",
-    Roma: "team-roma",
-    Lazio: "team-lazio",
-    Atalanta: "team-atalanta",
-    Fiorentina: "team-fiorentina",
-    Torino: "team-torino"
-  };
-
-  function getTeamTheme(teamName) {
-    return TEAM_THEMES[teamName] || "team-default";
-  }
-
   const teams = useMemo(() => {
     const teamsMap = new Map();
 
@@ -82,18 +66,20 @@ function TeamSelectionCards({
   if (teams.length === 0) return null;
 
   return (
-    <div className="team-cards-section">
-      <div className="team-cards-header">
-        <div>
-          <span>Choose your team</span>
-          <h3>Browse inventory by team</h3>
-        </div>
+    <div className="team-selector-card">
+      <div className="team-selector-header">
+        <span>Step 2</span>
+        <h3>Select team / artist / category</h3>
+        <p>
+          Search or select a team, artist or category to display available
+          events and tickets.
+        </p>
       </div>
 
-      <div className="team-selector-panel">
+      <div className="team-selector-controls">
         <input
           type="text"
-          placeholder="Search team..."
+          placeholder="Search Inter, Coldplay, Ferrari..."
           value={teamSearch}
           onChange={(e) => setTeamSearch(e.target.value)}
         />
@@ -102,7 +88,7 @@ function TeamSelectionCards({
           value={selectedTeam}
           onChange={(e) => onSelectTeam(e.target.value)}
         >
-          <option value="">Select a team</option>
+          <option value="">Select from list</option>
 
           {filteredTeams.map((team) => (
             <option key={team.name} value={team.name}>
@@ -120,56 +106,39 @@ function TeamSelectionCards({
               onSelectTeam("");
             }}
           >
-            Reset team
+            Reset
           </button>
         )}
       </div>
 
       {selectedTeamData && (
-        <div className="team-cards-grid single-team-grid">
-          <button
-            type="button"
-            className={`team-card team-card-premium ${getTeamTheme(
-              selectedTeamData.name
-            )}`}
-            onClick={() => onSelectTeam(selectedTeamData.name)}
-          >
-            <div className="team-card-top">
-              <div className="team-card-logo-wrap premium-logo">
-                {selectedTeamData.logo_url ? (
-                  <img
-                    src={selectedTeamData.logo_url}
-                    alt={selectedTeamData.name}
-                    className="team-card-logo"
-                  />
-                ) : (
-                  <span>
-                    {selectedTeamData.name.slice(0, 2).toUpperCase()}
-                  </span>
-                )}
-              </div>
+        <div className="selected-team-card">
+          <div className="selected-team-logo">
+            {selectedTeamData.logo_url ? (
+              <img src={selectedTeamData.logo_url} alt={selectedTeamData.name} />
+            ) : (
+              <span>{selectedTeamData.name.slice(0, 2).toUpperCase()}</span>
+            )}
+          </div>
 
-              <span className="team-card-badge">Selected Team</span>
-            </div>
+          <div>
+            <h4>{selectedTeamData.name}</h4>
+            <p>{selectedTeamData.events.length} events available</p>
+          </div>
 
-            <div className="team-card-main">
-              <h4>{selectedTeamData.name}</h4>
-              <p>{selectedTeamData.events.length} events available</p>
-            </div>
+          <div className="selected-team-stats">
+            <strong>{getAvailableQuantity(selectedTeamData)}</strong>
+            <span>available tickets</span>
+          </div>
 
-            <div className="team-card-footer premium-footer">
-              <span>
-                <strong>{getAvailableQuantity(selectedTeamData)}</strong>{" "}
-                available
-              </span>
-
-              <span>
-                {getStartingPrice(selectedTeamData)
-                  ? `From €${getStartingPrice(selectedTeamData).toFixed(2)}`
-                  : "Price TBC"}
-              </span>
-            </div>
-          </button>
+          <div className="selected-team-stats">
+            <strong>
+              {getStartingPrice(selectedTeamData)
+                ? `€${getStartingPrice(selectedTeamData).toFixed(2)}`
+                : "TBC"}
+            </strong>
+            <span>starting price</span>
+          </div>
         </div>
       )}
     </div>
