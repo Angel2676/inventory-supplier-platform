@@ -1290,3 +1290,90 @@ body {
   padding: 5px;
   border: 1px solid #e5e7eb;
 }
+.team-cards-section {
+  margin: 22px 0 26px;
+}
+
+.team-cards-header {
+  margin-bottom: 14px;
+}
+
+.team-cards-header span {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.team-cards-header h3 {
+  color: #0f172a;
+  font-size: 22px;
+  margin-top: 4px;
+}
+
+.team-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.team-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  padding: 18px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  transition: all 0.22s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.16);
+}
+
+.team-card-logo-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  color: #2563eb;
+  font-weight: 900;
+}
+
+.team-card-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.team-card h4 {
+  color: #0f172a;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.team-card p {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.team-card-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.team-card-footer strong {
+  color: #2563eb;
+}
