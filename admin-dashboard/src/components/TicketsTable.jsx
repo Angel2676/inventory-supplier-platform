@@ -120,10 +120,6 @@ function TicketsTable({ canEdit = true }) {
     return getEvent(eventId)?.team_name || "";
   }
 
-  function getTypeLabel(type) {
-    return EVENT_TYPES.find((item) => item.value === type)?.label || "-";
-  }
-
   function getSubcategories(type) {
     return EVENT_TYPES.find((item) => item.value === type)?.subcategories || [];
   }
@@ -135,9 +131,7 @@ function TicketsTable({ canEdit = true }) {
 
   function getEventTime(eventId) {
     const eventDate = getEventDate(eventId);
-
     if (!eventDate) return Number.MAX_SAFE_INTEGER;
-
     return new Date(eventDate).getTime();
   }
 
@@ -273,7 +267,7 @@ function TicketsTable({ canEdit = true }) {
       ? event.event_subcategory === subcategoryFilter
       : true;
 
-    const matchesTeam = teamFilter ? event.team_name === teamFilter : true;
+    const matchesTeam = teamFilter ? event.team_name === teamFilter : false;
 
     const matchesEvent = eventFilter
       ? Number(event.id) === Number(eventFilter)
@@ -369,23 +363,26 @@ function TicketsTable({ canEdit = true }) {
           <TeamSelectionCards
             events={filteredEventsForTeams}
             tickets={tickets}
+            selectedTeam={teamFilter}
             onSelectTeam={(teamName) => {
               setTeamFilter(teamName);
               setEventFilter("");
             }}
           />
 
-          <EventInventoryCards
-            events={filteredEventsForCards}
-            tickets={tickets}
-            onSelectEvent={(eventId) => {
-              const event = events.find(
-                (item) => Number(item.id) === Number(eventId)
-              );
+          {teamFilter && (
+            <EventInventoryCards
+              events={filteredEventsForCards}
+              tickets={tickets}
+              onSelectEvent={(eventId) => {
+                const event = events.find(
+                  (item) => Number(item.id) === Number(eventId)
+                );
 
-              setSelectedEvent(event);
-            }}
-          />
+                setSelectedEvent(event);
+              }}
+            />
+          )}
         </>
       )}
 
@@ -483,14 +480,22 @@ function TicketsTable({ canEdit = true }) {
         />
       </div>
 
-      {filteredTickets.length === 0 && (
+      {!teamFilter && !canEdit && (
+        <EmptyState
+          title="Select a team to view events"
+          message="Use the team search or dropdown above to select a team and browse available events."
+          showWhatsApp={false}
+        />
+      )}
+
+      {teamFilter && filteredTickets.length === 0 && (
         <EmptyState
           title="No tickets available"
           message="No tickets match your current filters. Try changing category, team, event or contact SportManiaTravel."
         />
       )}
 
-      {filteredTickets.length > 0 && (
+      {(canEdit || teamFilter) && filteredTickets.length > 0 && (
         <table className="tickets-table">
           <thead>
             <tr>
