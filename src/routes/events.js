@@ -42,6 +42,7 @@ router.get("/", authJwt, async (req, res) => {
       ORDER BY
         event_type ASC NULLS LAST,
         event_subcategory ASC NULLS LAST,
+        team_name ASC NULLS LAST,
         event_date ASC NULLS LAST,
         id DESC
     `;
@@ -75,6 +76,8 @@ router.post(
         country,
         event_type,
         event_subcategory,
+        team_name,
+        team_logo_url,
         image_url,
         logo_url,
         status = "active",
@@ -98,6 +101,8 @@ router.post(
           country,
           event_type,
           event_subcategory,
+          team_name,
+          team_logo_url,
           image_url,
           logo_url,
           status,
@@ -107,7 +112,7 @@ router.post(
         VALUES (
           $1,$2,$3,$4,$5,
           $6,$7,$8,$9,
-          $10,$11,$12
+          $10,$11,$12,$13,$14
         )
         RETURNING *
         `,
@@ -119,6 +124,8 @@ router.post(
           country || null,
           event_type || null,
           event_subcategory || null,
+          team_name || null,
+          team_logo_url || null,
           image_url || null,
           logo_url || null,
           status,
@@ -160,6 +167,8 @@ router.patch(
         country,
         event_type,
         event_subcategory,
+        team_name,
+        team_logo_url,
         image_url,
         logo_url,
         status,
@@ -178,12 +187,14 @@ router.patch(
           country = COALESCE($5, country),
           event_type = COALESCE($6, event_type),
           event_subcategory = COALESCE($7, event_subcategory),
-          image_url = COALESCE($8, image_url),
-          logo_url = COALESCE($9, logo_url),
-          status = COALESCE($10, status),
-          visibility = COALESCE($11, visibility),
-          notes = COALESCE($12, notes)
-        WHERE id = $13
+          team_name = COALESCE($8, team_name),
+          team_logo_url = COALESCE($9, team_logo_url),
+          image_url = COALESCE($10, image_url),
+          logo_url = COALESCE($11, logo_url),
+          status = COALESCE($12, status),
+          visibility = COALESCE($13, visibility),
+          notes = COALESCE($14, notes)
+        WHERE id = $15
         RETURNING *
         `,
         [
@@ -194,6 +205,8 @@ router.patch(
           country || null,
           event_type || null,
           event_subcategory || null,
+          team_name || null,
+          team_logo_url || null,
           image_url || null,
           logo_url || null,
           status || null,
