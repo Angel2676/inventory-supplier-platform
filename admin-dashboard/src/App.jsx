@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import LanguageSwitcher from "./components/LanguageSwitcher";
 import api from "./api";
 
 import DashboardStats from "./components/DashboardStats";
@@ -258,6 +258,7 @@ function App() {
                 {user?.company_name || user?.email} · {user?.role}
               </p>
             </div>
+            <LanguageSwitcher />
           </header>
 
           <div className="dashboard-content">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-
+import { useTranslation } from "react-i18next";
 import EventInventoryCards from "./EventInventoryCards";
 import EventCategoryBanners from "./EventCategoryBanners";
 import EventDetailModal from "./EventDetailModal";
@@ -38,6 +38,7 @@ const EVENT_TYPES = [
 ];
 
 function TicketsTable({ canEdit = true }) {
+  const { t } = useTranslation();
   const [tickets, setTickets] = useState([]);
   const [events, setEvents] = useState([]);
 
@@ -337,8 +338,9 @@ function TicketsTable({ canEdit = true }) {
 
   return (
     <div className="section">
-      <h2>{canEdit ? "Tickets Inventory" : "Inventory disponibile"}</h2>
-
+      <h2>
+        {canEdit ? t("ticketsInventory") : t("inventory")}
+      </h2>
       {error && <div className="error">{error}</div>}
 
       {successModal && (
