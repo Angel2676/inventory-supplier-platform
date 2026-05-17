@@ -666,7 +666,7 @@ function TicketsTable({ canEdit = true }) {
                           ticket.status !== "available"
                         }
                       >
-                        Richiedi tickets
+                         {t("requestTickets")}
                       </button>
                     )}
                   </td>

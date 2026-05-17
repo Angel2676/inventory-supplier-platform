@@ -18,7 +18,7 @@ const resources = {
       inventory: "Available inventory",
       ticketsInventory: "Tickets Inventory",
       chooseTeam: "Select team / artist / category",
-      requestTickets: "Request tickets",
+      requestTickets: "Request your tickets",
       available: "Available",
       total: "Total"
     }
