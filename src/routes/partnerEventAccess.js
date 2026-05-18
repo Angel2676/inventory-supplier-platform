@@ -38,7 +38,7 @@ router.get("/", authJwt, requireRole("super_admin"), async (req, res) => {
 });
 
 /**
- * Assegna evento a partner
+ * Assegna evento a partner singolo
  */
 router.post("/", authJwt, requireRole("super_admin"), async (req, res) => {
   try {
@@ -75,6 +75,70 @@ router.post("/", authJwt, requireRole("super_admin"), async (req, res) => {
     });
   }
 });
+
+/**
+ * Assegna uno o più eventi a tutti i partner/client
+ */
+router.post(
+  "/assign-all",
+  authJwt,
+  requireRole("super_admin"),
+  async (req, res) => {
+    try {
+      const { event_ids } = req.body;
+
+      if (!Array.isArray(event_ids) || event_ids.length === 0) {
+        return res.status(400).json({
+          error: "event_ids deve essere un array non vuoto"
+        });
+      }
+
+      const cleanEventIds = event_ids
+        .map((id) => Number(id))
+        .filter((id) => Number.isInteger(id) && id > 0);
+
+      if (cleanEventIds.length === 0) {
+        return res.status(400).json({
+          error: "Nessun event_id valido ricevuto"
+        });
+      }
+
+      const result = await pool.query(
+        `
+        INSERT INTO partner_event_access (
+          user_id,
+          event_id
+        )
+        SELECT
+          users.id,
+          events.id
+        FROM users
+        CROSS JOIN events
+        WHERE users.role IN ('partner', 'client')
+        AND events.id = ANY($1::int[])
+        ON CONFLICT (user_id, event_id) DO NOTHING
+        RETURNING *
+        `,
+        [cleanEventIds]
+      );
+
+      res.status(201).json({
+        message: "Eventi assegnati correttamente a tutti i partner/client",
+        inserted_count: result.rowCount,
+        assigned_accesses: result.rows
+      });
+    } catch (error) {
+      console.error(
+        "Errore POST /api/partner-event-access/assign-all:",
+        error
+      );
+
+      res.status(500).json({
+        error: "Errore assegnazione eventi a tutti i partner"
+      });
+    }
+  }
+);
 
 /**
  * Rimuove accesso partner-evento

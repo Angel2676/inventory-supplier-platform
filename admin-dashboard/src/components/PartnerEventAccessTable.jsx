@@ -5,10 +5,15 @@ function PartnerEventAccessTable() {
   const [accesses, setAccesses] = useState([]);
   const [users, setUsers] = useState([]);
   const [events, setEvents] = useState([]);
+
   const [form, setForm] = useState({
     user_id: "",
     event_id: ""
   });
+
+  const [selectedEventIds, setSelectedEventIds] = useState([]);
+  const [eventSearch, setEventSearch] = useState("");
+
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -58,7 +63,7 @@ function PartnerEventAccessTable() {
     }
   }
 
-  async function assignAllEvents() {
+  async function assignAllEventsToSelectedPartner() {
     if (!form.user_id) {
       setError("Seleziona prima un partner");
       return;
@@ -82,6 +87,43 @@ function PartnerEventAccessTable() {
     }
   }
 
+  async function assignSelectedEventsToAllPartners() {
+    if (selectedEventIds.length === 0) {
+      setError("Seleziona almeno un evento da assegnare a tutti i partner");
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `Vuoi assegnare ${selectedEventIds.length} evento/i a tutti i partner/client?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await api.post("/api/partner-event-access/assign-all", {
+        event_ids: selectedEventIds.map(Number)
+      });
+
+      setMessage(
+        `Eventi assegnati a tutti i partner/client. Nuovi accessi creati: ${
+          response.data.inserted_count || 0
+        }`
+      );
+      setError("");
+      setSelectedEventIds([]);
+
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.error ||
+          "Errore assegnazione eventi a tutti i partner"
+      );
+    }
+  }
+
   async function removeAccess(accessId) {
     if (!window.confirm("Rimuovere questo accesso evento?")) {
       return;
@@ -99,6 +141,41 @@ function PartnerEventAccessTable() {
       setError("Errore rimozione accesso evento");
     }
   }
+
+  function toggleEventSelection(eventId) {
+    const id = Number(eventId);
+
+    setSelectedEventIds((current) => {
+      if (current.includes(id)) {
+        return current.filter((item) => item !== id);
+      }
+
+      return [...current, id];
+    });
+  }
+
+  function selectAllFilteredEvents() {
+    const ids = filteredEvents.map((event) => Number(event.id));
+    setSelectedEventIds(ids);
+  }
+
+  function clearSelectedEvents() {
+    setSelectedEventIds([]);
+  }
+
+  const filteredEvents = events.filter((event) => {
+    const text = `
+      ${event.id || ""}
+      ${event.name || ""}
+      ${event.event_type || ""}
+      ${event.event_subcategory || ""}
+      ${event.team_name || ""}
+      ${event.city || ""}
+      ${event.venue || ""}
+    `.toLowerCase();
+
+    return text.includes(eventSearch.toLowerCase());
+  });
 
   useEffect(() => {
     loadData();
@@ -161,11 +238,92 @@ function PartnerEventAccessTable() {
         <button
           className="btn btn-secondary"
           type="button"
-          onClick={assignAllEvents}
+          onClick={assignAllEventsToSelectedPartner}
         >
-          Assegna tutti gli eventi
+          Assegna tutti gli eventi al partner
         </button>
       </form>
+
+      <div className="section" style={{ marginTop: "22px" }}>
+        <h3>Assegna eventi a tutti i partner</h3>
+
+        <p style={{ color: "#64748b", marginBottom: "14px" }}>
+          Seleziona uno o più eventi e assegnali automaticamente a tutti i
+          partner/client registrati.
+        </p>
+
+        <div className="filters-bar">
+          <input
+            type="text"
+            placeholder="Cerca evento, squadra, città, competizione..."
+            value={eventSearch}
+            onChange={(e) => setEventSearch(e.target.value)}
+          />
+
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={selectAllFilteredEvents}
+          >
+            Seleziona eventi filtrati
+          </button>
+
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={clearSelectedEvents}
+          >
+            Deseleziona
+          </button>
+
+          <button
+            className="btn btn-save"
+            type="button"
+            onClick={assignSelectedEventsToAllPartners}
+          >
+            Assegna selezionati a tutti i partner
+          </button>
+        </div>
+
+        <p style={{ color: "#475569", marginBottom: "12px" }}>
+          Eventi selezionati: <strong>{selectedEventIds.length}</strong>
+        </p>
+
+        <table className="tickets-table">
+          <thead>
+            <tr>
+              <th>Seleziona</th>
+              <th>ID</th>
+              <th>Evento</th>
+              <th>Macro area</th>
+              <th>Competizione</th>
+              <th>Team / Artist</th>
+              <th>Città</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredEvents.map((event) => (
+              <tr key={event.id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedEventIds.includes(Number(event.id))}
+                    onChange={() => toggleEventSelection(event.id)}
+                  />
+                </td>
+
+                <td>{event.id}</td>
+                <td>{event.name}</td>
+                <td>{event.event_type || "-"}</td>
+                <td>{event.event_subcategory || "-"}</td>
+                <td>{event.team_name || "-"}</td>
+                <td>{event.city || "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <table className="tickets-table">
         <thead>
@@ -185,9 +343,7 @@ function PartnerEventAccessTable() {
             <tr key={access.id}>
               <td>{access.id}</td>
 
-              <td>
-                {access.company_name || access.contact_name || "-"}
-              </td>
+              <td>{access.company_name || access.contact_name || "-"}</td>
 
               <td>{access.email}</td>
 
