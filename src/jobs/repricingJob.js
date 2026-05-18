@@ -46,7 +46,7 @@ async function runRepricingJob() {
         `
         UPDATE tickets
         SET
-          price = $1,
+          marketplace_price = $1,
           last_suggested_price = $2,
           last_reprice_at = NOW()
         WHERE id = $3

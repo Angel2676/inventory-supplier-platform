@@ -646,7 +646,7 @@ router.post("/:id/reprice", async (req, res) => {
       `
       UPDATE tickets
       SET
-        price = $1,
+        marketplace_price = $1,
         last_market_price = $2,
         last_suggested_price = $3,
         last_reprice_at = NOW()

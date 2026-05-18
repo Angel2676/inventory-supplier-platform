@@ -135,7 +135,9 @@ async function createGigsbergListing(ticketId) {
 
   const price = priceCheck.shouldUpdate
     ? Number(priceCheck.finalPrice)
-    : Number(ticket.final_price || ticket.price || 0);
+    : Number(
+        ticket.marketplace_price || ticket.final_price || ticket.price || 0,
+      );
 
   console.log("PRICE CHECK RESULT:", {
     ticketId: ticket.id,
