@@ -1,4 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 function Sidebar({ user, activeSection, setActiveSection, logout }) {
+  const { t } = useTranslation();
+
   const isSuperAdmin = user?.role === "super_admin";
 
   const adminItems = [
@@ -18,10 +22,10 @@ function Sidebar({ user, activeSection, setActiveSection, logout }) {
   ];
 
   const partnerItems = [
-    { key: "notifications", label: "Le tue notifiche" },
-    { key: "tickets", label: "Inventory disponibile" },
-    { key: "requests", label: "Le tue richieste" },
-    { key: "reservations", label: "Le tue reservations" }
+    { key: "notifications", label: t("yourNotifications") },
+    { key: "tickets", label: t("availableInventory") },
+    { key: "requests", label: t("yourRequests") },
+    { key: "reservations", label: t("yourReservations") }
   ];
 
   const items = isSuperAdmin ? adminItems : partnerItems;
@@ -30,6 +34,7 @@ function Sidebar({ user, activeSection, setActiveSection, logout }) {
     <aside className="sidebar">
       <div className="sidebar-brand">
         <div className="brand-icon">IS</div>
+
         <div>
           <h2>Inventory</h2>
           <p>Supplier Platform</p>

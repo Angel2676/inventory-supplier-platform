@@ -7,7 +7,14 @@ const resources = {
       inventory: "Inventario disponibile",
       ticketsInventory: "Tickets Inventory",
       chooseTeam: "Seleziona team / artista / categoria",
+
+      yourNotifications: "Le tue notifiche",
+      availableInventory: "Inventory disponibile",
+      yourRequests: "Le tue richieste",
+      yourReservations: "Le tue reservations",
+
       requestTickets: "Richiedi tickets",
+
       available: "Disponibili",
       total: "Totale"
     }
@@ -18,7 +25,14 @@ const resources = {
       inventory: "Available inventory",
       ticketsInventory: "Tickets Inventory",
       chooseTeam: "Select team / artist / category",
+
+      yourNotifications: "Your notifications",
+      availableInventory: "Available Inventory",
+      yourRequests: "Your requests",
+      yourReservations: "Your Reservations",
+
       requestTickets: "Request your tickets",
+
       available: "Available",
       total: "Total"
     }
