@@ -39,6 +39,7 @@ const EVENT_TYPES = [
 
 function TicketsTable({ canEdit = true }) {
   const { t } = useTranslation();
+
   const [tickets, setTickets] = useState([]);
   const [events, setEvents] = useState([]);
 
@@ -60,6 +61,13 @@ function TicketsTable({ canEdit = true }) {
   const [error, setError] = useState("");
 
   const [editForm, setEditForm] = useState({
+    price: "",
+    available_quantity: "",
+    low_stock_threshold: "",
+    min_price: "",
+    undercut_amount: "0.01",
+    auto_reprice_enabled: false
+  });
 
   async function loadTickets() {
     try {
@@ -137,9 +145,12 @@ function TicketsTable({ canEdit = true }) {
     setEditingId(ticket.id);
 
     setEditForm({
-      price: ticket.price,
-      available_quantity: ticket.available_quantity,
-      low_stock_threshold: ticket.low_stock_threshold || 2
+      price: ticket.price || "",
+      available_quantity: ticket.available_quantity || "",
+      low_stock_threshold: ticket.low_stock_threshold || 2,
+      min_price: ticket.min_price || "",
+      undercut_amount: ticket.undercut_amount || "0.01",
+      auto_reprice_enabled: Boolean(ticket.auto_reprice_enabled)
     });
   }
 
@@ -163,18 +174,18 @@ function TicketsTable({ canEdit = true }) {
         available_quantity: Number(editForm.available_quantity),
         low_stock_threshold: Number(editForm.low_stock_threshold)
       });
-      await api.patch(`/api/tickets/${ticketId}/pricing`, {
-         min_price: editForm.min_price ? Number(editForm.min_price) : null,
-         auto_reprice_enabled: Boolean(editForm.auto_reprice_enabled),
-         undercut_amount: Number(editForm.undercut_amount || 0.01)
-         });
 
+      await api.patch(`/api/tickets/${ticketId}/pricing`, {
+        min_price: editForm.min_price ? Number(editForm.min_price) : null,
+        auto_reprice_enabled: Boolean(editForm.auto_reprice_enabled),
+        undercut_amount: Number(editForm.undercut_amount || 0.01)
+      });
 
       setEditingId(null);
       await loadTickets();
     } catch (err) {
       console.error(err);
-      setError("Errore aggiornamento ticket");
+      setError(err.response?.data?.error || "Errore aggiornamento ticket");
     }
   }
 
@@ -205,37 +216,29 @@ function TicketsTable({ canEdit = true }) {
   }
 
   async function publishToGigsberg(ticket) {
-  try {
-    setPublishingTicketId(ticket.id);
+    try {
+      setPublishingTicketId(ticket.id);
 
-    await api.post("/api/marketplace/publish", {
-      ticket_id: ticket.id,
-      marketplace: "gigsberg"
-    });
+      await api.post("/api/marketplace/publish", {
+        ticket_id: ticket.id,
+        marketplace: "gigsberg"
+      });
 
-    setSuccessModal({
-      title: "Publish avviato",
-      message:
-        "Il ticket è stato aggiunto alla coda publish Gigsberg. Appena saranno disponibili le API credentials complete sarà sincronizzato automaticamente."
-    });
+      setSuccessModal({
+        title: "Publish avviato",
+        message:
+          "Il ticket è stato aggiunto alla coda publish Gigsberg. Appena saranno disponibili le API credentials complete sarà sincronizzato automaticamente."
+      });
 
-    await loadTickets();
-  } catch (err) {
-    console.error(err);
-
-    setError(
-      err.response?.data?.error ||
-        "Errore publish Gigsberg"
-    );
-  } finally {
-    setPublishingTicketId(null);
+      await loadTickets();
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || "Errore publish Gigsberg");
+    } finally {
+      setPublishingTicketId(null);
+    }
   }
-}
-  
 
-
-  
-  
   async function requestTicket(ticket) {
     setError("");
 
@@ -376,9 +379,8 @@ function TicketsTable({ canEdit = true }) {
 
   return (
     <div className="section">
-      <h2>
-        {canEdit ? t("ticketsInventory") : t("inventory")}
-      </h2>
+      <h2>{canEdit ? t("ticketsInventory") : t("inventory")}</h2>
+
       {error && <div className="error">{error}</div>}
 
       {successModal && (
@@ -550,9 +552,13 @@ function TicketsTable({ canEdit = true }) {
               <th>Block</th>
               <th>Available</th>
               <th>Prezzo</th>
+
               {canEdit && <th>Min Price</th>}
               {canEdit && <th>Auto Reprice</th>}
               {canEdit && <th>Undercut</th>}
+              {canEdit && <th>Last Market</th>}
+              {canEdit && <th>Last Suggested</th>}
+
               {!canEdit && <th>Qty</th>}
               {!canEdit && <th>Note</th>}
               {!canEdit && <th>Totale</th>}
@@ -565,9 +571,7 @@ function TicketsTable({ canEdit = true }) {
           <tbody>
             {filteredTickets.map((ticket) => {
               const requestQuantity = Number(requestQuantities[ticket.id] || 1);
-
               const unitPrice = Number(ticket.final_price || ticket.price || 0);
-
               const totalPrice = (unitPrice * requestQuantity).toFixed(2);
 
               return (
@@ -626,102 +630,81 @@ function TicketsTable({ canEdit = true }) {
                       {editingId === ticket.id ? (
                         <input
                           className="table-input"
-                           type="number"
-                            step="0.01"
-                            value={editForm.min_price}
-                            onChange={(e) =>
-                              setEditForm({
-                                ...editForm,
-                                min_price: e.target.value
-                                })
-                               }
-                            />
+                          type="number"
+                          step="0.01"
+                          value={editForm.min_price}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              min_price: e.target.value
+                            })
+                          }
+                        />
                       ) : ticket.min_price ? (
                         `€ ${Number(ticket.min_price).toFixed(2)}`
-                       ) : (
-                           "-"
-                       )}
+                      ) : (
+                        "-"
+                      )}
                     </td>
                   )}
+
                   {canEdit && (
+                    <td>
+                      {editingId === ticket.id ? (
+                        <input
+                          type="checkbox"
+                          checked={editForm.auto_reprice_enabled}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              auto_reprice_enabled: e.target.checked
+                            })
+                          }
+                        />
+                      ) : ticket.auto_reprice_enabled ? (
+                        "ON"
+                      ) : (
+                        "OFF"
+                      )}
+                    </td>
+                  )}
 
-                  <td>
+                  {canEdit && (
+                    <td>
+                      {editingId === ticket.id ? (
+                        <input
+                          className="table-input"
+                          type="number"
+                          step="0.01"
+                          value={editForm.undercut_amount}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              undercut_amount: e.target.value
+                            })
+                          }
+                        />
+                      ) : (
+                        `€ ${Number(ticket.undercut_amount || 0.01).toFixed(2)}`
+                      )}
+                    </td>
+                  )}
 
-                    {editingId === ticket.id ? (
+                  {canEdit && (
+                    <td>
+                      {ticket.last_market_price
+                        ? `€ ${Number(ticket.last_market_price).toFixed(2)}`
+                        : "-"}
+                    </td>
+                  )}
 
-                      <input
-
-                        type="checkbox"
-
-                        checked={editForm.auto_reprice_enabled}
-
-                        onChange={(e) =>
-
-                          setEditForm({
-
-                            ...editForm,
-
-                            auto_reprice_enabled: e.target.checked
-
-                          })
-
-                        }
-
-                      />
-
-                    ) : ticket.auto_reprice_enabled ? (
-
-                      "ON"
-
-                    ) : (
-
-                      "OFF"
-
-                    )}
-
-                  </td>
-
-                )}
-
-                {canEdit && (
-
-                  <td>
-
-                    {editingId === ticket.id ? (
-
-                      <input
-
-                        className="table-input"
-
-                        type="number"
-
-                        step="0.01"
-
-                        value={editForm.undercut_amount}
-
-                        onChange={(e) =>
-
-                          setEditForm({
-
-                            ...editForm,
-
-                            undercut_amount: e.target.value
-
-                          })
-
-                        }
-
-                      />
-
-    ) : (
-
-      `€ ${Number(ticket.undercut_amount || 0.01).toFixed(2)}`
-
-    )}
-
-  </td>
-
-)}
+                  {canEdit && (
+                    <td>
+                      {ticket.last_suggested_price
+                        ? `€ ${Number(ticket.last_suggested_price).toFixed(2)}`
+                        : "-"}
+                    </td>
+                  )}
 
                   {!canEdit && (
                     <td>
@@ -797,14 +780,15 @@ function TicketsTable({ canEdit = true }) {
                           >
                             Elimina
                           </button>
+
                           <button
                             className="btn btn-secondary"
                             onClick={() => publishToGigsberg(ticket)}
-                            disabled={publishingTicketId === ticket.id} 
+                            disabled={publishingTicketId === ticket.id}
                           >
                             {publishingTicketId === ticket.id
-                               ? "Publishing..."
-                               : "Publish Gigsberg"}
+                              ? "Publishing..."
+                              : "Publish Gigsberg"}
                           </button>
                         </>
                       )
@@ -817,7 +801,7 @@ function TicketsTable({ canEdit = true }) {
                           ticket.status !== "available"
                         }
                       >
-                         {t("requestTickets")}
+                        {t("requestTickets")}
                       </button>
                     )}
                   </td>
