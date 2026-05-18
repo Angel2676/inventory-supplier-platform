@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-
+const marketplaceRoutes = require("./routes/marketplace");
 const authRoutes = require("./routes/auth");
 const eventsRoutes = require("./routes/events");
 const ticketsRoutes = require("./routes/tickets");
@@ -58,6 +58,7 @@ app.use("/api/inventory-alerts", inventoryAlertsRoutes);
 app.use("/api/inventory-status", inventoryStatusRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/notifications", notificationsRoutes);
+app.use("/api/marketplace", marketplaceRoutes);
 
 setInterval(() => {
   cleanupExpiredReservations();

@@ -56,6 +56,7 @@ function TicketsTable({ canEdit = true }) {
   const [requestNotes, setRequestNotes] = useState({});
 
   const [successModal, setSuccessModal] = useState(null);
+  const [publishingTicketId, setPublishingTicketId] = useState(null);
   const [error, setError] = useState("");
 
   const [editForm, setEditForm] = useState({
@@ -198,6 +199,38 @@ function TicketsTable({ canEdit = true }) {
     });
   }
 
+  async function publishToGigsberg(ticket) {
+  try {
+    setPublishingTicketId(ticket.id);
+
+    await api.post("/api/marketplace/publish", {
+      ticket_id: ticket.id,
+      marketplace: "gigsberg"
+    });
+
+    setSuccessModal({
+      title: "Publish avviato",
+      message:
+        "Il ticket è stato aggiunto alla coda publish Gigsberg. Appena saranno disponibili le API credentials complete sarà sincronizzato automaticamente."
+    });
+
+    await loadTickets();
+  } catch (err) {
+    console.error(err);
+
+    setError(
+      err.response?.data?.error ||
+        "Errore publish Gigsberg"
+    );
+  } finally {
+    setPublishingTicketId(null);
+  }
+}
+  
+
+
+  
+  
   async function requestTicket(ticket) {
     setError("");
 
@@ -654,6 +687,15 @@ function TicketsTable({ canEdit = true }) {
                             onClick={() => deleteTicket(ticket.id)}
                           >
                             Elimina
+                          </button>
+                          <button
+                            className="btn btn-secondary"
+                            onClick={() => publishToGigsberg(ticket)}
+                            disabled={publishingTicketId === ticket.id} 
+                          >
+                            {publishingTicketId === ticket.id
+                               ? "Publishing..."
+                               : "Publish Gigsberg"}
                           </button>
                         </>
                       )
