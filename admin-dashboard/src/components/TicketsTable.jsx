@@ -60,10 +60,6 @@ function TicketsTable({ canEdit = true }) {
   const [error, setError] = useState("");
 
   const [editForm, setEditForm] = useState({
-    price: "",
-    available_quantity: "",
-    low_stock_threshold: ""
-  });
 
   async function loadTickets() {
     try {
@@ -153,7 +149,10 @@ function TicketsTable({ canEdit = true }) {
     setEditForm({
       price: "",
       available_quantity: "",
-      low_stock_threshold: ""
+      low_stock_threshold: "",
+      min_price: "",
+      undercut_amount: "0.01",
+      auto_reprice_enabled: false
     });
   }
 
@@ -164,6 +163,12 @@ function TicketsTable({ canEdit = true }) {
         available_quantity: Number(editForm.available_quantity),
         low_stock_threshold: Number(editForm.low_stock_threshold)
       });
+      await api.patch(`/api/tickets/${ticketId}/pricing`, {
+         min_price: editForm.min_price ? Number(editForm.min_price) : null,
+         auto_reprice_enabled: Boolean(editForm.auto_reprice_enabled),
+         undercut_amount: Number(editForm.undercut_amount || 0.01)
+         });
+
 
       setEditingId(null);
       await loadTickets();
@@ -545,7 +550,9 @@ function TicketsTable({ canEdit = true }) {
               <th>Block</th>
               <th>Available</th>
               <th>Prezzo</th>
-
+              {canEdit && <th>Min Price</th>}
+              {canEdit && <th>Auto Reprice</th>}
+              {canEdit && <th>Undercut</th>}
               {!canEdit && <th>Qty</th>}
               {!canEdit && <th>Note</th>}
               {!canEdit && <th>Totale</th>}
@@ -613,6 +620,108 @@ function TicketsTable({ canEdit = true }) {
                       `€ ${unitPrice.toFixed(2)}`
                     )}
                   </td>
+
+                  {canEdit && (
+                    <td>
+                      {editingId === ticket.id ? (
+                        <input
+                          className="table-input"
+                           type="number"
+                            step="0.01"
+                            value={editForm.min_price}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                min_price: e.target.value
+                                })
+                               }
+                            />
+                      ) : ticket.min_price ? (
+                        `€ ${Number(ticket.min_price).toFixed(2)}`
+                       ) : (
+                           "-"
+                       )}
+                    </td>
+                  )}
+                  {canEdit && (
+
+                  <td>
+
+                    {editingId === ticket.id ? (
+
+                      <input
+
+                        type="checkbox"
+
+                        checked={editForm.auto_reprice_enabled}
+
+                        onChange={(e) =>
+
+                          setEditForm({
+
+                            ...editForm,
+
+                            auto_reprice_enabled: e.target.checked
+
+                          })
+
+                        }
+
+                      />
+
+                    ) : ticket.auto_reprice_enabled ? (
+
+                      "ON"
+
+                    ) : (
+
+                      "OFF"
+
+                    )}
+
+                  </td>
+
+                )}
+
+                {canEdit && (
+
+                  <td>
+
+                    {editingId === ticket.id ? (
+
+                      <input
+
+                        className="table-input"
+
+                        type="number"
+
+                        step="0.01"
+
+                        value={editForm.undercut_amount}
+
+                        onChange={(e) =>
+
+                          setEditForm({
+
+                            ...editForm,
+
+                            undercut_amount: e.target.value
+
+                          })
+
+                        }
+
+                      />
+
+    ) : (
+
+      `€ ${Number(ticket.undercut_amount || 0.01).toFixed(2)}`
+
+    )}
+
+  </td>
+
+)}
 
                   {!canEdit && (
                     <td>

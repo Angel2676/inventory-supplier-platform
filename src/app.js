@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-
+const { startRepricingJob } = require("./jobs/repricingJob");
 const app = express();
 const marketplaceRoutes = require("./routes/marketplace");
 const authRoutes = require("./routes/auth");
@@ -28,11 +28,11 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5175",
-      "https://inventory-supplier-platform.vercel.app"
+      "https://inventory-supplier-platform.vercel.app",
     ],
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-  })
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
 );
 
 app.use(express.json());
@@ -41,7 +41,7 @@ app.get("/", (req, res) => {
   res.json({
     status: "ok",
     service: "Inventory Supplier API",
-    message: "Backend attivo correttamente"
+    message: "Backend attivo correttamente",
   });
 });
 
@@ -65,5 +65,7 @@ setInterval(() => {
 }, 60000);
 
 app.listen(PORT, () => {
-  console.log(`Inventory Supplier API running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
+
+  startRepricingJob();
 });

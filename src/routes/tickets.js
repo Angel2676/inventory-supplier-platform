@@ -6,6 +6,7 @@ const fs = require("fs");
 const router = express.Router();
 
 const pool = require("../db");
+const { calculateSafePrice } = require("../services/priceCheckerService");
 const authJwt = require("../middleware/authJwt");
 const requireRole = require("../middleware/requireRole");
 
@@ -34,7 +35,7 @@ router.post(
         seat_to,
         quantity,
         price,
-        currency
+        currency,
       } = req.body;
 
       if (
@@ -45,7 +46,7 @@ router.post(
         !price
       ) {
         return res.status(400).json({
-          error: "Campi obbligatori mancanti"
+          error: "Campi obbligatori mancanti",
         });
       }
 
@@ -81,8 +82,8 @@ router.post(
           seat_to || null,
           Number(quantity),
           Number(price),
-          currency || "EUR"
-        ]
+          currency || "EUR",
+        ],
       );
 
       await createAuditLog({
@@ -94,23 +95,22 @@ router.post(
           user_id: req.user.id,
           supplier_ticket_id: result.rows[0].supplier_ticket_id,
           category: result.rows[0].category,
-          price: result.rows[0].price
-        }
+          price: result.rows[0].price,
+        },
       });
 
       res.status(201).json({
         message: "Ticket creato correttamente",
-        ticket: result.rows[0]
+        ticket: result.rows[0],
       });
-
     } catch (error) {
       console.error("Errore POST /api/tickets:", error);
 
       res.status(500).json({
-        error: "Errore creazione ticket"
+        error: "Errore creazione ticket",
       });
     }
-  }
+  },
 );
 
 /**
@@ -126,7 +126,7 @@ router.get("/", authJwt, async (req, res) => {
       min_price,
       max_price,
       page = 1,
-      limit = 20
+      limit = 20,
     } = req.query;
 
     let query = `
@@ -206,29 +206,28 @@ router.get("/", authJwt, async (req, res) => {
       result.rows.map(async (ticket) => {
         const finalPrice = await calculatePrice({
           ticket,
-          userId: req.user.id
+          userId: req.user.id,
         });
 
         return {
           ...ticket,
           base_price: ticket.price,
-          final_price: finalPrice
+          final_price: finalPrice,
         };
-      })
+      }),
     );
 
     res.json({
       page: pageNumber,
       limit: limitNumber,
       count: ticketsWithPricing.length,
-      tickets: ticketsWithPricing
+      tickets: ticketsWithPricing,
     });
-
   } catch (error) {
     console.error("Errore GET /api/tickets:", error);
 
     res.status(500).json({
-      error: "Errore recupero tickets"
+      error: "Errore recupero tickets",
     });
   }
 });
@@ -257,7 +256,7 @@ router.patch(
         currency,
         status,
         notes,
-        low_stock_threshold
+        low_stock_threshold,
       } = req.body;
 
       const result = await pool.query(
@@ -287,9 +286,7 @@ router.patch(
           seat_from || null,
           seat_to || null,
           quantity !== undefined ? Number(quantity) : null,
-          available_quantity !== undefined
-            ? Number(available_quantity)
-            : null,
+          available_quantity !== undefined ? Number(available_quantity) : null,
           price !== undefined ? Number(price) : null,
           currency || null,
           status || null,
@@ -297,13 +294,13 @@ router.patch(
           low_stock_threshold !== undefined
             ? Number(low_stock_threshold)
             : null,
-          ticketId
-        ]
+          ticketId,
+        ],
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({
-          error: "Ticket non trovato"
+          error: "Ticket non trovato",
         });
       }
 
@@ -315,24 +312,22 @@ router.patch(
         metadata: {
           user_id: req.user.id,
           updated_fields: req.body,
-          supplier_ticket_id:
-            result.rows[0].supplier_ticket_id
-        }
+          supplier_ticket_id: result.rows[0].supplier_ticket_id,
+        },
       });
 
       res.json({
         message: "Ticket aggiornato correttamente",
-        ticket: result.rows[0]
+        ticket: result.rows[0],
       });
-
     } catch (error) {
       console.error("Errore PATCH /api/tickets/:id:", error);
 
       res.status(500).json({
-        error: "Errore aggiornamento ticket"
+        error: "Errore aggiornamento ticket",
       });
     }
-  }
+  },
 );
 
 /**
@@ -357,12 +352,12 @@ router.delete(
         WHERE id = $1
         RETURNING *
         `,
-        [ticketId]
+        [ticketId],
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({
-          error: "Ticket non trovato"
+          error: "Ticket non trovato",
         });
       }
 
@@ -373,26 +368,24 @@ router.delete(
         resource_id: result.rows[0].id.toString(),
         metadata: {
           user_id: req.user.id,
-          supplier_ticket_id:
-            result.rows[0].supplier_ticket_id,
+          supplier_ticket_id: result.rows[0].supplier_ticket_id,
           category: result.rows[0].category,
-          deletion_type: "soft_delete"
-        }
+          deletion_type: "soft_delete",
+        },
       });
 
       res.json({
         message: "Ticket eliminato correttamente",
-        deleted_ticket: result.rows[0]
+        deleted_ticket: result.rows[0],
       });
-
     } catch (error) {
       console.error("Errore DELETE /api/tickets/:id:", error);
 
       res.status(500).json({
-        error: "Errore eliminazione ticket"
+        error: "Errore eliminazione ticket",
       });
     }
-  }
+  },
 );
 
 /**
@@ -410,7 +403,7 @@ router.post(
     try {
       if (!req.file) {
         return res.status(400).json({
-          error: "File CSV mancante"
+          error: "File CSV mancante",
         });
       }
 
@@ -460,8 +453,8 @@ router.post(
                   row.seat_to || null,
                   Number(row.quantity),
                   Number(row.price),
-                  row.currency || "EUR"
-                ]
+                  row.currency || "EUR",
+                ],
               );
 
               insertedTickets.push(result.rows[0]);
@@ -478,40 +471,286 @@ router.post(
               resource_id: "bulk",
               metadata: {
                 user_id: req.user.id,
-                imported_count: insertedTickets.length
-              }
+                imported_count: insertedTickets.length,
+              },
             });
 
             res.status(201).json({
               message: "Upload CSV completato correttamente",
               imported_count: insertedTickets.length,
-              tickets: insertedTickets
+              tickets: insertedTickets,
             });
-
           } catch (error) {
             await client.query("ROLLBACK");
 
             console.error("Errore import CSV:", error);
 
             res.status(500).json({
-              error: "Errore importazione CSV"
+              error: "Errore importazione CSV",
             });
-
           } finally {
             client.release();
           }
         });
-
     } catch (error) {
       client.release();
 
       console.error("Errore upload CSV:", error);
 
       res.status(500).json({
-        error: "Errore upload CSV"
+        error: "Errore upload CSV",
       });
     }
-  }
+  },
 );
+router.patch("/:id/pricing", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { min_price, auto_reprice_enabled, undercut_amount } = req.body;
+
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        min_price = COALESCE($1, min_price),
+        auto_reprice_enabled = COALESCE($2, auto_reprice_enabled),
+        undercut_amount = COALESCE($3, undercut_amount)
+      WHERE id = $4
+      RETURNING *
+      `,
+      [min_price, auto_reprice_enabled, undercut_amount, id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Ticket non trovato",
+      });
+    }
+
+    res.json({
+      message: "Pricing aggiornato correttamente",
+      ticket: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Errore aggiornamento pricing:", error);
+    res.status(500).json({
+      error: "Errore aggiornamento pricing",
+    });
+  }
+});
+
+router.post("/:id/price-check", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { marketLowestPrice } = req.body;
+
+    const result = await pool.query("SELECT * FROM tickets WHERE id = $1", [
+      id,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Ticket non trovato",
+      });
+    }
+
+    const ticket = result.rows[0];
+
+    const priceCheck = calculateSafePrice({
+      currentPrice: Number(ticket.price),
+      marketLowestPrice: Number(marketLowestPrice),
+      minPrice: Number(ticket.min_price),
+      undercutAmount: Number(ticket.undercut_amount || 0.01),
+    });
+
+    await pool.query(
+      `
+      UPDATE tickets
+      SET
+        last_market_price = $1,
+        last_suggested_price = $2,
+        last_reprice_at = NOW()
+      WHERE id = $3
+      `,
+      [marketLowestPrice, priceCheck.suggestedPrice, id],
+    );
+
+    res.json({
+      ticket_id: ticket.id,
+      current_price: ticket.price,
+      market_lowest_price: marketLowestPrice,
+      min_price: ticket.min_price,
+      result: priceCheck,
+    });
+  } catch (error) {
+    console.error("Errore price check:", error);
+    res.status(500).json({
+      error: "Errore price check",
+    });
+  }
+});
+
+router.post("/:id/reprice", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { marketLowestPrice } = req.body;
+
+    const result = await pool.query("SELECT * FROM tickets WHERE id = $1", [
+      id,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Ticket non trovato",
+      });
+    }
+
+    const ticket = result.rows[0];
+
+    if (!ticket.auto_reprice_enabled) {
+      return res.status(400).json({
+        error: "Repricing automatico non attivo per questo ticket",
+      });
+    }
+
+    const priceCheck = calculateSafePrice({
+      currentPrice: Number(ticket.price),
+      marketLowestPrice: Number(marketLowestPrice),
+      minPrice: Number(ticket.min_price),
+      undercutAmount: Number(ticket.undercut_amount || 0.01),
+    });
+
+    if (!priceCheck.shouldUpdate) {
+      await pool.query(
+        `
+        UPDATE tickets
+        SET
+          last_market_price = $1,
+          last_suggested_price = $2,
+          last_reprice_at = NOW()
+        WHERE id = $3
+        `,
+        [marketLowestPrice, priceCheck.suggestedPrice, id],
+      );
+
+      return res.json({
+        message: "Nessun aggiornamento necessario",
+        ticket_id: ticket.id,
+        old_price: ticket.price,
+        new_price: ticket.price,
+        result: priceCheck,
+      });
+    }
+
+    const updateResult = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        price = $1,
+        last_market_price = $2,
+        last_suggested_price = $3,
+        last_reprice_at = NOW()
+      WHERE id = $4
+      RETURNING *
+      `,
+      [priceCheck.finalPrice, marketLowestPrice, priceCheck.suggestedPrice, id],
+    );
+
+    res.json({
+      message: "Prezzo aggiornato correttamente",
+      ticket_id: ticket.id,
+      old_price: ticket.price,
+      new_price: updateResult.rows[0].price,
+      result: priceCheck,
+      ticket: updateResult.rows[0],
+    });
+  } catch (error) {
+    console.error("Errore repricing:", error);
+    res.status(500).json({
+      error: "Errore repricing",
+    });
+  }
+});
+router.post("/:id/reprice", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { marketLowestPrice } = req.body;
+
+    const result = await pool.query("SELECT * FROM tickets WHERE id = $1", [
+      id,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Ticket non trovato",
+      });
+    }
+
+    const ticket = result.rows[0];
+
+    if (!ticket.auto_reprice_enabled) {
+      return res.status(400).json({
+        error: "Repricing automatico non attivo per questo ticket",
+      });
+    }
+
+    const priceCheck = calculateSafePrice({
+      currentPrice: Number(ticket.price),
+      marketLowestPrice: Number(marketLowestPrice),
+      minPrice: Number(ticket.min_price),
+      undercutAmount: Number(ticket.undercut_amount || 0.01),
+    });
+
+    if (!priceCheck.shouldUpdate) {
+      await pool.query(
+        `
+        UPDATE tickets
+        SET
+          last_market_price = $1,
+          last_suggested_price = $2,
+          last_reprice_at = NOW()
+        WHERE id = $3
+        `,
+        [marketLowestPrice, priceCheck.suggestedPrice, id],
+      );
+
+      return res.json({
+        message: "Nessun aggiornamento necessario",
+        ticket_id: ticket.id,
+        old_price: ticket.price,
+        new_price: ticket.price,
+        result: priceCheck,
+      });
+    }
+
+    const updateResult = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        price = $1,
+        last_market_price = $2,
+        last_suggested_price = $3,
+        last_reprice_at = NOW()
+      WHERE id = $4
+      RETURNING *
+      `,
+      [priceCheck.finalPrice, marketLowestPrice, priceCheck.suggestedPrice, id],
+    );
+
+    res.json({
+      message: "Prezzo aggiornato correttamente",
+      ticket_id: ticket.id,
+      old_price: ticket.price,
+      new_price: updateResult.rows[0].price,
+      result: priceCheck,
+      ticket: updateResult.rows[0],
+    });
+  } catch (error) {
+    console.error("Errore repricing:", error);
+    res.status(500).json({
+      error: "Errore repricing",
+    });
+  }
+});
 
 module.exports = router;

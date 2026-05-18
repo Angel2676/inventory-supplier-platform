@@ -1,8 +1,8 @@
-require("dotenv").config();
+require("dotenv").config({
+  path: "../../../.env",
+});
 
-const {
-  authenticateGigsberg
-} = require("./src/services/integrations/gigsberg/gigsbergAuth");
+const { authenticateGigsberg } = require("./gigsbergAuth");
 
 async function test() {
   try {
@@ -13,6 +13,7 @@ async function test() {
     console.log(auth);
   } catch (error) {
     console.error("Authentication failed");
+    console.error(error.response?.data || error.message);
   }
 }
 
