@@ -145,7 +145,7 @@ function TicketsTable({ canEdit = true }) {
     setEditingId(ticket.id);
 
     setEditForm({
-      price: ticket.price || "",
+      price: ticket.partner_price || ticket.price || "",
       available_quantity: ticket.available_quantity || "",
       low_stock_threshold: ticket.low_stock_threshold || 2,
       min_price: ticket.min_price || "",
@@ -171,6 +171,7 @@ function TicketsTable({ canEdit = true }) {
     try {
       await api.patch(`/api/tickets/${ticketId}`, {
         price: Number(editForm.price),
+        partner_price: Number(editForm.price),
         available_quantity: Number(editForm.available_quantity),
         low_stock_threshold: Number(editForm.low_stock_threshold)
       });
@@ -551,8 +552,9 @@ function TicketsTable({ canEdit = true }) {
               <th>Categoria</th>
               <th>Block</th>
               <th>Available</th>
-              <th>Prezzo</th>
+              <th>Partner Price</th>
 
+              {canEdit && <th>Marketplace Price</th>}
               {canEdit && <th>Min Price</th>}
               {canEdit && <th>Auto Reprice</th>}
               {canEdit && <th>Undercut</th>}
@@ -571,8 +573,16 @@ function TicketsTable({ canEdit = true }) {
           <tbody>
             {filteredTickets.map((ticket) => {
               const requestQuantity = Number(requestQuantities[ticket.id] || 1);
-              const unitPrice = Number(ticket.final_price || ticket.price || 0);
-              const totalPrice = (unitPrice * requestQuantity).toFixed(2);
+
+              const partnerPrice = Number(
+                ticket.partner_price || ticket.price || 0
+              );
+
+              const marketplacePrice = Number(
+                ticket.marketplace_price || ticket.price || 0
+              );
+
+              const totalPrice = (partnerPrice * requestQuantity).toFixed(2);
 
               return (
                 <tr key={ticket.id}>
@@ -621,9 +631,11 @@ function TicketsTable({ canEdit = true }) {
                         }
                       />
                     ) : (
-                      `€ ${unitPrice.toFixed(2)}`
+                      `€ ${partnerPrice.toFixed(2)}`
                     )}
                   </td>
+
+                  {canEdit && <td>€ {marketplacePrice.toFixed(2)}</td>}
 
                   {canEdit && (
                     <td>
