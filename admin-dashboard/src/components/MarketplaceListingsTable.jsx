@@ -1,0 +1,114 @@
+import { useEffect, useState } from "react";
+import api from "../api";
+
+function MarketplaceListingsTable() {
+  const [listings, setListings] = useState([]);
+  const [error, setError] = useState("");
+
+  async function loadListings() {
+    try {
+      const response = await api.get("/api/marketplace/listings");
+      setListings(response.data || []);
+      setError("");
+    } catch (err) {
+      console.error(err);
+      setError("Errore caricamento marketplace listings");
+    }
+  }
+
+  useEffect(() => {
+    loadListings();
+    const interval = setInterval(loadListings, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="section">
+      <h2>Marketplace Listings</h2>
+
+      {error && <div className="error">{error}</div>}
+
+      {listings.length === 0 ? (
+        <p>Nessun marketplace listing presente.</p>
+      ) : (
+        <table className="tickets-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Marketplace</th>
+              <th>Evento</th>
+              <th>Data evento</th>
+              <th>Categoria</th>
+              <th>Block</th>
+              <th>Available</th>
+              <th>Partner Price</th>
+              <th>Marketplace Price</th>
+              <th>Min Price</th>
+              <th>Auto Reprice</th>
+              <th>Undercut</th>
+              <th>Last Market</th>
+              <th>Last Suggested</th>
+              <th>Sync Status</th>
+              <th>Remote Listing</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {listings.map((listing) => (
+              <tr key={listing.id}>
+                <td>{listing.id}</td>
+                <td>{listing.marketplace}</td>
+                <td>{listing.event_name || "-"}</td>
+                <td>
+                  {listing.event_date
+                    ? new Date(listing.event_date).toLocaleString()
+                    : "-"}
+                </td>
+                <td>{listing.category || "-"}</td>
+                <td>{listing.block || "-"}</td>
+                <td>{listing.available_quantity ?? "-"}</td>
+                <td>
+                  €{" "}
+                  {Number(
+                    listing.partner_price || listing.base_price || 0
+                  ).toFixed(2)}
+                </td>
+                <td>
+                  €{" "}
+                  {Number(
+                    listing.marketplace_price || listing.base_price || 0
+                  ).toFixed(2)}
+                </td>
+                <td>
+                  {listing.min_price
+                    ? `€ ${Number(listing.min_price).toFixed(2)}`
+                    : "-"}
+                </td>
+                <td>{listing.auto_reprice_enabled ? "ON" : "OFF"}</td>
+                <td>€ {Number(listing.undercut_amount || 0.01).toFixed(2)}</td>
+                <td>
+                  {listing.last_market_price
+                    ? `€ ${Number(listing.last_market_price).toFixed(2)}`
+                    : "-"}
+                </td>
+                <td>
+                  {listing.last_suggested_price
+                    ? `€ ${Number(listing.last_suggested_price).toFixed(2)}`
+                    : "-"}
+                </td>
+                <td>{listing.sync_status || "-"}</td>
+                <td>
+                  {listing.remote_listing_id ||
+                    listing.external_listing_id ||
+                    "-"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+export default MarketplaceListingsTable;
