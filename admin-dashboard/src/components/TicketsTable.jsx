@@ -37,7 +37,7 @@ const EVENT_TYPES = [
   }
 ];
 
-function TicketsTable({ canEdit = true }) {
+function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   const { t } = useTranslation();
 
   const [tickets, setTickets] = useState([]);
@@ -793,15 +793,17 @@ function TicketsTable({ canEdit = true }) {
                             Elimina
                           </button>
 
-                          <button
-                            className="btn btn-secondary"
-                            onClick={() => publishToGigsberg(ticket)}
-                            disabled={publishingTicketId === ticket.id}
-                          >
-                            {publishingTicketId === ticket.id
-                              ? "Publishing..."
-                              : "Publish Gigsberg"}
-                          </button>
+                          {marketplaceMode && (
+                            <button
+                              className="btn btn-secondary"
+                              onClick={() => publishToGigsberg(ticket)}
+                              disabled={publishingTicketId === ticket.id}
+                            >
+                              {publishingTicketId === ticket.id
+                                ? "Publishing..."
+                                : "Publish Gigsberg"}
+                            </button>
+                          )}
                         </>
                       )
                     ) : (
