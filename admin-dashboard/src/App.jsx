@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import api from "./api";
-
+import MarketplaceHub from "./components/MarketplaceHub";
 import DashboardStats from "./components/DashboardStats";
 import TicketsTable from "./components/TicketsTable";
 import ReservationsTable from "./components/ReservationsTable";
@@ -42,9 +42,7 @@ function App() {
   const [activeSection, setActiveSection] = useState("tickets");
   const [showIntro, setShowIntro] = useState(true);
 
-  const resetMatch = window.location.pathname.match(
-    /^\/reset-password\/(.+)$/
-  );
+  const resetMatch = window.location.pathname.match(/^\/reset-password\/(.+)$/);
 
   async function loadStats() {
     try {
@@ -118,9 +116,7 @@ function App() {
     if (showRegister) {
       return (
         <>
-          <RegisterPage
-            onBackToLogin={() => setShowRegister(false)}
-          />
+          <RegisterPage onBackToLogin={() => setShowRegister(false)} />
 
           <WhatsAppButton />
         </>
@@ -170,6 +166,8 @@ function App() {
 
       case "tickets":
         return <TicketsTable canEdit={true} />;
+      case "marketplace-hub":
+        return <MarketplaceHub />;
 
       case "inventory-intelligence":
         return (
@@ -222,7 +220,7 @@ function App() {
             {stats && <DashboardStats stats={stats} />}
             <TicketsTable canEdit={false} />
           </>
-          );
+        );
 
       case "requests":
         return <TicketRequestsTable />;
@@ -262,9 +260,7 @@ function App() {
           </header>
 
           <div className="dashboard-content">
-            {isSuperAdmin
-              ? renderAdminSection()
-              : renderPartnerSection()}
+            {isSuperAdmin ? renderAdminSection() : renderPartnerSection()}
           </div>
         </main>
       </div>
