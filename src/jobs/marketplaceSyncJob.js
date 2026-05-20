@@ -1,28 +1,30 @@
 const cron = require("node-cron");
 
 const {
-  syncListingsNeedingQuantityUpdate,
+  syncMarketplaceQuantities,
 } = require("../services/marketplaceQuantitySyncService");
 
 async function runMarketplaceSyncJob() {
   console.log("Marketplace quantity sync job started");
 
-  const count = await syncListingsNeedingQuantityUpdate();
+  await syncMarketplaceQuantities();
 
-  console.log(
-    `Marketplace quantity sync job completed. Listings processed: ${count}`,
-  );
+  console.log("Marketplace quantity sync job completed");
 }
 
 function startMarketplaceSyncJob() {
   cron.schedule("*/2 * * * *", async () => {
-    await runMarketplaceSyncJob();
+    try {
+      await runMarketplaceSyncJob();
+    } catch (error) {
+      console.error("Marketplace quantity sync job error:", error);
+    }
   });
 
   console.log("Marketplace quantity sync job scheduled every 2 minutes");
 }
 
 module.exports = {
-  runMarketplaceSyncJob,
   startMarketplaceSyncJob,
+  runMarketplaceSyncJob,
 };
