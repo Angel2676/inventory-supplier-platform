@@ -1,19 +1,19 @@
 const pool = require("../db");
 
 const {
-  updateSupplierTicket
+  updateSupplierTicket,
 } = require("./integrations/sportevents365/sportevents365Api");
 
 /*
 |--------------------------------------------------------------------------
-| SPORTSEVENTS365
+| SPORTSEVENTS365 QUANTITY SYNC
 |--------------------------------------------------------------------------
 */
 
 async function updateSportEvents365Quantity(listing, quantity) {
   if (!listing.remote_event_id || !listing.remote_listing_id) {
     throw new Error(
-      "remote_event_id o remote_listing_id mancanti per SportEvents365"
+      "remote_event_id o remote_listing_id mancanti per SportEvents365",
     );
   }
 
@@ -21,8 +21,8 @@ async function updateSportEvents365Quantity(listing, quantity) {
     listing.remote_event_id,
     listing.remote_listing_id,
     {
-      quantity: Number(quantity)
-    }
+      quantity: Number(quantity),
+    },
   );
 
   return {
@@ -31,7 +31,38 @@ async function updateSportEvents365Quantity(listing, quantity) {
     remote_event_id: listing.remote_event_id,
     remote_listing_id: listing.remote_listing_id,
     quantity: Number(quantity),
-    response
+    response,
+  };
+}
+
+/*
+|--------------------------------------------------------------------------
+| SPORTSEVENTS365 PRICE SYNC
+|--------------------------------------------------------------------------
+*/
+
+async function updateSportEvents365Price(listing, price) {
+  if (!listing.remote_event_id || !listing.remote_listing_id) {
+    throw new Error(
+      "remote_event_id o remote_listing_id mancanti per SportEvents365 price sync",
+    );
+  }
+
+  const response = await updateSupplierTicket(
+    listing.remote_event_id,
+    listing.remote_listing_id,
+    {
+      price: Number(price),
+    },
+  );
+
+  return {
+    marketplace: "sportevents365",
+    listing_id: listing.id,
+    remote_event_id: listing.remote_event_id,
+    remote_listing_id: listing.remote_listing_id,
+    price: Number(price),
+    response,
   };
 }
 
@@ -43,14 +74,14 @@ async function updateSportEvents365Quantity(listing, quantity) {
 
 async function updateGigsbergQuantity(listing, quantity) {
   console.log(
-    `Gigsberg quantity sync placeholder: listing ${listing.id}, qty ${quantity}`
+    `Gigsberg quantity sync placeholder: listing ${listing.id}, qty ${quantity}`,
   );
 
   return {
     marketplace: "gigsberg",
     listing_id: listing.id,
     quantity,
-    placeholder: true
+    placeholder: true,
   };
 }
 
@@ -61,13 +92,14 @@ async function updateGigsbergQuantity(listing, quantity) {
 */
 
 async function syncMarketplaceQuantities() {
-  console.log("Marketplace quantity sync job started");
+  console.log("Marketplace quantity/price sync job started");
 
   try {
     const listingsResult = await pool.query(`
       SELECT
         ml.*,
-        t.available_quantity
+        t.available_quantity,
+        COALESCE(t.marketplace_price, t.partner_price, t.price) AS current_price
       FROM marketplace_listings ml
       JOIN tickets t
         ON t.id = ml.ticket_id
@@ -78,9 +110,9 @@ async function syncMarketplaceQuantities() {
 
     for (const listing of listings) {
       try {
-        const currentQuantity = Number(
-          listing.available_quantity || 0
-        );
+        const currentQuantity = Number(listing.available_quantity || 0);
+
+        const currentPrice = Number(listing.current_price || 0);
 
         let responsePayload = null;
 
@@ -91,11 +123,20 @@ async function syncMarketplaceQuantities() {
         */
 
         if (listing.marketplace === "sportevents365") {
-          responsePayload =
-            await updateSportEvents365Quantity(
-              listing,
-              currentQuantity
-            );
+          const quantityResponse = await updateSportEvents365Quantity(
+            listing,
+            currentQuantity,
+          );
+
+          const priceResponse = await updateSportEvents365Price(
+            listing,
+            currentPrice,
+          );
+
+          responsePayload = {
+            quantity: quantityResponse,
+            price: priceResponse,
+          };
         }
 
         /*
@@ -105,11 +146,10 @@ async function syncMarketplaceQuantities() {
         */
 
         if (listing.marketplace === "gigsberg") {
-          responsePayload =
-            await updateGigsbergQuantity(
-              listing,
-              currentQuantity
-            );
+          responsePayload = await updateGigsbergQuantity(
+            listing,
+            currentQuantity,
+          );
         }
 
         /*
@@ -124,16 +164,14 @@ async function syncMarketplaceQuantities() {
           SET
             last_quantity_synced = $1,
             last_quantity_sync_at = NOW(),
+            marketplace_price = $3,
             quantity_sync_attempts =
               COALESCE(quantity_sync_attempts, 0) + 1,
             last_sync_at = NOW(),
             last_error = NULL
           WHERE id = $2
           `,
-          [
-            currentQuantity,
-            listing.id
-          ]
+          [currentQuantity, listing.id, currentPrice],
         );
 
         /*
@@ -158,18 +196,15 @@ async function syncMarketplaceQuantities() {
             listing.id,
             listing.ticket_id,
             listing.marketplace,
-            "quantity_sync",
+            "quantity_price_sync",
             "success",
-            responsePayload
-              ? JSON.stringify(responsePayload)
-              : null
-          ]
+            responsePayload ? JSON.stringify(responsePayload) : null,
+          ],
         );
-
       } catch (listingError) {
         console.error(
-          "Marketplace quantity sync error:",
-          listingError.message
+          "Marketplace quantity/price sync error:",
+          listingError.message,
         );
 
         /*
@@ -188,10 +223,7 @@ async function syncMarketplaceQuantities() {
             last_sync_at = NOW()
           WHERE id = $2
           `,
-          [
-            listingError.message,
-            listing.id
-          ]
+          [listingError.message, listing.id],
         );
 
         /*
@@ -216,26 +248,22 @@ async function syncMarketplaceQuantities() {
             listing.id,
             listing.ticket_id,
             listing.marketplace,
-            "quantity_sync",
+            "quantity_price_sync",
             "failed",
-            listingError.message
-          ]
+            listingError.message,
+          ],
         );
       }
     }
 
     console.log(
-      `Marketplace quantity sync job completed. Listings processed: ${listings.length}`
+      `Marketplace quantity/price sync job completed. Listings processed: ${listings.length}`,
     );
-
   } catch (err) {
-    console.error(
-      "Marketplace quantity sync fatal error:",
-      err.message
-    );
+    console.error("Marketplace quantity/price sync fatal error:", err.message);
   }
 }
 
 module.exports = {
-  syncMarketplaceQuantities
+  syncMarketplaceQuantities,
 };

@@ -22,19 +22,19 @@ const EVENT_TYPES = [
       "Europa League",
       "Conference League",
       "Nazionali",
-      "Altro calcio"
-    ]
+      "Altro calcio",
+    ],
   },
   {
     value: "concert",
     label: "Concerti",
-    subcategories: ["Concerti italiani", "Concerti internazionali"]
+    subcategories: ["Concerti italiani", "Concerti internazionali"],
   },
   {
     value: "formula_1",
     label: "Formula 1",
-    subcategories: ["Grand Prix"]
-  }
+    subcategories: ["Grand Prix"],
+  },
 ];
 
 function TicketsTable({ canEdit = true, marketplaceMode = false }) {
@@ -66,7 +66,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     low_stock_threshold: "",
     min_price: "",
     undercut_amount: "0.01",
-    auto_reprice_enabled: false
+    auto_reprice_enabled: false,
   });
 
   async function loadTickets() {
@@ -150,7 +150,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       low_stock_threshold: ticket.low_stock_threshold || 2,
       min_price: ticket.min_price || "",
       undercut_amount: ticket.undercut_amount || "0.01",
-      auto_reprice_enabled: Boolean(ticket.auto_reprice_enabled)
+      auto_reprice_enabled: Boolean(ticket.auto_reprice_enabled),
     });
   }
 
@@ -163,7 +163,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       low_stock_threshold: "",
       min_price: "",
       undercut_amount: "0.01",
-      auto_reprice_enabled: false
+      auto_reprice_enabled: false,
     });
   }
 
@@ -173,14 +173,16 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
         price: Number(editForm.price),
         partner_price: Number(editForm.price),
         available_quantity: Number(editForm.available_quantity),
-        low_stock_threshold: Number(editForm.low_stock_threshold)
+        low_stock_threshold: Number(editForm.low_stock_threshold),
       });
 
-      await api.patch(`/api/tickets/${ticketId}/pricing`, {
-        min_price: editForm.min_price ? Number(editForm.min_price) : null,
-        auto_reprice_enabled: Boolean(editForm.auto_reprice_enabled),
-        undercut_amount: Number(editForm.undercut_amount || 0.01)
-      });
+      if (editForm.min_price !== "" || editForm.auto_reprice_enabled === true) {
+        await api.patch(`/api/tickets/${ticketId}/pricing`, {
+          min_price: editForm.min_price ? Number(editForm.min_price) : null,
+          auto_reprice_enabled: Boolean(editForm.auto_reprice_enabled),
+          undercut_amount: Number(editForm.undercut_amount || 0.01),
+        });
+      }
 
       setEditingId(null);
       await loadTickets();
@@ -205,14 +207,14 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   function updateRequestQuantity(ticketId, value) {
     setRequestQuantities({
       ...requestQuantities,
-      [ticketId]: value
+      [ticketId]: value,
     });
   }
 
   function updateRequestNote(ticketId, value) {
     setRequestNotes({
       ...requestNotes,
-      [ticketId]: value
+      [ticketId]: value,
     });
   }
 
@@ -222,13 +224,13 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
       await api.post("/api/marketplace/publish", {
         ticket_id: ticket.id,
-        marketplace: "gigsberg"
+        marketplace: "gigsberg",
       });
 
       setSuccessModal({
         title: "Publish avviato",
         message:
-          "Il ticket è stato aggiunto alla coda publish Gigsberg. Appena saranno disponibili le API credentials complete sarà sincronizzato automaticamente."
+          "Il ticket è stato aggiunto alla coda publish Gigsberg. Appena saranno disponibili le API credentials complete sarà sincronizzato automaticamente.",
       });
 
       await loadTickets();
@@ -240,27 +242,25 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     }
   }
 
-    async function publishToSportEvents365(ticket) {
+  async function publishToSportEvents365(ticket) {
     try {
       setPublishingTicketId(ticket.id);
 
       await api.post("/api/marketplace/publish", {
         ticket_id: ticket.id,
-        marketplace: "sportevents365"
+        marketplace: "sportevents365",
       });
 
       setSuccessModal({
         title: "Publish avviato",
         message:
-          "Il ticket è stato inviato alla coda publish SportEvents365. Il sistema userà il mapping evento e le Supplier API per completare la pubblicazione."
+          "Il ticket è stato inviato alla coda publish SportEvents365. Il sistema userà il mapping evento e le Supplier API per completare la pubblicazione.",
       });
 
       await loadTickets();
     } catch (err) {
       console.error(err);
-      setError(
-        err.response?.data?.error || "Errore publish SportEvents365"
-      );
+      setError(err.response?.data?.error || "Errore publish SportEvents365");
     } finally {
       setPublishingTicketId(null);
     }
@@ -287,23 +287,23 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
         quantity,
         notes:
           requestNotes[ticket.id] ||
-          `Richiesta inviata per ${getEventName(ticket.event_id)}`
+          `Richiesta inviata per ${getEventName(ticket.event_id)}`,
       });
 
       setSuccessModal({
         title: "Richiesta inviata",
         message:
-          "La tua richiesta tickets è stata inviata correttamente. Riceverai aggiornamenti appena sarà gestita dal team SportManiaTravel."
+          "La tua richiesta tickets è stata inviata correttamente. Riceverai aggiornamenti appena sarà gestita dal team SportManiaTravel.",
       });
 
       setRequestQuantities({
         ...requestQuantities,
-        [ticket.id]: 1
+        [ticket.id]: 1,
       });
 
       setRequestNotes({
         ...requestNotes,
-        [ticket.id]: ""
+        [ticket.id]: "",
       });
 
       await loadTickets();
@@ -323,7 +323,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       : true;
 
     const hasTickets = tickets.some(
-      (ticket) => Number(ticket.event_id) === Number(event.id)
+      (ticket) => Number(ticket.event_id) === Number(event.id),
     );
 
     return matchesType && matchesSubcategory && hasTickets;
@@ -343,7 +343,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       : true;
 
     const hasTickets = tickets.some(
-      (ticket) => Number(ticket.event_id) === Number(event.id)
+      (ticket) => Number(ticket.event_id) === Number(event.id),
     );
 
     return (
@@ -446,7 +446,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
               tickets={tickets}
               onSelectEvent={(eventId) => {
                 const event = events.find(
-                  (item) => Number(item.id) === Number(eventId)
+                  (item) => Number(item.id) === Number(eventId),
                 );
 
                 setSelectedEvent(event);
@@ -467,7 +467,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
             window.scrollTo({
               top: document.body.scrollHeight,
-              behavior: "smooth"
+              behavior: "smooth",
             });
           }}
         />
@@ -524,8 +524,8 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
               new Set(
                 filteredEventsForTeams
                   .map((event) => event.team_name)
-                  .filter(Boolean)
-              )
+                  .filter(Boolean),
+              ),
             )
               .sort()
               .map((team) => (
@@ -601,11 +601,11 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
               const requestQuantity = Number(requestQuantities[ticket.id] || 1);
 
               const partnerPrice = Number(
-                ticket.partner_price || ticket.price || 0
+                ticket.partner_price || ticket.price || 0,
               );
 
               const marketplacePrice = Number(
-                ticket.marketplace_price || ticket.price || 0
+                ticket.marketplace_price || ticket.price || 0,
               );
 
               const totalPrice = (partnerPrice * requestQuantity).toFixed(2);
@@ -633,7 +633,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            available_quantity: e.target.value
+                            available_quantity: e.target.value,
                           })
                         }
                       />
@@ -652,7 +652,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            price: e.target.value
+                            price: e.target.value,
                           })
                         }
                       />
@@ -674,7 +674,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           onChange={(e) =>
                             setEditForm({
                               ...editForm,
-                              min_price: e.target.value
+                              min_price: e.target.value,
                             })
                           }
                         />
@@ -695,7 +695,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           onChange={(e) =>
                             setEditForm({
                               ...editForm,
-                              auto_reprice_enabled: e.target.checked
+                              auto_reprice_enabled: e.target.checked,
                             })
                           }
                         />
@@ -718,7 +718,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           onChange={(e) =>
                             setEditForm({
                               ...editForm,
-                              undercut_amount: e.target.value
+                              undercut_amount: e.target.value,
                             })
                           }
                         />
@@ -837,7 +837,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 api
                                   .post("/api/marketplace/publish", {
                                     ticket_id: ticket.id,
-                                    marketplace: "ticombo"
+                                    marketplace: "ticombo",
                                   })
                                   .then(loadTickets)
                               }
@@ -855,8 +855,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 ? "Publishing..."
                                 : "Publish SportEvents365"}
                             </button>
-                             )}
-                             
+                          )}
                         </>
                       )
                     ) : (
