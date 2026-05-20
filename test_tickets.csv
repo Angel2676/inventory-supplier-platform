@@ -1,0 +1,4 @@
+event_id,supplier_ticket_id,category,block,row_name,seat_from,seat_to,quantity,price,currency
+1,BULK-001,Longside,110,10,1,2,2,450,EUR
+1,BULK-002,Shortside,220,8,5,8,4,190,EUR
+2,BULK-003,Tribuna Centrale,C1,3,10,11,2,300,EUR
