@@ -82,9 +82,24 @@ async function updateTicomboListing(listingId, updates) {
 
   return response.data;
 }
+async function deleteTicomboListing(listingId) {
+  const response = await axios.delete(
+    `${TICOMBO_BASE_URL}/listings/${listingId}`,
+
+    {
+      headers: getHeaders(),
+    },
+  );
+
+  return response.data;
+}
 
 module.exports = {
   createTicomboListing,
+
   getTicomboListing,
+
   updateTicomboListing,
+
+  deleteTicomboListing,
 };

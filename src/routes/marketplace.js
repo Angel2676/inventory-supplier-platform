@@ -16,6 +16,7 @@ const {
 
 const {
   createTicomboListing,
+  deleteTicomboListing,
 } = require("../services/integrations/ticombo/ticomboListings");
 
 const router = express.Router();
@@ -967,6 +968,107 @@ router.post("/publish", async (req, res) => {
 
     return res.status(500).json({
       error: error.message || "Errore publish marketplace",
+    });
+  }
+});
+/*
+|--------------------------------------------------------------------------
+| DELETE / UNPUBLISH MARKETPLACE LISTING
+|--------------------------------------------------------------------------
+*/
+
+router.delete("/listings/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const listingResult = await pool.query(
+      `
+      SELECT *
+      FROM marketplace_listings
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [id],
+    );
+
+    if (listingResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Marketplace listing non trovato",
+      });
+    }
+
+    const listing = listingResult.rows[0];
+
+    /*
+    |--------------------------------------------------------------------------
+    | TICOMBO
+    |--------------------------------------------------------------------------
+    */
+
+    if (listing.marketplace === "ticombo") {
+      if (!listing.remote_listing_id) {
+        return res.status(400).json({
+          error: "remote_listing_id mancante",
+        });
+      }
+
+      const deleteResponse = await deleteTicomboListing(
+        listing.remote_listing_id,
+      );
+
+      await pool.query(
+        `
+        UPDATE marketplace_listings
+        SET
+          sync_status = 'deleted',
+          last_sync_at = NOW(),
+          updated_at = NOW(),
+          last_error = NULL
+        WHERE id = $1
+        `,
+        [listing.id],
+      );
+
+      await pool.query(
+        `
+        INSERT INTO marketplace_sync_logs (
+          marketplace_listing_id,
+          ticket_id,
+          marketplace,
+          action,
+          status,
+          response_payload
+        )
+        VALUES ($1,$2,$3,$4,$5,$6)
+        `,
+        [
+          listing.id,
+          listing.ticket_id,
+          listing.marketplace,
+          "delete_listing",
+          "success",
+          JSON.stringify(deleteResponse),
+        ],
+      );
+
+      return res.json({
+        success: true,
+        message: "Listing Ticombo eliminato",
+        response: deleteResponse,
+      });
+    }
+
+    return res.status(400).json({
+      error: `Delete non supportato per marketplace ${listing.marketplace}`,
+    });
+  } catch (error) {
+    console.error("Errore delete marketplace listing:", error);
+
+    return res.status(500).json({
+      error:
+        error.response?.data ||
+        error.message ||
+        "Errore delete marketplace listing",
     });
   }
 });
