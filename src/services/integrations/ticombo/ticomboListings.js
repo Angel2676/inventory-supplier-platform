@@ -5,27 +5,33 @@ const TICOMBO_BASE_URL =
 
 const TICOMBO_API_TOKEN = process.env.TICOMBO_API_TOKEN;
 
+function getHeaders() {
+  return {
+    "x-api-key": TICOMBO_API_TOKEN,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+}
+
 async function createTicomboListing(payload) {
-  try {
-    const response = await axios.post(`${TICOMBO_BASE_URL}/listings`, payload, {
-      headers: {
-        "x-api-key": TICOMBO_API_TOKEN,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
+  const response = await axios.post(`${TICOMBO_BASE_URL}/listings`, payload, {
+    headers: getHeaders(),
+  });
 
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Errore createTicomboListing:",
-      error.response?.data || error.message,
-    );
+  return response.data;
+}
 
-    throw error;
-  }
+async function updateTicomboListing(listingId, payload) {
+  const response = await axios.put(
+    `${TICOMBO_BASE_URL}/listings/${listingId}`,
+    payload,
+    { headers: getHeaders() },
+  );
+
+  return response.data;
 }
 
 module.exports = {
   createTicomboListing,
+  updateTicomboListing,
 };

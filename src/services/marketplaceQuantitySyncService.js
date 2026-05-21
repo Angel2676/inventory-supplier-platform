@@ -4,6 +4,10 @@ const {
   updateSupplierTicket,
 } = require("./integrations/sportevents365/sportevents365Api");
 
+const {
+  updateTicomboListing,
+} = require("./integrations/ticombo/ticomboListings");
+
 /*
 |--------------------------------------------------------------------------
 | SPORTSEVENTS365 QUANTITY SYNC
@@ -68,6 +72,40 @@ async function updateSportEvents365Price(listing, price) {
 
 /*
 |--------------------------------------------------------------------------
+| TICOMBO QUANTITY + PRICE SYNC
+|--------------------------------------------------------------------------
+*/
+
+async function updateTicomboQuantityAndPrice(listing, quantity, price) {
+  if (!listing.remote_listing_id) {
+    throw new Error("remote_listing_id mancante per Ticombo");
+  }
+
+  const payload = {
+    quantity: Number(quantity),
+  };
+
+  if (price !== undefined && price !== null) {
+    payload.price = Number(price);
+  }
+
+  const response = await updateTicomboListing(
+    listing.remote_listing_id,
+    payload,
+  );
+
+  return {
+    marketplace: "ticombo",
+    listing_id: listing.id,
+    remote_listing_id: listing.remote_listing_id,
+    quantity: Number(quantity),
+    price: price !== undefined && price !== null ? Number(price) : null,
+    response,
+  };
+}
+
+/*
+|--------------------------------------------------------------------------
 | GIGSBERG PLACEHOLDER
 |--------------------------------------------------------------------------
 */
@@ -111,7 +149,6 @@ async function syncMarketplaceQuantities() {
     for (const listing of listings) {
       try {
         const currentQuantity = Number(listing.available_quantity || 0);
-
         const currentPrice = Number(listing.current_price || 0);
 
         let responsePayload = null;
@@ -137,6 +174,20 @@ async function syncMarketplaceQuantities() {
             quantity: quantityResponse,
             price: priceResponse,
           };
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | TICOMBO
+        |--------------------------------------------------------------------------
+        */
+
+        if (listing.marketplace === "ticombo") {
+          responsePayload = await updateTicomboQuantityAndPrice(
+            listing,
+            currentQuantity,
+            currentPrice,
+          );
         }
 
         /*
