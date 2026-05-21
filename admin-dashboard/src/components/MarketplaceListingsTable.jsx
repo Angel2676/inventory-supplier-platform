@@ -188,24 +188,22 @@ function MarketplaceListingsTable() {
                 </td>
 
                 <td>
-                  <div
-                    style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
-                  >
+                  <div className="marketplace-actions">
                     {["failed", "needs_sync"].includes(listing.sync_status) && (
                       <button
-                        className="retry-sync-btn"
+                        className="marketplace-action-btn marketplace-retry-btn"
                         onClick={() => retrySync(listing.id)}
                       >
-                        ↻ Retry Sync
+                        ↻ Retry
                       </button>
                     )}
 
                     {canUnpublish(listing) && (
                       <button
-                        className="delete-btn"
+                        className="marketplace-action-btn marketplace-delist-btn"
                         onClick={() => unpublishListing(listing)}
                       >
-                        Unpublish
+                        ⛔ Delist
                       </button>
                     )}
 
