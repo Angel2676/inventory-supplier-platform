@@ -3,23 +3,15 @@ const { getTicomboClient } = require("./ticomboApi");
 function normalizeTicomboEvent(event) {
   return {
     marketplace: "ticombo",
+    id: event.eventId,
+    eventId: event.eventId,
     remote_event_id: event.eventId,
-    name: event.name,
-    safe_url_name: event.safeUrlName,
-    status: event.status,
-    category: event.category,
-    subcategory: event.subcategory,
-    venue_name: event.venue?.name || null,
-    venue_id: event.venue?.venueId || null,
-    city: event.location?.city || null,
-    country: event.location?.country || null,
-    start_date: event.date?.start || null,
-    timezone: event.date?.timezone || null,
-    ticket_types: (event.ticketTypes || []).map((type) => ({
-      id: type._id,
-      name: type.name,
-      sections: type.sections || [],
-    })),
+    name: event.eventName || event.name,
+    venue: event.eventVenue || event.venue?.name || "-",
+    city: event.eventVenue || "-",
+    date: event.eventDate || event.date?.start || null,
+    ticketCategories: event.ticketCategories || [],
+    ticketSections: event.ticketSections || [],
     raw: event,
   };
 }
@@ -27,15 +19,34 @@ function normalizeTicomboEvent(event) {
 async function searchTicomboEvents(query = "") {
   const client = getTicomboClient();
 
-  const response = await client.get("/qa/discovery/widgets/top-entities", {
-    params: query ? { q: query } : {},
+  const response = await client.get("/sellerStats", {
+    params: {
+      page: 1,
+      limit: 50,
+    },
   });
 
-  const payload = response.data?.payload || response.data;
+  const events = response.data?.data || [];
 
-  const events = payload?.events?.results || payload?.results || [];
+  const normalized = events.map(normalizeTicomboEvent);
 
-  return events.map(normalizeTicomboEvent);
+  if (!query) return normalized;
+
+  const q = query.toLowerCase();
+
+  return normalized.filter((event) => {
+    return (
+      String(event.name || "")
+        .toLowerCase()
+        .includes(q) ||
+      String(event.venue || "")
+        .toLowerCase()
+        .includes(q) ||
+      String(event.id || "")
+        .toLowerCase()
+        .includes(q)
+    );
+  });
 }
 
 module.exports = {

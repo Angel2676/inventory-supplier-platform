@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const TICOMBO_BASE_URL =
-  process.env.TICOMBO_BASE_URL || "https://uat.ticombo.com";
+  process.env.TICOMBO_BASE_URL || "https://external-api.devtic.net/v1";
 
 function getTicomboConfig() {
   const token = process.env.TICOMBO_API_TOKEN;
