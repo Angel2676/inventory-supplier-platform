@@ -573,7 +573,7 @@ router.post("/publish", async (req, res) => {
         listWithoutTicketUpload: false,
         seatAllocationType: "general",
         bookingConfirmationFiles: [
-          "https://www.clickdimensions.com/links/TestPDFfile.pdf",
+          "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
         ],
         delivery: {
           inHandDate: new Date(

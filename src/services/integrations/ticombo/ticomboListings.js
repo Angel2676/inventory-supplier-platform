@@ -9,7 +9,7 @@ async function createTicomboListing(payload) {
   try {
     const response = await axios.post(`${TICOMBO_BASE_URL}/listings`, payload, {
       headers: {
-        Authorization: `Bearer ${TICOMBO_API_TOKEN}`,
+        "x-api-key": TICOMBO_API_TOKEN,
         "Content-Type": "application/json",
         Accept: "application/json",
       },

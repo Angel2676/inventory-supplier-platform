@@ -22,7 +22,7 @@ function getTicomboClient() {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      "X-Integration-Token": token,
+      "x-api-key": token,
     },
   });
 }
