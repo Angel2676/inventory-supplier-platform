@@ -1,38 +1,41 @@
 const axios = require("axios");
 
 const TICOMBO_BASE_URL =
-  process.env.TICOMBO_BASE_URL || "https://external-api.devtic.net/v1";
+  process.env.TICOMBO_BASE_URL || "https://uat.ticombo.com";
 
-function getTicomboHeaders() {
+function getTicomboConfig() {
   const token = process.env.TICOMBO_API_TOKEN;
 
   if (!token) {
     throw new Error("TICOMBO_API_TOKEN mancante nel file .env");
   }
 
-  return {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    "x-api-key": token,
-  };
+  return { token };
 }
 
-async function updateTicomboListing(listingId, payload) {
-  if (!listingId) {
-    throw new Error("Ticombo listingId mancante");
-  }
+function getTicomboClient() {
+  const { token } = getTicomboConfig();
 
-  const response = await axios.put(
-    `${TICOMBO_BASE_URL}/listings/${listingId}`,
-    payload,
-    {
-      headers: getTicomboHeaders(),
+  return axios.create({
+    baseURL: TICOMBO_BASE_URL,
+    timeout: 30000,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-Integration-Token": token,
     },
-  );
+  });
+}
+
+async function testTicomboConnection(path = "/api") {
+  const client = getTicomboClient();
+
+  const response = await client.get(path);
 
   return response.data;
 }
 
 module.exports = {
-  updateTicomboListing,
+  getTicomboClient,
+  testTicomboConnection,
 };
