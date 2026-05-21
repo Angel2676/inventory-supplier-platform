@@ -177,21 +177,21 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       });
 
       if (editForm.min_price !== "" || editForm.auto_reprice_enabled === true) {
-       if (
-          editForm.min_price !== "" ||
-          editForm.auto_reprice_enabled === true
-        ) {
-          await api.patch(`/api/tickets/${ticketId}/pricing`, {
-            min_price: editForm.min_price ? Number(editForm.min_price) : null,
-            auto_reprice_enabled: Boolean(editForm.auto_reprice_enabled),
-            undercut_amount: Number(editForm.undercut_amount || 0.01)
+        await api.patch(`/api/tickets/${ticketId}/pricing`, {
+          min_price: editForm.min_price ? Number(editForm.min_price) : null,
+
+          auto_reprice_enabled: Boolean(editForm.auto_reprice_enabled),
+
+          undercut_amount: Number(editForm.undercut_amount || 0.01),
         });
       }
 
       setEditingId(null);
+
       await loadTickets();
     } catch (err) {
       console.error(err);
+
       setError(err.response?.data?.error || "Errore aggiornamento ticket");
     }
   }
