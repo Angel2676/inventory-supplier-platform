@@ -383,4 +383,69 @@ router.post("/publish", async (req, res) => {
   }
 });
 
+/**
+ * MARKETPLACE LOGS
+ */
+router.get("/logs", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT *
+      FROM marketplace_sync_logs
+      ORDER BY created_at DESC
+      LIMIT 200
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore caricamento marketplace logs:", error);
+
+    res.status(500).json({
+      error: "Errore caricamento marketplace logs",
+    });
+  }
+});
+
+/**
+ * MARKETPLACE ORDERS
+ */
+router.get("/orders", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT *
+      FROM marketplace_orders
+      ORDER BY created_at DESC
+      LIMIT 200
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore caricamento marketplace orders:", error);
+
+    res.status(500).json({
+      error: "Errore caricamento marketplace orders",
+    });
+  }
+});
+
+/**
+ * MARKETPLACE SETTINGS
+ */
+router.get("/settings", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT *
+      FROM marketplace_settings
+      ORDER BY marketplace ASC
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Errore caricamento marketplace settings:", error);
+
+    res.status(500).json({
+      error: "Errore caricamento marketplace settings",
+    });
+  }
+});
+
 module.exports = router;
