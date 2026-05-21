@@ -71,9 +71,13 @@ function MarketplaceMappingsTable() {
       setError("");
     } catch (err) {
       console.error(err);
-      setError(
-        err.response?.data?.error || "Errore ricerca evento marketplace",
-      );
+      const errorMessage =
+        typeof err.response?.data?.error === "string"
+          ? err.response.data.error
+          : err.response?.data
+            ? JSON.stringify(err.response.data)
+            : err.message || "Errore ricerca evento marketplace";
+      setError(errorMessage);
     } finally {
       setRemoteSearchLoading(false);
     }
