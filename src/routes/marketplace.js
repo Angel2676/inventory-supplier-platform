@@ -199,4 +199,188 @@ router.post("/mappings", async (req, res) => {
     });
   }
 });
+/**
+ * PUBLISH MARKETPLACE LISTING - TICOMBO PREPARATORY
+ */
+router.post("/publish", async (req, res) => {
+  try {
+    const { ticket_id, marketplace } = req.body;
+
+    if (!ticket_id || !marketplace) {
+      return res.status(400).json({
+        error: "ticket_id e marketplace sono obbligatori",
+      });
+    }
+
+    const normalizedMarketplace = String(marketplace).toLowerCase();
+
+    if (normalizedMarketplace !== "ticombo") {
+      return res.status(400).json({
+        error:
+          "In questo file attuale è attivo solo il publish preparatorio Ticombo. SportEvents365/Gigsberg vanno ripristinati dal file precedente.",
+      });
+    }
+
+    const ticketResult = await pool.query(
+      `
+      SELECT 
+        t.*,
+        e.name AS event_name
+      FROM tickets t
+      JOIN events e ON e.id = t.event_id
+      WHERE t.id = $1
+      `,
+      [ticket_id],
+    );
+
+    if (ticketResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Ticket non trovato",
+      });
+    }
+
+    const ticket = ticketResult.rows[0];
+
+    const existingListingResult = await pool.query(
+      `
+      SELECT *
+      FROM marketplace_listings
+      WHERE ticket_id = $1
+        AND marketplace = 'ticombo'
+        AND sync_status IN ('pending', 'synced')
+      LIMIT 1
+      `,
+      [ticket_id],
+    );
+
+    if (existingListingResult.rows.length > 0) {
+      return res.status(400).json({
+        error: "Ticket già preparato/pubblicato su Ticombo",
+        listing: existingListingResult.rows[0],
+      });
+    }
+
+    const eventMappingResult = await pool.query(
+      `
+      SELECT *
+      FROM marketplace_mappings
+      WHERE marketplace = 'ticombo'
+        AND mapping_type = 'event'
+        AND internal_event_id = $1
+        AND is_active = true
+      LIMIT 1
+      `,
+      [ticket.event_id],
+    );
+
+    if (eventMappingResult.rows.length === 0) {
+      return res.status(400).json({
+        error: "Mapping evento Ticombo mancante",
+      });
+    }
+
+    const eventMapping = eventMappingResult.rows[0];
+
+    const categoryMappingResult = await pool.query(
+      `
+      SELECT *
+      FROM marketplace_mappings
+      WHERE marketplace = 'ticombo'
+        AND mapping_type = 'category'
+        AND internal_event_id = $1
+        AND internal_category = $2
+        AND is_active = true
+      LIMIT 1
+      `,
+      [ticket.event_id, ticket.category],
+    );
+
+    if (categoryMappingResult.rows.length === 0) {
+      return res.status(400).json({
+        error: `Mapping categoria Ticombo mancante per ${ticket.category}`,
+      });
+    }
+
+    const categoryMapping = categoryMappingResult.rows[0];
+
+    const price = Number(
+      ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
+    );
+
+    const listingResult = await pool.query(
+      `
+      INSERT INTO marketplace_listings (
+        ticket_id,
+        marketplace,
+        external_event_id,
+        external_category_id,
+        remote_event_id,
+        remote_category_id,
+        sync_status,
+        sync_direction,
+        last_sync_at,
+        marketplace_price,
+        last_error
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10)
+      RETURNING *
+      `,
+      [
+        ticket.id,
+        "ticombo",
+        eventMapping.remote_event_id,
+        categoryMapping.remote_category_id,
+        eventMapping.remote_event_id,
+        categoryMapping.remote_category_id,
+        "pending",
+        "inventory_to_marketplace",
+        price,
+        null,
+      ],
+    );
+
+    await pool.query(
+      `
+      INSERT INTO marketplace_sync_logs (
+        marketplace_listing_id,
+        ticket_id,
+        marketplace,
+        action,
+        status,
+        response_payload,
+        error_message
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7)
+      `,
+      [
+        listingResult.rows[0].id,
+        ticket.id,
+        "ticombo",
+        "prepare_publish",
+        "pending",
+        {
+          remote_event_id: eventMapping.remote_event_id,
+          remote_category_id: categoryMapping.remote_category_id,
+          remote_category_name: categoryMapping.remote_category_name,
+          price,
+          quantity: ticket.available_quantity,
+        },
+        null,
+      ],
+    );
+
+    return res.json({
+      success: true,
+      message: "Publish Ticombo preparato correttamente",
+      listing: listingResult.rows[0],
+    });
+  } catch (error) {
+    console.error("Errore publish preparatorio Ticombo:", error);
+
+    return res.status(500).json({
+      error: error.message || "Errore publish preparatorio Ticombo",
+    });
+  }
+});
+
 module.exports = router;
