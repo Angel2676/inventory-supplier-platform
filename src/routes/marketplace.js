@@ -14,6 +14,10 @@ const {
   searchTicomboEvents,
 } = require("../services/integrations/ticombo/ticomboEvents");
 
+const {
+  createTicomboListing,
+} = require("../services/integrations/ticombo/ticomboListings");
+
 const router = express.Router();
 
 /**
@@ -51,7 +55,6 @@ router.get("/listings", async (req, res) => {
 router.get("/search-events", async (req, res) => {
   try {
     const marketplace = String(req.query.marketplace || "").toLowerCase();
-
     const keyword = String(req.query.keyword || "").trim();
 
     if (!marketplace) {
@@ -68,27 +71,15 @@ router.get("/search-events", async (req, res) => {
 
     let results = [];
 
-    /**
-     * SPORTSEVENTS365
-     */
     if (marketplace === "sportevents365") {
       results = await searchSportEvents365Events({
         keyword,
       });
     } else if (marketplace === "ticombo") {
-      /**
-       * TICOMBO
-       */
       results = await searchTicomboEvents(keyword);
     } else if (marketplace === "gigsberg") {
-      /**
-       * GIGSBERG
-       */
       results = [];
     } else {
-      /**
-       * UNKNOWN MARKETPLACE
-       */
       return res.status(400).json({
         error: `Marketplace non supportato: ${marketplace}`,
       });
@@ -199,186 +190,90 @@ router.post("/mappings", async (req, res) => {
     });
   }
 });
-/**
- * PUBLISH MARKETPLACE LISTING - TICOMBO PREPARATORY
- */
-router.post("/publish", async (req, res) => {
+
+router.patch("/mappings/:id", async (req, res) => {
   try {
-    const { ticket_id, marketplace } = req.body;
+    const { id } = req.params;
 
-    if (!ticket_id || !marketplace) {
-      return res.status(400).json({
-        error: "ticket_id e marketplace sono obbligatori",
-      });
-    }
+    const {
+      marketplace,
+      mapping_type,
+      internal_event_id,
+      internal_category,
+      internal_block,
+      remote_event_id,
+      remote_event_name,
+      remote_category_id,
+      remote_category_name,
+      remote_block_id,
+      remote_block_name,
+      notes,
+      is_active,
+    } = req.body;
 
-    const normalizedMarketplace = String(marketplace).toLowerCase();
-
-    if (normalizedMarketplace !== "ticombo") {
-      return res.status(400).json({
-        error:
-          "In questo file attuale è attivo solo il publish preparatorio Ticombo. SportEvents365/Gigsberg vanno ripristinati dal file precedente.",
-      });
-    }
-
-    const ticketResult = await pool.query(
+    const result = await pool.query(
       `
-      SELECT 
-        t.*,
-        e.name AS event_name
-      FROM tickets t
-      JOIN events e ON e.id = t.event_id
-      WHERE t.id = $1
-      `,
-      [ticket_id],
-    );
-
-    if (ticketResult.rows.length === 0) {
-      return res.status(404).json({
-        error: "Ticket non trovato",
-      });
-    }
-
-    const ticket = ticketResult.rows[0];
-
-    const existingListingResult = await pool.query(
-      `
-      SELECT *
-      FROM marketplace_listings
-      WHERE ticket_id = $1
-        AND marketplace = 'ticombo'
-        AND sync_status IN ('pending', 'synced')
-      LIMIT 1
-      `,
-      [ticket_id],
-    );
-
-    if (existingListingResult.rows.length > 0) {
-      return res.status(400).json({
-        error: "Ticket già preparato/pubblicato su Ticombo",
-        listing: existingListingResult.rows[0],
-      });
-    }
-
-    const eventMappingResult = await pool.query(
-      `
-      SELECT *
-      FROM marketplace_mappings
-      WHERE marketplace = 'ticombo'
-        AND mapping_type = 'event'
-        AND internal_event_id = $1
-        AND is_active = true
-      LIMIT 1
-      `,
-      [ticket.event_id],
-    );
-
-    if (eventMappingResult.rows.length === 0) {
-      return res.status(400).json({
-        error: "Mapping evento Ticombo mancante",
-      });
-    }
-
-    const eventMapping = eventMappingResult.rows[0];
-
-    const categoryMappingResult = await pool.query(
-      `
-      SELECT *
-      FROM marketplace_mappings
-      WHERE marketplace = 'ticombo'
-        AND mapping_type = 'category'
-        AND internal_event_id = $1
-        AND internal_category = $2
-        AND is_active = true
-      LIMIT 1
-      `,
-      [ticket.event_id, ticket.category],
-    );
-
-    if (categoryMappingResult.rows.length === 0) {
-      return res.status(400).json({
-        error: `Mapping categoria Ticombo mancante per ${ticket.category}`,
-      });
-    }
-
-    const categoryMapping = categoryMappingResult.rows[0];
-
-    const price = Number(
-      ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
-    );
-
-    const listingResult = await pool.query(
-      `
-      INSERT INTO marketplace_listings (
-        ticket_id,
-        marketplace,
-        external_event_id,
-        external_category_id,
-        remote_event_id,
-        remote_category_id,
-        sync_status,
-        sync_direction,
-        last_sync_at,
-        marketplace_price,
-        last_error
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10)
+      UPDATE marketplace_mappings
+      SET
+        marketplace = $1,
+        mapping_type = $2,
+        internal_event_id = $3,
+        internal_category = $4,
+        internal_block = $5,
+        remote_event_id = $6,
+        remote_event_name = $7,
+        remote_category_id = $8,
+        remote_category_name = $9,
+        remote_block_id = $10,
+        remote_block_name = $11,
+        notes = $12,
+        is_active = $13,
+        updated_at = NOW()
+      WHERE id = $14
       RETURNING *
       `,
       [
-        ticket.id,
-        "ticombo",
-        eventMapping.remote_event_id,
-        categoryMapping.remote_category_id,
-        eventMapping.remote_event_id,
-        categoryMapping.remote_category_id,
-        "pending",
-        "inventory_to_marketplace",
-        price,
-        null,
-      ],
-    );
-
-    await pool.query(
-      `
-      INSERT INTO marketplace_sync_logs (
-        marketplace_listing_id,
-        ticket_id,
         marketplace,
-        action,
-        status,
-        response_payload,
-        error_message
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7)
-      `,
-      [
-        listingResult.rows[0].id,
-        ticket.id,
-        "ticombo",
-        "prepare_publish",
-        "pending",
-        {
-          remote_event_id: eventMapping.remote_event_id,
-          remote_category_id: categoryMapping.remote_category_id,
-          remote_category_name: categoryMapping.remote_category_name,
-          price,
-          quantity: ticket.available_quantity,
-        },
-        null,
+        mapping_type,
+        internal_event_id || null,
+        internal_category || null,
+        internal_block || null,
+        remote_event_id || null,
+        remote_event_name || null,
+        remote_category_id || null,
+        remote_category_name || null,
+        remote_block_id || null,
+        remote_block_name || null,
+        notes || null,
+        is_active !== false,
+        id,
       ],
     );
 
-    return res.json({
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Errore aggiornamento marketplace mapping:", error);
+
+    res.status(500).json({
+      error: error.message || "Errore aggiornamento marketplace mapping",
+    });
+  }
+});
+
+router.delete("/mappings/:id", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM marketplace_mappings WHERE id = $1", [
+      req.params.id,
+    ]);
+
+    res.json({
       success: true,
-      message: "Publish Ticombo preparato correttamente",
-      listing: listingResult.rows[0],
     });
   } catch (error) {
-    console.error("Errore publish preparatorio Ticombo:", error);
+    console.error("Errore eliminazione marketplace mapping:", error);
 
-    return res.status(500).json({
-      error: error.message || "Errore publish preparatorio Ticombo",
+    res.status(500).json({
+      error: "Errore eliminazione marketplace mapping",
     });
   }
 });
@@ -444,6 +339,634 @@ router.get("/settings", async (req, res) => {
 
     res.status(500).json({
       error: "Errore caricamento marketplace settings",
+    });
+  }
+});
+
+router.patch("/settings/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      is_active,
+      environment,
+      default_markup_percentage,
+      default_undercut_amount,
+      auto_publish_enabled,
+      auto_reprice_enabled,
+    } = req.body;
+
+    const result = await pool.query(
+      `
+      UPDATE marketplace_settings
+      SET
+        is_active = COALESCE($1, is_active),
+        environment = COALESCE($2, environment),
+        default_markup_percentage = COALESCE($3, default_markup_percentage),
+        default_undercut_amount = COALESCE($4, default_undercut_amount),
+        auto_publish_enabled = COALESCE($5, auto_publish_enabled),
+        auto_reprice_enabled = COALESCE($6, auto_reprice_enabled),
+        updated_at = NOW()
+      WHERE id = $7
+      RETURNING *
+      `,
+      [
+        is_active,
+        environment,
+        default_markup_percentage,
+        default_undercut_amount,
+        auto_publish_enabled,
+        auto_reprice_enabled,
+        id,
+      ],
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Errore aggiornamento marketplace settings:", error);
+
+    res.status(500).json({
+      error: "Errore aggiornamento marketplace settings",
+    });
+  }
+});
+
+/**
+ * RETRY SYNC
+ */
+router.post("/listings/:id/retry", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `
+      UPDATE marketplace_listings
+      SET
+        sync_status = 'needs_sync',
+        last_error = NULL,
+        updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+      `,
+      [id],
+    );
+
+    res.json({
+      success: true,
+      listing: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Errore retry marketplace listing:", error);
+
+    res.status(500).json({
+      error: "Errore retry marketplace listing",
+    });
+  }
+});
+
+/**
+ * PUBLISH MARKETPLACE LISTING
+ */
+router.post("/publish", async (req, res) => {
+  try {
+    const { ticket_id, marketplace } = req.body;
+
+    if (!ticket_id || !marketplace) {
+      return res.status(400).json({
+        error: "ticket_id e marketplace sono obbligatori",
+      });
+    }
+
+    const normalizedMarketplace = String(marketplace).toLowerCase();
+
+    /**
+     * GIGSBERG
+     */
+    if (normalizedMarketplace === "gigsberg") {
+      try {
+        const gigsbergResult = await createGigsbergListing(ticket_id);
+
+        return res.json({
+          success: true,
+          message: "Publish Gigsberg avviato",
+          result: gigsbergResult,
+        });
+      } catch (error) {
+        console.error("Errore publish reale Gigsberg:", error);
+
+        return res.status(500).json({
+          error: error.message || "Errore publish Gigsberg",
+        });
+      }
+    }
+
+    /**
+     * TICOMBO REAL PUBLISH
+     */
+    if (normalizedMarketplace === "ticombo") {
+      const ticketResult = await pool.query(
+        `
+        SELECT 
+          t.*,
+          e.name AS event_name
+        FROM tickets t
+        JOIN events e ON e.id = t.event_id
+        WHERE t.id = $1
+        `,
+        [ticket_id],
+      );
+
+      if (ticketResult.rows.length === 0) {
+        return res.status(404).json({
+          error: "Ticket non trovato",
+        });
+      }
+
+      const ticket = ticketResult.rows[0];
+
+      const existingSyncedResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_listings
+        WHERE ticket_id = $1
+          AND marketplace = 'ticombo'
+          AND sync_status = 'synced'
+          AND remote_listing_id IS NOT NULL
+        LIMIT 1
+        `,
+        [ticket_id],
+      );
+
+      if (existingSyncedResult.rows.length > 0) {
+        return res.status(400).json({
+          error: "Ticket già pubblicato su Ticombo",
+          listing: existingSyncedResult.rows[0],
+        });
+      }
+
+      const pendingListingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_listings
+        WHERE ticket_id = $1
+          AND marketplace = 'ticombo'
+          AND sync_status = 'pending'
+        ORDER BY id DESC
+        LIMIT 1
+        `,
+        [ticket_id],
+      );
+
+      const eventMappingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_mappings
+        WHERE marketplace = 'ticombo'
+          AND mapping_type = 'event'
+          AND internal_event_id = $1
+          AND is_active = true
+        LIMIT 1
+        `,
+        [ticket.event_id],
+      );
+
+      if (eventMappingResult.rows.length === 0) {
+        return res.status(400).json({
+          error: "Mapping evento Ticombo mancante",
+        });
+      }
+
+      const categoryMappingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_mappings
+        WHERE marketplace = 'ticombo'
+          AND mapping_type = 'category'
+          AND internal_event_id = $1
+          AND internal_category = $2
+          AND is_active = true
+        LIMIT 1
+        `,
+        [ticket.event_id, ticket.category],
+      );
+
+      if (categoryMappingResult.rows.length === 0) {
+        return res.status(400).json({
+          error: `Mapping categoria Ticombo mancante per ${ticket.category}`,
+        });
+      }
+
+      const eventMapping = eventMappingResult.rows[0];
+      const categoryMapping = categoryMappingResult.rows[0];
+
+      const quantity = Number(ticket.available_quantity || 1);
+      const price = Number(
+        ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
+      );
+
+      const ticomboPayload = {
+        eventId: eventMapping.remote_event_id,
+        type: "e-tickets",
+        category: categoryMapping.remote_category_name,
+        quantity,
+        isInPossession: false,
+        listWithoutTicketUpload: false,
+        seatAllocationType: "general",
+        bookingConfirmationFiles: [
+          "https://www.clickdimensions.com/links/TestPDFfile.pdf",
+        ],
+        delivery: {
+          inHandDate: new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
+        },
+        price,
+        currency: "EUR",
+        faceValue: Number(ticket.price || price || 0),
+        allowProposals: false,
+        refId: `inventory-${ticket.id}`,
+        sellingOptions: {
+          splitType: "none",
+          maxDisplayQuantity: quantity,
+        },
+      };
+
+      console.log("TICOMBO PAYLOAD:", JSON.stringify(ticomboPayload, null, 2));
+
+      let publishResponse;
+
+      try {
+        publishResponse = await createTicomboListing(ticomboPayload);
+      } catch (publishError) {
+        console.error(
+          "Errore publish Ticombo:",
+          publishError.response?.data || publishError.message,
+        );
+
+        const failedListing =
+          pendingListingResult.rows[0] ||
+          (
+            await pool.query(
+              `
+              INSERT INTO marketplace_listings (
+                ticket_id,
+                marketplace,
+                external_event_id,
+                external_category_id,
+                remote_event_id,
+                remote_category_id,
+                sync_status,
+                sync_direction,
+                last_sync_at,
+                marketplace_price,
+                last_error
+              )
+              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10)
+              RETURNING *
+              `,
+              [
+                ticket.id,
+                "ticombo",
+                eventMapping.remote_event_id,
+                categoryMapping.remote_category_id,
+                eventMapping.remote_event_id,
+                categoryMapping.remote_category_id,
+                "failed",
+                "inventory_to_marketplace",
+                price,
+                publishError.response?.data
+                  ? JSON.stringify(publishError.response.data)
+                  : publishError.message,
+              ],
+            )
+          ).rows[0];
+
+        await pool.query(
+          `
+          UPDATE marketplace_listings
+          SET
+            sync_status = 'failed',
+            last_error = $1,
+            last_sync_at = NOW(),
+            updated_at = NOW()
+          WHERE id = $2
+          `,
+          [
+            publishError.response?.data
+              ? JSON.stringify(publishError.response.data)
+              : publishError.message,
+            failedListing.id,
+          ],
+        );
+
+        return res.status(500).json({
+          error: "Publish Ticombo fallito",
+          details: publishError.response?.data || publishError.message,
+        });
+      }
+
+      const remoteListingId = publishResponse?.data?.listingId || null;
+
+      let listingResult;
+
+      if (pendingListingResult.rows.length > 0) {
+        listingResult = await pool.query(
+          `
+          UPDATE marketplace_listings
+          SET
+            external_event_id = $1,
+            external_category_id = $2,
+            remote_event_id = $3,
+            remote_category_id = $4,
+            remote_listing_id = $5,
+            sync_status = 'synced',
+            sync_direction = 'inventory_to_marketplace',
+            last_sync_at = NOW(),
+            marketplace_price = $6,
+            last_error = NULL,
+            updated_at = NOW()
+          WHERE id = $7
+          RETURNING *
+          `,
+          [
+            eventMapping.remote_event_id,
+            categoryMapping.remote_category_id,
+            eventMapping.remote_event_id,
+            categoryMapping.remote_category_id,
+            remoteListingId,
+            price,
+            pendingListingResult.rows[0].id,
+          ],
+        );
+      } else {
+        listingResult = await pool.query(
+          `
+          INSERT INTO marketplace_listings (
+            ticket_id,
+            marketplace,
+            external_event_id,
+            external_category_id,
+            remote_event_id,
+            remote_category_id,
+            remote_listing_id,
+            sync_status,
+            sync_direction,
+            last_sync_at,
+            marketplace_price,
+            last_error
+          )
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW(),$10,$11)
+          RETURNING *
+          `,
+          [
+            ticket.id,
+            "ticombo",
+            eventMapping.remote_event_id,
+            categoryMapping.remote_category_id,
+            eventMapping.remote_event_id,
+            categoryMapping.remote_category_id,
+            remoteListingId,
+            "synced",
+            "inventory_to_marketplace",
+            price,
+            null,
+          ],
+        );
+      }
+
+      await pool.query(
+        `
+        INSERT INTO marketplace_sync_logs (
+          marketplace_listing_id,
+          ticket_id,
+          marketplace,
+          action,
+          status,
+          response_payload,
+          error_message
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7)
+        `,
+        [
+          listingResult.rows[0].id,
+          ticket.id,
+          "ticombo",
+          "publish",
+          "synced",
+          publishResponse,
+          null,
+        ],
+      );
+
+      return res.json({
+        success: true,
+        message: "Ticket pubblicato su Ticombo",
+        listing: listingResult.rows[0],
+        response: publishResponse,
+      });
+    }
+
+    /**
+     * SPORTSEVENTS365 REAL PUBLISH
+     */
+    if (normalizedMarketplace === "sportevents365") {
+      const ticketResult = await pool.query(
+        `
+        SELECT 
+          t.*,
+          e.name AS event_name
+        FROM tickets t
+        JOIN events e ON e.id = t.event_id
+        WHERE t.id = $1
+        `,
+        [ticket_id],
+      );
+
+      if (ticketResult.rows.length === 0) {
+        return res.status(404).json({
+          error: "Ticket non trovato",
+        });
+      }
+
+      const ticket = ticketResult.rows[0];
+
+      const existingListingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_listings
+        WHERE ticket_id = $1
+          AND marketplace = 'sportevents365'
+          AND sync_status = 'synced'
+          AND remote_listing_id IS NOT NULL
+        LIMIT 1
+        `,
+        [ticket_id],
+      );
+
+      if (existingListingResult.rows.length > 0) {
+        return res.status(400).json({
+          error: "Ticket già pubblicato su SportEvents365",
+          listing: existingListingResult.rows[0],
+        });
+      }
+
+      const eventMappingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_mappings
+        WHERE marketplace = 'sportevents365'
+          AND mapping_type = 'event'
+          AND internal_event_id = $1
+          AND is_active = true
+        LIMIT 1
+        `,
+        [ticket.event_id],
+      );
+
+      if (eventMappingResult.rows.length === 0) {
+        return res.status(400).json({
+          error: "Mapping evento SportEvents365 mancante",
+        });
+      }
+
+      const eventMapping = eventMappingResult.rows[0];
+
+      const categoryMappingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_mappings
+        WHERE marketplace = 'sportevents365'
+          AND mapping_type = 'category'
+          AND internal_event_id = $1
+          AND internal_category = $2
+          AND is_active = true
+        LIMIT 1
+        `,
+        [ticket.event_id, ticket.category],
+      );
+
+      if (categoryMappingResult.rows.length === 0) {
+        return res.status(400).json({
+          error: `Mapping categoria SportEvents365 mancante per ${ticket.category}`,
+        });
+      }
+
+      const categoryMapping = categoryMappingResult.rows[0];
+
+      const sportEventsPayload = [
+        {
+          categoryId: Number(categoryMapping.remote_category_id),
+          quantity: Number(ticket.available_quantity || 1),
+          price: Number(
+            ticket.marketplace_price ||
+              ticket.partner_price ||
+              ticket.price ||
+              0,
+          ),
+          currency: "EUR",
+          shippingMethodId: 1006,
+          sittingArrangementId: 5,
+          sellingLimitations: [],
+          restrictions: [],
+          notes: ticket.block || "",
+        },
+      ];
+
+      let publishResponse;
+
+      try {
+        publishResponse = await createSupplierTickets(
+          eventMapping.remote_event_id,
+          sportEventsPayload,
+        );
+      } catch (publishError) {
+        return res.status(500).json({
+          error: "Publish SportEvents365 fallito",
+          details: publishError.response?.data || publishError.message,
+        });
+      }
+
+      const remoteListingId = publishResponse?.data?.tickets?.[0] || null;
+
+      const listingResult = await pool.query(
+        `
+        INSERT INTO marketplace_listings (
+          ticket_id,
+          marketplace,
+          external_event_id,
+          external_category_id,
+          remote_event_id,
+          remote_category_id,
+          remote_listing_id,
+          sync_status,
+          sync_direction,
+          last_sync_at,
+          marketplace_price,
+          last_error
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW(),$10,$11)
+        RETURNING *
+        `,
+        [
+          ticket.id,
+          "sportevents365",
+          eventMapping.remote_event_id,
+          categoryMapping.remote_category_id,
+          eventMapping.remote_event_id,
+          categoryMapping.remote_category_id,
+          remoteListingId,
+          "synced",
+          "inventory_to_marketplace",
+          Number(
+            ticket.marketplace_price ||
+              ticket.partner_price ||
+              ticket.price ||
+              0,
+          ),
+          null,
+        ],
+      );
+
+      await pool.query(
+        `
+        INSERT INTO marketplace_sync_logs (
+          marketplace_listing_id,
+          ticket_id,
+          marketplace,
+          action,
+          status,
+          response_payload,
+          error_message
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7)
+        `,
+        [
+          listingResult.rows[0].id,
+          ticket.id,
+          "sportevents365",
+          "publish",
+          "synced",
+          publishResponse,
+          null,
+        ],
+      );
+
+      return res.json({
+        success: true,
+        message: "Ticket pubblicato su SportEvents365",
+        listing: listingResult.rows[0],
+        response: publishResponse,
+      });
+    }
+
+    return res.status(400).json({
+      error: `Marketplace non supportato: ${marketplace}`,
+    });
+  } catch (error) {
+    console.error("Errore publish marketplace:", error);
+
+    return res.status(500).json({
+      error: error.message || "Errore publish marketplace",
     });
   }
 });
