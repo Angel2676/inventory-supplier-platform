@@ -125,6 +125,24 @@ async function updateGigsbergQuantity(listing, quantity) {
 
 /*
 |--------------------------------------------------------------------------
+| ERROR NORMALIZER
+|--------------------------------------------------------------------------
+*/
+
+function normalizeMarketplaceError(error) {
+  if (error.response?.data) {
+    try {
+      return JSON.stringify(error.response.data);
+    } catch (_) {
+      return String(error.response.data);
+    }
+  }
+
+  return error.message || "Errore sconosciuto marketplace sync";
+}
+
+/*
+|--------------------------------------------------------------------------
 | MAIN SYNC ENGINE
 |--------------------------------------------------------------------------
 */
@@ -253,10 +271,9 @@ async function syncMarketplaceQuantities() {
           ],
         );
       } catch (listingError) {
-        console.error(
-          "Marketplace quantity/price sync error:",
-          listingError.message,
-        );
+        const detailedError = normalizeMarketplaceError(listingError);
+
+        console.error("Marketplace quantity/price sync error:", detailedError);
 
         /*
         |--------------------------------------------------------------------------
@@ -274,7 +291,7 @@ async function syncMarketplaceQuantities() {
             last_sync_at = NOW()
           WHERE id = $2
           `,
-          [listingError.message, listing.id],
+          [detailedError, listing.id],
         );
 
         /*
@@ -301,7 +318,7 @@ async function syncMarketplaceQuantities() {
             listing.marketplace,
             "quantity_price_sync",
             "failed",
-            listingError.message,
+            detailedError,
           ],
         );
       }
@@ -311,7 +328,10 @@ async function syncMarketplaceQuantities() {
       `Marketplace quantity/price sync job completed. Listings processed: ${listings.length}`,
     );
   } catch (err) {
-    console.error("Marketplace quantity/price sync fatal error:", err.message);
+    console.error(
+      "Marketplace quantity/price sync fatal error:",
+      normalizeMarketplaceError(err),
+    );
   }
 }
 

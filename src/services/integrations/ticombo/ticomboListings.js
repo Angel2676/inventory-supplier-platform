@@ -21,7 +21,59 @@ async function createTicomboListing(payload) {
   return response.data;
 }
 
-async function updateTicomboListing(listingId, payload) {
+async function getTicomboListing(listingId) {
+  const response = await axios.get(
+    `${TICOMBO_BASE_URL}/listings/${listingId}`,
+    {
+      headers: getHeaders(),
+    },
+  );
+
+  return response.data;
+}
+
+async function updateTicomboListing(listingId, updates) {
+  const currentResponse = await getTicomboListing(listingId);
+  const current = currentResponse.data;
+
+  const quantity =
+    updates.quantity !== undefined
+      ? Number(updates.quantity)
+      : Number(current.quantity);
+
+  const price =
+    updates.price !== undefined ? Number(updates.price) : Number(current.price);
+
+  const payload = {
+    type: current.type,
+    section: current.section || "",
+    row: current.row || "",
+    quantity,
+    isInPossession: current.isInPossession,
+    listWithoutTicketUpload: current.listWithoutTicketUpload,
+
+    seats: Array.from({ length: quantity }, () => ({
+      seat: "",
+      file: "",
+    })),
+
+    delivery: {
+      inHandDate: current.delivery?.inHandDate,
+    },
+
+    price,
+    currency: current.currency || "EUR",
+    faceValue: Number(current.faceValue?.amount || price || 0),
+    allowProposals: current.allowProposals || false,
+    refId: current.refId,
+
+    sellingOptions: {
+      splitType: current.sellingOptions?.splitType || "none",
+      maxDisplayQuantity: quantity,
+      customQuantities: current.sellingOptions?.customQuantities || [],
+    },
+  };
+
   const response = await axios.put(
     `${TICOMBO_BASE_URL}/listings/${listingId}`,
     payload,
@@ -33,5 +85,6 @@ async function updateTicomboListing(listingId, payload) {
 
 module.exports = {
   createTicomboListing,
+  getTicomboListing,
   updateTicomboListing,
 };
