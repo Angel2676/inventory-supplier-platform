@@ -37,12 +37,14 @@ function MarketplaceListingsTable() {
         return "status-badge status-low";
 
       case "failed":
+      case "deleted":
         return "status-badge status-sold";
 
       default:
         return "status-badge";
     }
   }
+
   async function retrySync(listingId) {
     try {
       await api.post(`/api/marketplace/listings/${listingId}/retry`);
@@ -50,9 +52,36 @@ function MarketplaceListingsTable() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.error || "Errore retry sync marketplace listing"
+        err.response?.data?.error || "Errore retry sync marketplace listing",
       );
     }
+  }
+
+  async function unpublishListing(listing) {
+    const remoteId =
+      listing.remote_listing_id || listing.external_listing_id || "";
+
+    const confirmMessage = `Vuoi davvero rimuovere questo listing dal marketplace?\n\nMarketplace: ${listing.marketplace}\nRemote Listing: ${remoteId}`;
+
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      await api.delete(`/api/marketplace/listings/${listing.id}`);
+      await loadListings();
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.error ||
+          "Errore eliminazione/unpublish marketplace listing",
+      );
+    }
+  }
+
+  function canUnpublish(listing) {
+    return (
+      listing.sync_status !== "deleted" &&
+      Boolean(listing.remote_listing_id || listing.external_listing_id)
+    );
   }
 
   return (
@@ -111,14 +140,14 @@ function MarketplaceListingsTable() {
                 <td>
                   €{" "}
                   {Number(
-                    listing.partner_price || listing.base_price || 0
+                    listing.partner_price || listing.base_price || 0,
                   ).toFixed(2)}
                 </td>
 
                 <td>
                   €{" "}
                   {Number(
-                    listing.marketplace_price || listing.base_price || 0
+                    listing.marketplace_price || listing.base_price || 0,
                   ).toFixed(2)}
                 </td>
 
@@ -157,17 +186,33 @@ function MarketplaceListingsTable() {
                     listing.external_listing_id ||
                     "-"}
                 </td>
+
                 <td>
-                  {["failed", "needs_sync"].includes(listing.sync_status) ? (
-                    <button
-                      className="retry-sync-btn"
-                      onClick={() => retrySync(listing.id)}
-                    >
-                      ↻ Retry Sync
-                    </button>
-                  ) : (
-                    "-"
-                  )}
+                  <div
+                    style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
+                  >
+                    {["failed", "needs_sync"].includes(listing.sync_status) && (
+                      <button
+                        className="retry-sync-btn"
+                        onClick={() => retrySync(listing.id)}
+                      >
+                        ↻ Retry Sync
+                      </button>
+                    )}
+
+                    {canUnpublish(listing) && (
+                      <button
+                        className="delete-btn"
+                        onClick={() => unpublishListing(listing)}
+                      >
+                        Unpublish
+                      </button>
+                    )}
+
+                    {!["failed", "needs_sync"].includes(listing.sync_status) &&
+                      !canUnpublish(listing) &&
+                      "-"}
+                  </div>
                 </td>
               </tr>
             ))}
