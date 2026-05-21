@@ -23,7 +23,7 @@ function MarketplaceMappingsTable() {
     remote_block_id: "",
     remote_block_name: "",
     notes: "",
-    is_active: true
+    is_active: true,
   });
 
   async function loadMappings() {
@@ -63,8 +63,8 @@ function MarketplaceMappingsTable() {
       const response = await api.get("/api/marketplace/search-events", {
         params: {
           marketplace: form.marketplace,
-          keyword: form.remote_event_name
-        }
+          keyword: form.remote_event_name,
+        },
       });
 
       setRemoteSearchResults(response.data.results || []);
@@ -72,7 +72,7 @@ function MarketplaceMappingsTable() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.error || "Errore ricerca evento marketplace"
+        err.response?.data?.error || "Errore ricerca evento marketplace",
       );
     } finally {
       setRemoteSearchLoading(false);
@@ -96,7 +96,7 @@ function MarketplaceMappingsTable() {
       remote_block_id: "",
       remote_block_name: "",
       notes: "",
-      is_active: true
+      is_active: true,
     });
   }
 
@@ -117,7 +117,7 @@ function MarketplaceMappingsTable() {
       remote_block_id: mapping.remote_block_id || "",
       remote_block_name: mapping.remote_block_name || "",
       notes: mapping.notes || "",
-      is_active: Boolean(mapping.is_active)
+      is_active: Boolean(mapping.is_active),
     });
   }
 
@@ -138,7 +138,7 @@ function MarketplaceMappingsTable() {
         remote_block_id: form.remote_block_id || null,
         remote_block_name: form.remote_block_name || null,
         notes: form.notes || null,
-        is_active: Boolean(form.is_active)
+        is_active: Boolean(form.is_active),
       };
 
       if (editingId) {
@@ -152,7 +152,7 @@ function MarketplaceMappingsTable() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.error || "Errore salvataggio marketplace mapping"
+        err.response?.data?.error || "Errore salvataggio marketplace mapping",
       );
     }
   }
@@ -166,7 +166,7 @@ function MarketplaceMappingsTable() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.error || "Errore eliminazione marketplace mapping"
+        err.response?.data?.error || "Errore eliminazione marketplace mapping",
       );
     }
   }
@@ -175,6 +175,42 @@ function MarketplaceMappingsTable() {
     return isActive
       ? "status-badge status-available"
       : "status-badge status-sold";
+  }
+
+  function getRemoteEventId(event) {
+    return event.id || event.eventId || event.remote_event_id || "-";
+  }
+
+  function getRemoteEventName(event) {
+    return event.name || event.title || event.remote_event_name || "-";
+  }
+
+  function getRemoteVenueName(event) {
+    if (typeof event.venue === "string") return event.venue;
+    if (event.venue?.name) return event.venue.name;
+    if (event.location?.venue) return event.location.venue;
+    return "-";
+  }
+
+  function getRemoteCity(event) {
+    return event.city || event.location?.city || "-";
+  }
+
+  function getRemoteDate(event) {
+    const rawDate =
+      event.start ||
+      event.date?.start ||
+      event.date?.from ||
+      event.date ||
+      event.startDate;
+
+    if (!rawDate) return "-";
+
+    try {
+      return new Date(rawDate).toLocaleString();
+    } catch (_) {
+      return String(rawDate);
+    }
   }
 
   return (
@@ -220,7 +256,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    marketplace: e.target.value
+                    marketplace: e.target.value,
                   })
                 }
               >
@@ -234,7 +270,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    mapping_type: e.target.value
+                    mapping_type: e.target.value,
                   })
                 }
               >
@@ -248,7 +284,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    internal_event_id: e.target.value
+                    internal_event_id: e.target.value,
                   })
                 }
               >
@@ -268,7 +304,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    internal_category: e.target.value
+                    internal_category: e.target.value,
                   })
                 }
               />
@@ -280,7 +316,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    internal_block: e.target.value
+                    internal_block: e.target.value,
                   })
                 }
               />
@@ -300,7 +336,7 @@ function MarketplaceMappingsTable() {
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        is_active: e.target.checked
+                        is_active: e.target.checked,
                       })
                     }
                   />
@@ -321,7 +357,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    remote_event_id: e.target.value
+                    remote_event_id: e.target.value,
                   })
                 }
               />
@@ -333,7 +369,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    remote_event_name: e.target.value
+                    remote_event_name: e.target.value,
                   })
                 }
               />
@@ -353,7 +389,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    remote_category_id: e.target.value
+                    remote_category_id: e.target.value,
                   })
                 }
               />
@@ -365,7 +401,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    remote_category_name: e.target.value
+                    remote_category_name: e.target.value,
                   })
                 }
               />
@@ -377,7 +413,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    remote_block_id: e.target.value
+                    remote_block_id: e.target.value,
                   })
                 }
               />
@@ -389,7 +425,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    remote_block_name: e.target.value
+                    remote_block_name: e.target.value,
                   })
                 }
               />
@@ -401,7 +437,7 @@ function MarketplaceMappingsTable() {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    notes: e.target.value
+                    notes: e.target.value,
                   })
                 }
               />
@@ -439,31 +475,36 @@ function MarketplaceMappingsTable() {
             </thead>
 
             <tbody>
-              {remoteSearchResults.map((event) => (
-                <tr key={event.id}>
-                  <td>{event.id}</td>
-                  <td>{event.name}</td>
-                  <td>{event.venue || "-"}</td>
-                  <td>{event.city || "-"}</td>
-                  <td>{event.date || "-"}</td>
-                  <td>
-                    <button
-                      className="btn btn-save"
-                      onClick={() => {
-                        setForm({
-                          ...form,
-                          remote_event_id: event.id,
-                          remote_event_name: event.name
-                        });
+              {remoteSearchResults.map((event, index) => {
+                const remoteEventId = getRemoteEventId(event);
+                const remoteEventName = getRemoteEventName(event);
 
-                        setRemoteSearchResults([]);
-                      }}
-                    >
-                      Use this event
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                return (
+                  <tr key={remoteEventId || index}>
+                    <td>{remoteEventId}</td>
+                    <td>{remoteEventName}</td>
+                    <td>{getRemoteVenueName(event)}</td>
+                    <td>{getRemoteCity(event)}</td>
+                    <td>{getRemoteDate(event)}</td>
+                    <td>
+                      <button
+                        className="btn btn-save"
+                        onClick={() => {
+                          setForm({
+                            ...form,
+                            remote_event_id: remoteEventId,
+                            remote_event_name: remoteEventName,
+                          });
+
+                          setRemoteSearchResults([]);
+                        }}
+                      >
+                        Use this event
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
