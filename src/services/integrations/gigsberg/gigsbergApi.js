@@ -110,6 +110,17 @@ async function deleteListing(listingId) {
     url: `/listing/${listingId}`,
   });
 }
+async function updateListing(listingId, payload) {
+  if (!listingId) {
+    throw new Error("listingId obbligatorio");
+  }
+
+  return gigsbergRequest({
+    method: "PUT",
+    url: `/listing/${listingId}`,
+    data: payload,
+  });
+}
 
 module.exports = {
   getAuthToken,
@@ -117,4 +128,5 @@ module.exports = {
   searchEvents,
   getEventCategories,
   deleteListing,
+  updateListing,
 };

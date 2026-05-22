@@ -10,6 +10,10 @@ const {
 } = require("./integrations/ticombo/ticomboListings");
 
 const {
+  updateListing: updateGigsbergListing,
+} = require("./integrations/gigsberg/gigsbergApi");
+
+const {
   publishTicomboTicket,
 } = require("./integrations/ticombo/ticomboPublishService");
 
@@ -167,16 +171,33 @@ async function autoRepublishTicomboListing(listing, quantity, price) {
 |--------------------------------------------------------------------------
 */
 
-async function updateGigsbergQuantity(listing, quantity) {
-  console.log(
-    `Gigsberg quantity sync placeholder: listing ${listing.id}, qty ${quantity}`,
+async function updateGigsbergQuantityAndPrice(listing, quantity, price) {
+  if (!listing.remote_listing_id) {
+    throw new Error("remote_listing_id mancante per Gigsberg");
+  }
+
+  const payload = {
+    quantity: Number(quantity),
+    presented_quantity: Number(quantity),
+  };
+
+  if (price !== undefined && price !== null) {
+    payload.price = Number(price);
+  }
+
+  const response = await updateGigsbergListing(
+    listing.remote_listing_id,
+    payload,
   );
 
   return {
     marketplace: "gigsberg",
+    action: "quantity_price_sync",
     listing_id: listing.id,
-    quantity,
-    placeholder: true,
+    remote_listing_id: listing.remote_listing_id,
+    quantity: Number(quantity),
+    price: price !== undefined && price !== null ? Number(price) : null,
+    response,
   };
 }
 
@@ -487,9 +508,10 @@ async function syncMarketplaceQuantities() {
         */
 
         if (listing.marketplace === "gigsberg") {
-          responsePayload = await updateGigsbergQuantity(
+          responsePayload = await updateGigsbergQuantityAndPrice(
             listing,
             currentQuantity,
+            currentPrice,
           );
         }
 
