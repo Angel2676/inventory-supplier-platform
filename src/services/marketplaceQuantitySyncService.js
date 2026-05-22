@@ -11,6 +11,7 @@ const {
 
 const {
   updateListing: updateGigsbergListing,
+  deleteListing: deleteGigsbergListing,
 } = require("./integrations/gigsberg/gigsbergApi");
 
 const {
@@ -162,6 +163,28 @@ async function autoRepublishTicomboListing(listing, quantity, price) {
       remote_category_id: publishResult.categoryMapping.remote_category_id,
       remote_category_name: publishResult.categoryMapping.remote_category_name,
     },
+  };
+}
+
+/*
+|--------------------------------------------------------------------------
+| GIGSBERG AUTO DELIST
+|--------------------------------------------------------------------------
+*/
+
+async function autoDelistGigsbergListing(listing) {
+  if (!listing.remote_listing_id) {
+    throw new Error("remote_listing_id mancante per auto delist Gigsberg");
+  }
+
+  const response = await deleteGigsbergListing(listing.remote_listing_id);
+
+  return {
+    marketplace: "gigsberg",
+    action: "auto_delist_zero_quantity",
+    listing_id: listing.id,
+    remote_listing_id: listing.remote_listing_id,
+    response,
   };
 }
 
@@ -392,14 +415,7 @@ async function syncMarketplaceQuantities() {
                 "Auto delist SportEvents365 non ancora implementato: listing marcato deleted solo localmente",
             };
           } else if (listing.marketplace === "gigsberg") {
-            responsePayload = {
-              marketplace: "gigsberg",
-              action,
-              listing_id: listing.id,
-              placeholder: true,
-              message:
-                "Auto delist Gigsberg non ancora implementato: listing marcato deleted solo localmente",
-            };
+            responsePayload = await autoDelistGigsbergListing(listing);
           } else {
             responsePayload = {
               marketplace: listing.marketplace,
