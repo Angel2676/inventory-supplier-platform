@@ -18,8 +18,8 @@ async function authenticateGigsberg() {
   const response = await axios.post(
     `${GIGSBERG_BASE_URL}/auth`,
     {
-      api_key: apiKey,
-      user_id: userId,
+      apiKey,
+      userId,
     },
     {
       headers: {
