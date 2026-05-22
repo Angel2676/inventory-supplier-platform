@@ -443,6 +443,26 @@ router.post("/publish", async (req, res) => {
      */
     if (normalizedMarketplace === "gigsberg") {
       try {
+        const existingGigsbergResult = await pool.query(
+          `
+          SELECT *
+          FROM marketplace_listings
+          WHERE ticket_id = $1
+            AND marketplace = 'gigsberg'
+            AND sync_status = 'synced'
+            AND remote_listing_id IS NOT NULL
+          ORDER BY id DESC
+          LIMIT 1
+          `,
+          [ticket_id],
+        );
+
+        if (existingGigsbergResult.rows.length > 0) {
+          return res.status(400).json({
+            error: "Ticket già pubblicato su Gigsberg",
+            listing: existingGigsbergResult.rows[0],
+          });
+        }
         const gigsbergResult = await createGigsbergListing(ticket_id);
 
         const remoteListingId =
