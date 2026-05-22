@@ -445,16 +445,87 @@ router.post("/publish", async (req, res) => {
       try {
         const gigsbergResult = await createGigsbergListing(ticket_id);
 
+        const remoteListingId =
+          gigsbergResult?.response?.content?.id ||
+          gigsbergResult?.response?.id ||
+          null;
+
+        const listingResult = await pool.query(
+          `
+          INSERT INTO marketplace_listings (
+            ticket_id,
+            marketplace,
+            external_event_id,
+            external_category_id,
+            remote_event_id,
+            remote_category_id,
+            remote_listing_id,
+            external_listing_id,
+            sync_status,
+            sync_direction,
+            last_sync_at,
+            marketplace_price,
+            last_error
+          )
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,NOW(),$10,$11)
+          RETURNING *
+          `,
+          [
+            ticket_id,
+            "gigsberg",
+            gigsbergResult.gigsberg_event_id,
+            gigsbergResult.gigsberg_category_id,
+            gigsbergResult.gigsberg_event_id,
+            gigsbergResult.gigsberg_category_id,
+            remoteListingId,
+            "synced",
+            "inventory_to_marketplace",
+            gigsbergResult.price_check?.finalPrice || null,
+            null,
+          ],
+        );
+
+        await pool.query(
+          `
+          INSERT INTO marketplace_sync_logs (
+            marketplace_listing_id,
+            ticket_id,
+            marketplace,
+            action,
+            status,
+            response_payload,
+            error_message
+          )
+          VALUES ($1,$2,$3,$4,$5,$6,$7)
+          `,
+          [
+            listingResult.rows[0].id,
+            ticket_id,
+            "gigsberg",
+            "publish",
+            "synced",
+            JSON.stringify(gigsbergResult),
+            null,
+          ],
+        );
+
         return res.json({
           success: true,
-          message: "Publish Gigsberg avviato",
+          message: "Ticket pubblicato su Gigsberg",
+          listing: listingResult.rows[0],
           result: gigsbergResult,
         });
       } catch (error) {
-        console.error("Errore publish reale Gigsberg:", error);
+        const details = error.response?.data || error.message;
+
+        console.error(
+          "Errore publish reale Gigsberg:",
+          JSON.stringify(details, null, 2),
+        );
 
         return res.status(500).json({
-          error: error.message || "Errore publish Gigsberg",
+          error: "Errore publish Gigsberg",
+          details,
         });
       }
     }

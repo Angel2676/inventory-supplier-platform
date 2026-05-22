@@ -59,20 +59,39 @@ async function getTicketWithEvent(ticketId) {
   return result.rows[0];
 }
 
+function extractEvents(searchResult) {
+  if (Array.isArray(searchResult?.items)) return searchResult.items;
+  if (Array.isArray(searchResult?.data)) return searchResult.data;
+  if (Array.isArray(searchResult)) return searchResult;
+  return [];
+}
+
+function extractCategories(categories) {
+  if (Array.isArray(categories?.data)) return categories.data;
+  if (Array.isArray(categories?.items)) return categories.items;
+  if (Array.isArray(categories)) return categories;
+  return [];
+}
+
 async function findBestGigsbergEvent(ticket) {
-  const searchResult = await searchEvents({
+  let searchResult = await searchEvents({
     keyword: ticket.event_name,
-    city: ticket.city || undefined,
-    venue: ticket.venue || undefined,
     future_events_only: true,
     per_page: 30,
   });
 
-  const events = Array.isArray(searchResult?.items)
-    ? searchResult.items
-    : Array.isArray(searchResult?.data)
-      ? searchResult.data
-      : [];
+  let events = extractEvents(searchResult);
+
+  if (events.length === 0 && ticket.city) {
+    searchResult = await searchEvents({
+      keyword: ticket.event_name,
+      city: ticket.city,
+      future_events_only: true,
+      per_page: 30,
+    });
+
+    events = extractEvents(searchResult);
+  }
 
   if (events.length === 0) {
     throw new Error("Nessun evento Gigsberg trovato");
@@ -80,38 +99,24 @@ async function findBestGigsbergEvent(ticket) {
 
   const localName = normalizeText(ticket.event_name);
   const localCity = normalizeText(ticket.city);
-  const localVenue = normalizeText(ticket.venue);
 
-  const exactMatch = events.find(
-    (event) => normalizeText(event.name) === localName,
-  );
-
-  if (exactMatch) return exactMatch;
-
-  const cityVenueMatch = events.find((event) => {
-    const eventCity = normalizeText(event.city);
-    const eventVenue = normalizeText(event.venue);
-
+  const exactCityMatch = events.find((event) => {
     return (
       normalizeText(event.name) === localName &&
-      (!localCity || eventCity.includes(localCity)) &&
-      (!localVenue || eventVenue.includes(localVenue))
+      (!localCity || normalizeText(event.city).includes(localCity))
     );
   });
 
-  return cityVenueMatch || events[0];
+  const exactNameMatch = events.find(
+    (event) => normalizeText(event.name) === localName,
+  );
+
+  return exactCityMatch || exactNameMatch || events[0];
 }
 
 async function findBestGigsbergCategory(gigsbergEventId, ticket) {
   const categories = await getEventCategories(gigsbergEventId);
-
-  const list = Array.isArray(categories?.data)
-    ? categories.data
-    : Array.isArray(categories?.items)
-      ? categories.items
-      : Array.isArray(categories)
-        ? categories
-        : [];
+  const list = extractCategories(categories);
 
   if (list.length === 0) {
     throw new Error("Nessuna categoria Gigsberg trovata per questo evento");
@@ -204,19 +209,22 @@ async function createGigsbergListing(ticketId) {
 
   form.append("event_id", gigsbergEvent.id);
   form.append("category_id", categoryId);
-
   form.append("block", ticket.block || "");
   form.append("row", ticket.row_name || "");
+  form.append(
+    "seat_start",
 
-  form.append("seat_start", ticket.seat_from || "");
-  form.append("seat_end", ticket.seat_to || "");
+    Number(ticket.seat_from || 1),
+  );
+  form.append(
+    "seat_end",
 
+    Number(ticket.seat_to || ticket.seat_from || quantity),
+  );
   form.append("face_value", faceValue);
   form.append("price", price);
-
   form.append("currency_id", getCurrencyId("EUR"));
   form.append("face_value_currency", getCurrencyId("EUR"));
-
   form.append("quantity", quantity);
   form.append("presented_quantity", quantity);
 
@@ -237,13 +245,24 @@ async function createGigsbergListing(ticketId) {
     form.append("present_address_id", process.env.GIGSBERG_PRESENT_ADDRESS_ID);
   }
 
-  const response = await axios.post(`${GIGSBERG_BASE_URL}/listing`, form, {
-    headers: {
-      ...form.getHeaders(),
-      Accept: "application/json",
-      Authorization: `Bearer ${jwt}`,
-    },
-  });
+  let response;
+
+  try {
+    response = await axios.post(`${GIGSBERG_BASE_URL}/listing`, form, {
+      headers: {
+        ...form.getHeaders(),
+        Accept: "application/json",
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "GIGSBERG CREATE LISTING ERROR:",
+      JSON.stringify(error.response?.data || error.message, null, 2),
+    );
+
+    throw error;
+  }
 
   return {
     response: response.data,

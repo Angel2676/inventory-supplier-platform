@@ -38,8 +38,8 @@ async function gigsbergRequest({ method, url, data, params }) {
       params,
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${jwt}`
-      }
+        Authorization: `Bearer ${jwt}`,
+      },
     });
 
     return response.data;
@@ -48,7 +48,7 @@ async function gigsbergRequest({ method, url, data, params }) {
       method,
       url,
       status: error.response?.status,
-      data: error.response?.data || error.message
+      data: error.response?.data || error.message,
     });
 
     throw error;
@@ -58,7 +58,7 @@ async function gigsbergRequest({ method, url, data, params }) {
 async function getCurrentUser() {
   return gigsbergRequest({
     method: "GET",
-    url: "/user"
+    url: "/user",
   });
 }
 
@@ -71,7 +71,7 @@ async function searchEvents({
   performer2,
   future_events_only = true,
   page = 1,
-  per_page = 30
+  per_page = 30,
 } = {}) {
   return gigsbergRequest({
     method: "POST",
@@ -85,8 +85,8 @@ async function searchEvents({
       venue,
       performer1,
       performer2,
-      future_events_only
-    }
+      future_events_only,
+    },
   });
 }
 
@@ -97,13 +97,14 @@ async function getEventCategories(eventId) {
 
   return gigsbergRequest({
     method: "GET",
-    url: `/event/${eventId}/categories`
+    url: `/event/${eventId}/categories`,
   });
 }
 
 module.exports = {
   getAuthToken,
+  gigsbergRequest,
   getCurrentUser,
   searchEvents,
-  getEventCategories
+  getEventCategories,
 };
