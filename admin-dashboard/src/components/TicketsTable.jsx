@@ -252,6 +252,30 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     }
   }
 
+  async function publishToTicombo(ticket) {
+    try {
+      setPublishingTicketId(ticket.id);
+
+      await api.post("/api/marketplace/publish", {
+        ticket_id: ticket.id,
+        marketplace: "ticombo",
+      });
+
+      setSuccessModal({
+        title: "Publish completato",
+        message:
+          "Il ticket è stato pubblicato su Ticombo ed è ora sincronizzato nei Marketplace Listings.",
+      });
+
+      await loadTickets();
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || "Errore publish Ticombo");
+    } finally {
+      setPublishingTicketId(null);
+    }
+  }
+
   async function publishToSportEvents365(ticket) {
     try {
       setPublishingTicketId(ticket.id);
@@ -862,16 +886,12 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           {marketplaceMode && (
                             <button
                               className="btn btn-secondary"
-                              onClick={() =>
-                                api
-                                  .post("/api/marketplace/publish", {
-                                    ticket_id: ticket.id,
-                                    marketplace: "ticombo",
-                                  })
-                                  .then(loadTickets)
-                              }
+                              onClick={() => publishToTicombo(ticket)}
+                              disabled={publishingTicketId === ticket.id}
                             >
-                              Publish Ticombo
+                              {publishingTicketId === ticket.id
+                                ? "Publishing..."
+                                : "Publish Ticombo"}
                             </button>
                           )}
                           {marketplaceMode && (
