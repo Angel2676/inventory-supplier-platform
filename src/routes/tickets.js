@@ -35,6 +35,7 @@ router.post(
         seat_to,
         quantity,
         price,
+        marketplace_price,
         currency,
       } = req.body;
 
@@ -63,7 +64,8 @@ router.post(
           quantity,
           available_quantity,
           price,
-          currency,
+        marketplace_price,
+        currency,
           status
         )
         VALUES (
@@ -253,6 +255,7 @@ router.patch(
         quantity,
         available_quantity,
         price,
+        marketplace_price,
         currency,
         status,
         notes,
@@ -271,12 +274,13 @@ router.patch(
           quantity = COALESCE($6, quantity),
           available_quantity = COALESCE($7, available_quantity),
           price = COALESCE($8, price),
-          currency = COALESCE($9, currency),
-          status = COALESCE($10, status),
-          notes = COALESCE($11, notes),
-          low_stock_threshold = COALESCE($12, low_stock_threshold),
+          marketplace_price = COALESCE($9, marketplace_price),
+          currency = COALESCE($10, currency),
+          status = COALESCE($11, status),
+          notes = COALESCE($12, notes),
+          low_stock_threshold = COALESCE($13, low_stock_threshold),
           updated_at = NOW()
-        WHERE id = $13
+        WHERE id = $14
         RETURNING *
         `,
         [
@@ -288,6 +292,9 @@ router.patch(
           quantity !== undefined ? Number(quantity) : null,
           available_quantity !== undefined ? Number(available_quantity) : null,
           price !== undefined ? Number(price) : null,
+          marketplace_price !== undefined && marketplace_price !== null
+            ? Number(marketplace_price)
+            : null,
           currency || null,
           status || null,
           notes || null,
@@ -434,7 +441,8 @@ router.post(
                   quantity,
                   available_quantity,
                   price,
-                  currency,
+        marketplace_price,
+        currency,
                   status
                 )
                 VALUES (

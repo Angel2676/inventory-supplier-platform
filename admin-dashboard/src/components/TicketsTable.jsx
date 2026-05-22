@@ -62,6 +62,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
   const [editForm, setEditForm] = useState({
     price: "",
+    marketplace_price: "",
     available_quantity: "",
     low_stock_threshold: "",
     min_price: "",
@@ -146,6 +147,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
     setEditForm({
       price: ticket.partner_price || ticket.price || "",
+      marketplace_price: ticket.marketplace_price || "",
       available_quantity: ticket.available_quantity || "",
       low_stock_threshold: ticket.low_stock_threshold || 2,
       min_price: ticket.min_price || "",
@@ -159,6 +161,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
     setEditForm({
       price: "",
+      marketplace_price: "",
       available_quantity: "",
       low_stock_threshold: "",
       min_price: "",
@@ -172,6 +175,9 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       await api.patch(`/api/tickets/${ticketId}`, {
         price: Number(editForm.price),
         partner_price: Number(editForm.price),
+        marketplace_price: editForm.marketplace_price
+          ? Number(editForm.marketplace_price)
+          : null,
         available_quantity: Number(editForm.available_quantity),
         low_stock_threshold: Number(editForm.low_stock_threshold),
       });
@@ -665,7 +671,26 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                     )}
                   </td>
 
-                  {canEdit && <td>€ {marketplacePrice.toFixed(2)}</td>}
+                  {canEdit && (
+                    <td>
+                      {editingId === ticket.id ? (
+                        <input
+                          className="table-input"
+                          type="number"
+                          step="0.01"
+                          value={editForm.marketplace_price}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              marketplace_price: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        `€ ${marketplacePrice.toFixed(2)}`
+                      )}
+                    </td>
+                  )}
 
                   {canEdit && (
                     <td>
