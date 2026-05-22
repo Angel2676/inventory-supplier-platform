@@ -100,11 +100,21 @@ async function getEventCategories(eventId) {
     url: `/event/${eventId}/categories`,
   });
 }
+async function deleteListing(listingId) {
+  if (!listingId) {
+    throw new Error("listingId obbligatorio");
+  }
+
+  return gigsbergRequest({
+    method: "DELETE",
+    url: `/listing/${listingId}`,
+  });
+}
 
 module.exports = {
   getAuthToken,
-  gigsbergRequest,
   getCurrentUser,
   searchEvents,
   getEventCategories,
+  deleteListing,
 };

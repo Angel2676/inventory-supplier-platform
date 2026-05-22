@@ -6,6 +6,10 @@ const {
 } = require("../services/integrations/gigsberg/gigsbergListings");
 
 const {
+  deleteListing: deleteGigsbergListing,
+} = require("../services/integrations/gigsberg/gigsbergApi");
+
+const {
   searchSportEvents365Events,
   createSupplierTickets,
 } = require("../services/integrations/sportevents365/sportevents365Api");
@@ -43,10 +47,7 @@ router.get("/listings", async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error("Errore caricamento marketplace listings:", error);
-
-    res.status(500).json({
-      error: "Errore caricamento marketplace listings",
-    });
+    res.status(500).json({ error: "Errore caricamento marketplace listings" });
   }
 });
 
@@ -59,15 +60,11 @@ router.get("/search-events", async (req, res) => {
     const keyword = String(req.query.keyword || "").trim();
 
     if (!marketplace) {
-      return res.status(400).json({
-        error: "Marketplace mancante",
-      });
+      return res.status(400).json({ error: "Marketplace mancante" });
     }
 
     if (!keyword) {
-      return res.status(400).json({
-        error: "Keyword evento mancante",
-      });
+      return res.status(400).json({ error: "Keyword evento mancante" });
     }
 
     let results = [];
@@ -118,10 +115,7 @@ router.get("/mappings", async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error("Errore caricamento marketplace mappings:", error);
-
-    res.status(500).json({
-      error: "Errore caricamento marketplace mappings",
-    });
+    res.status(500).json({ error: "Errore caricamento marketplace mappings" });
   }
 });
 
@@ -183,7 +177,6 @@ router.post("/mappings", async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Errore creazione marketplace mapping:", error);
-
     res.status(500).json({
       error: error.message || "Errore creazione marketplace mapping",
     });
@@ -252,7 +245,6 @@ router.patch("/mappings/:id", async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Errore aggiornamento marketplace mapping:", error);
-
     res.status(500).json({
       error: error.message || "Errore aggiornamento marketplace mapping",
     });
@@ -265,15 +257,10 @@ router.delete("/mappings/:id", async (req, res) => {
       req.params.id,
     ]);
 
-    res.json({
-      success: true,
-    });
+    res.json({ success: true });
   } catch (error) {
     console.error("Errore eliminazione marketplace mapping:", error);
-
-    res.status(500).json({
-      error: "Errore eliminazione marketplace mapping",
-    });
+    res.status(500).json({ error: "Errore eliminazione marketplace mapping" });
   }
 });
 
@@ -292,10 +279,7 @@ router.get("/logs", async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error("Errore caricamento marketplace logs:", error);
-
-    res.status(500).json({
-      error: "Errore caricamento marketplace logs",
-    });
+    res.status(500).json({ error: "Errore caricamento marketplace logs" });
   }
 });
 
@@ -314,10 +298,7 @@ router.get("/orders", async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error("Errore caricamento marketplace orders:", error);
-
-    res.status(500).json({
-      error: "Errore caricamento marketplace orders",
-    });
+    res.status(500).json({ error: "Errore caricamento marketplace orders" });
   }
 });
 
@@ -335,10 +316,7 @@ router.get("/settings", async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error("Errore caricamento marketplace settings:", error);
-
-    res.status(500).json({
-      error: "Errore caricamento marketplace settings",
-    });
+    res.status(500).json({ error: "Errore caricamento marketplace settings" });
   }
 });
 
@@ -383,10 +361,9 @@ router.patch("/settings/:id", async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Errore aggiornamento marketplace settings:", error);
-
-    res.status(500).json({
-      error: "Errore aggiornamento marketplace settings",
-    });
+    res
+      .status(500)
+      .json({ error: "Errore aggiornamento marketplace settings" });
   }
 });
 
@@ -416,10 +393,7 @@ router.post("/listings/:id/retry", async (req, res) => {
     });
   } catch (error) {
     console.error("Errore retry marketplace listing:", error);
-
-    res.status(500).json({
-      error: "Errore retry marketplace listing",
-    });
+    res.status(500).json({ error: "Errore retry marketplace listing" });
   }
 });
 
@@ -463,6 +437,7 @@ router.post("/publish", async (req, res) => {
             listing: existingGigsbergResult.rows[0],
           });
         }
+
         const gigsbergResult = await createGigsbergListing(ticket_id);
 
         const remoteListingId =
@@ -485,9 +460,11 @@ router.post("/publish", async (req, res) => {
             sync_direction,
             last_sync_at,
             marketplace_price,
+            last_quantity_synced,
+            last_quantity_sync_at,
             last_error
           )
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,NOW(),$10,$11)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,NOW(),$10,$11,NOW(),$12)
           RETURNING *
           `,
           [
@@ -501,6 +478,7 @@ router.post("/publish", async (req, res) => {
             "synced",
             "inventory_to_marketplace",
             gigsbergResult.price_check?.finalPrice || null,
+            null,
             null,
           ],
         );
@@ -567,9 +545,7 @@ router.post("/publish", async (req, res) => {
       );
 
       if (ticketResult.rows.length === 0) {
-        return res.status(404).json({
-          error: "Ticket non trovato",
-        });
+        return res.status(404).json({ error: "Ticket non trovato" });
       }
 
       const ticket = ticketResult.rows[0];
@@ -900,9 +876,7 @@ router.post("/publish", async (req, res) => {
       );
 
       if (ticketResult.rows.length === 0) {
-        return res.status(404).json({
-          error: "Ticket non trovato",
-        });
+        return res.status(404).json({ error: "Ticket non trovato" });
       }
 
       const ticket = ticketResult.rows[0];
@@ -1115,6 +1089,71 @@ router.delete("/listings/:id", async (req, res) => {
     }
 
     const listing = listingResult.rows[0];
+
+    /*
+    |--------------------------------------------------------------------------
+    | GIGSBERG
+    |--------------------------------------------------------------------------
+    */
+
+    if (listing.marketplace === "gigsberg") {
+      if (!listing.remote_listing_id) {
+        return res.status(400).json({
+          error: "remote_listing_id mancante",
+        });
+      }
+
+      const deleteResponse = await deleteGigsbergListing(
+        listing.remote_listing_id,
+      );
+
+      await pool.query(
+        `
+        UPDATE marketplace_listings
+        SET
+          sync_status = 'deleted',
+          last_sync_at = NOW(),
+          updated_at = NOW(),
+          last_error = NULL
+        WHERE id = $1
+        `,
+        [listing.id],
+      );
+
+      await pool.query(
+        `
+        INSERT INTO marketplace_sync_logs (
+          marketplace_listing_id,
+          ticket_id,
+          marketplace,
+          action,
+          status,
+          response_payload
+        )
+        VALUES ($1,$2,$3,$4,$5,$6)
+        `,
+        [
+          listing.id,
+          listing.ticket_id,
+          listing.marketplace,
+          "delete_listing",
+          "success",
+          JSON.stringify(deleteResponse),
+        ],
+      );
+
+      return res.json({
+        success: true,
+        message: "Listing Gigsberg eliminato",
+        response: deleteResponse,
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TICOMBO
+    |--------------------------------------------------------------------------
+    */
 
     if (listing.marketplace === "ticombo") {
       if (!listing.remote_listing_id) {
