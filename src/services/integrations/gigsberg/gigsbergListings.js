@@ -68,19 +68,38 @@ async function findBestGigsbergEvent(ticket) {
     per_page: 30,
   });
 
-  const events = Array.isArray(searchResult?.data) ? searchResult.data : [];
+  const events = Array.isArray(searchResult?.items)
+    ? searchResult.items
+    : Array.isArray(searchResult?.data)
+      ? searchResult.data
+      : [];
 
   if (events.length === 0) {
     throw new Error("Nessun evento Gigsberg trovato");
   }
 
   const localName = normalizeText(ticket.event_name);
+  const localCity = normalizeText(ticket.city);
+  const localVenue = normalizeText(ticket.venue);
 
   const exactMatch = events.find(
     (event) => normalizeText(event.name) === localName,
   );
 
-  return exactMatch || events[0];
+  if (exactMatch) return exactMatch;
+
+  const cityVenueMatch = events.find((event) => {
+    const eventCity = normalizeText(event.city);
+    const eventVenue = normalizeText(event.venue);
+
+    return (
+      normalizeText(event.name) === localName &&
+      (!localCity || eventCity.includes(localCity)) &&
+      (!localVenue || eventVenue.includes(localVenue))
+    );
+  });
+
+  return cityVenueMatch || events[0];
 }
 
 async function findBestGigsbergCategory(gigsbergEventId, ticket) {
@@ -88,9 +107,11 @@ async function findBestGigsbergCategory(gigsbergEventId, ticket) {
 
   const list = Array.isArray(categories?.data)
     ? categories.data
-    : Array.isArray(categories)
-      ? categories
-      : [];
+    : Array.isArray(categories?.items)
+      ? categories.items
+      : Array.isArray(categories)
+        ? categories
+        : [];
 
   if (list.length === 0) {
     throw new Error("Nessuna categoria Gigsberg trovata per questo evento");
@@ -106,7 +127,11 @@ async function findBestGigsbergCategory(gigsbergEventId, ticket) {
     normalizeText(category.name).includes(localCategory),
   );
 
-  return exactMatch || partialMatch || list[0];
+  const reversePartialMatch = list.find((category) =>
+    localCategory.includes(normalizeText(category.name)),
+  );
+
+  return exactMatch || partialMatch || reversePartialMatch || list[0];
 }
 
 async function createGigsbergListing(ticketId) {
@@ -121,11 +146,12 @@ async function createGigsbergListing(ticketId) {
 
   const jwt = await getAuthToken();
 
-  const quantity = Number(ticket.available_quantity || ticket.quantity || 1);
+  const quantity = Number(ticket.available_quantity || ticket.quantity || 0);
 
-  /*
-    PRICE CHECKER
-  */
+  if (!quantity || quantity <= 0) {
+    throw new Error("Quantità ticket non valida");
+  }
+
   const priceCheck = calculateSafePrice({
     currentPrice: Number(ticket.price || 0),
     marketLowestPrice: Number(ticket.last_market_price || 0),
@@ -139,6 +165,30 @@ async function createGigsbergListing(ticketId) {
         ticket.marketplace_price || ticket.final_price || ticket.price || 0,
       );
 
+  if (!price || price <= 0) {
+    throw new Error("Prezzo ticket non valido");
+  }
+
+  const faceValue = Number(ticket.face_value || ticket.price || price || 1);
+
+  const categoryId = gigsbergCategory.id || gigsbergCategory.category_id;
+
+  if (!categoryId) {
+    throw new Error("category_id Gigsberg mancante");
+  }
+
+  console.log("GIGSBERG MATCH:", {
+    ticketId: ticket.id,
+    eventName: ticket.event_name,
+    gigsbergEventId: gigsbergEvent.id,
+    gigsbergEventName: gigsbergEvent.name,
+    gigsbergCity: gigsbergEvent.city,
+    gigsbergVenue: gigsbergEvent.venue,
+    localCategory: ticket.category,
+    gigsbergCategoryId: categoryId,
+    gigsbergCategoryName: gigsbergCategory.name,
+  });
+
   console.log("PRICE CHECK RESULT:", {
     ticketId: ticket.id,
     currentPrice: ticket.price,
@@ -150,20 +200,10 @@ async function createGigsbergListing(ticketId) {
     shouldUpdate: priceCheck.shouldUpdate,
   });
 
-  const faceValue = Number(ticket.face_value || ticket.price || 1);
-
-  if (!quantity || quantity <= 0) {
-    throw new Error("Quantità ticket non valida");
-  }
-
-  if (!price || price <= 0) {
-    throw new Error("Prezzo ticket non valido");
-  }
-
   const form = new FormData();
 
   form.append("event_id", gigsbergEvent.id);
-  form.append("category_id", gigsbergCategory.id);
+  form.append("category_id", categoryId);
 
   form.append("block", ticket.block || "");
   form.append("row", ticket.row_name || "");
@@ -172,10 +212,6 @@ async function createGigsbergListing(ticketId) {
   form.append("seat_end", ticket.seat_to || "");
 
   form.append("face_value", faceValue);
-
-  /*
-    PREZZO FINALE CALCOLATO DAL PRICE CHECKER
-  */
   form.append("price", price);
 
   form.append("currency_id", getCurrencyId("EUR"));
@@ -184,23 +220,15 @@ async function createGigsbergListing(ticketId) {
   form.append("quantity", quantity);
   form.append("presented_quantity", quantity);
 
-  /*
-    Configurabile via ENV
-  */
   form.append(
     "ticket_type_id",
     process.env.GIGSBERG_DEFAULT_TICKET_TYPE_ID || 3,
   );
 
   form.append("listing_split_type_code", "pairs");
-
   form.append("is_seller_connected_to_event", 0);
-
   form.append("active", 1);
 
-  /*
-    Address opzionali
-  */
   if (process.env.GIGSBERG_ADDRESS_ID) {
     form.append("address_id", process.env.GIGSBERG_ADDRESS_ID);
   }
@@ -220,7 +248,9 @@ async function createGigsbergListing(ticketId) {
   return {
     response: response.data,
     gigsberg_event_id: gigsbergEvent.id,
-    gigsberg_category_id: gigsbergCategory.id,
+    gigsberg_category_id: categoryId,
+    gigsberg_event: gigsbergEvent,
+    gigsberg_category: gigsbergCategory,
     price_check: priceCheck,
   };
 }
