@@ -6,6 +6,7 @@ const {
 
 const {
   updateTicomboListing,
+  deleteTicomboListing,
 } = require("./integrations/ticombo/ticomboListings");
 
 /*
@@ -96,10 +97,33 @@ async function updateTicomboQuantityAndPrice(listing, quantity, price) {
 
   return {
     marketplace: "ticombo",
+    action: "quantity_price_sync",
     listing_id: listing.id,
     remote_listing_id: listing.remote_listing_id,
     quantity: Number(quantity),
     price: price !== undefined && price !== null ? Number(price) : null,
+    response,
+  };
+}
+
+/*
+|--------------------------------------------------------------------------
+| TICOMBO AUTO DELIST
+|--------------------------------------------------------------------------
+*/
+
+async function autoDelistTicomboListing(listing) {
+  if (!listing.remote_listing_id) {
+    throw new Error("remote_listing_id mancante per auto delist Ticombo");
+  }
+
+  const response = await deleteTicomboListing(listing.remote_listing_id);
+
+  return {
+    marketplace: "ticombo",
+    action: "auto_delist_zero_quantity",
+    listing_id: listing.id,
+    remote_listing_id: listing.remote_listing_id,
     response,
   };
 }
@@ -170,6 +194,92 @@ async function syncMarketplaceQuantities() {
         const currentPrice = Number(listing.current_price || 0);
 
         let responsePayload = null;
+        let action = "quantity_price_sync";
+        let resultingSyncStatus = "synced";
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTO DELIST WHEN QUANTITY IS ZERO
+        |--------------------------------------------------------------------------
+        */
+
+        if (currentQuantity <= 0) {
+          action = "auto_delist_zero_quantity";
+          resultingSyncStatus = "deleted";
+
+          if (listing.marketplace === "ticombo") {
+            responsePayload = await autoDelistTicomboListing(listing);
+          } else if (listing.marketplace === "sportevents365") {
+            responsePayload = {
+              marketplace: "sportevents365",
+              action,
+              listing_id: listing.id,
+              placeholder: true,
+              message:
+                "Auto delist SportEvents365 non ancora implementato: listing marcato deleted solo localmente",
+            };
+          } else if (listing.marketplace === "gigsberg") {
+            responsePayload = {
+              marketplace: "gigsberg",
+              action,
+              listing_id: listing.id,
+              placeholder: true,
+              message:
+                "Auto delist Gigsberg non ancora implementato: listing marcato deleted solo localmente",
+            };
+          } else {
+            responsePayload = {
+              marketplace: listing.marketplace,
+              action,
+              listing_id: listing.id,
+              placeholder: true,
+              message:
+                "Auto delist non implementato per questo marketplace: listing marcato deleted solo localmente",
+            };
+          }
+
+          await pool.query(
+            `
+            UPDATE marketplace_listings
+            SET
+              sync_status = $1,
+              last_quantity_synced = $2,
+              last_quantity_sync_at = NOW(),
+              marketplace_price = $4,
+              quantity_sync_attempts =
+                COALESCE(quantity_sync_attempts, 0) + 1,
+              last_sync_at = NOW(),
+              updated_at = NOW(),
+              last_error = NULL
+            WHERE id = $3
+            `,
+            [resultingSyncStatus, currentQuantity, listing.id, currentPrice],
+          );
+
+          await pool.query(
+            `
+            INSERT INTO marketplace_sync_logs (
+              marketplace_listing_id,
+              ticket_id,
+              marketplace,
+              action,
+              status,
+              response_payload
+            )
+            VALUES ($1,$2,$3,$4,$5,$6)
+            `,
+            [
+              listing.id,
+              listing.ticket_id,
+              listing.marketplace,
+              action,
+              "success",
+              responsePayload ? JSON.stringify(responsePayload) : null,
+            ],
+          );
+
+          continue;
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -231,16 +341,18 @@ async function syncMarketplaceQuantities() {
           `
           UPDATE marketplace_listings
           SET
-            last_quantity_synced = $1,
+            sync_status = $1,
+            last_quantity_synced = $2,
             last_quantity_sync_at = NOW(),
-            marketplace_price = $3,
+            marketplace_price = $4,
             quantity_sync_attempts =
               COALESCE(quantity_sync_attempts, 0) + 1,
             last_sync_at = NOW(),
+            updated_at = NOW(),
             last_error = NULL
-          WHERE id = $2
+          WHERE id = $3
           `,
-          [currentQuantity, listing.id, currentPrice],
+          [resultingSyncStatus, currentQuantity, listing.id, currentPrice],
         );
 
         /*
@@ -265,7 +377,7 @@ async function syncMarketplaceQuantities() {
             listing.id,
             listing.ticket_id,
             listing.marketplace,
-            "quantity_price_sync",
+            action,
             "success",
             responsePayload ? JSON.stringify(responsePayload) : null,
           ],
@@ -275,12 +387,6 @@ async function syncMarketplaceQuantities() {
 
         console.error("Marketplace quantity/price sync error:", detailedError);
 
-        /*
-        |--------------------------------------------------------------------------
-        | UPDATE ERROR
-        |--------------------------------------------------------------------------
-        */
-
         await pool.query(
           `
           UPDATE marketplace_listings
@@ -288,17 +394,12 @@ async function syncMarketplaceQuantities() {
             quantity_sync_attempts =
               COALESCE(quantity_sync_attempts, 0) + 1,
             last_error = $1,
-            last_sync_at = NOW()
+            last_sync_at = NOW(),
+            updated_at = NOW()
           WHERE id = $2
           `,
           [detailedError, listing.id],
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | LOG ERROR
-        |--------------------------------------------------------------------------
-        */
 
         await pool.query(
           `
