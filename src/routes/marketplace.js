@@ -73,9 +73,7 @@ router.get("/search-events", async (req, res) => {
     let results = [];
 
     if (marketplace === "sportevents365") {
-      results = await searchSportEvents365Events({
-        keyword,
-      });
+      results = await searchSportEvents365Events({ keyword });
     } else if (marketplace === "ticombo") {
       results = await searchTicomboEvents(keyword);
     } else if (marketplace === "gigsberg") {
@@ -493,15 +491,35 @@ router.post("/publish", async (req, res) => {
           AND marketplace = 'ticombo'
           AND sync_status = 'synced'
           AND remote_listing_id IS NOT NULL
-        LIMIT 1
+        ORDER BY id DESC
         `,
         [ticket_id],
       );
 
       if (existingSyncedResult.rows.length > 0) {
+        const activeListing = existingSyncedResult.rows[0];
+
+        if (existingSyncedResult.rows.length > 1) {
+          const duplicateIds = existingSyncedResult.rows
+            .slice(1)
+            .map((listing) => listing.id);
+
+          await pool.query(
+            `
+            UPDATE marketplace_listings
+            SET
+              sync_status = 'superseded',
+              updated_at = NOW(),
+              last_error = NULL
+            WHERE id = ANY($1::int[])
+            `,
+            [duplicateIds],
+          );
+        }
+
         return res.status(400).json({
           error: "Ticket già pubblicato su Ticombo",
-          listing: existingSyncedResult.rows[0],
+          listing: activeListing,
         });
       }
 
@@ -511,7 +529,7 @@ router.post("/publish", async (req, res) => {
         FROM marketplace_listings
         WHERE ticket_id = $1
           AND marketplace = 'ticombo'
-          AND sync_status = 'pending'
+          AND sync_status IN ('pending', 'failed', 'needs_sync')
         ORDER BY id DESC
         LIMIT 1
         `,
@@ -561,6 +579,7 @@ router.post("/publish", async (req, res) => {
       const categoryMapping = categoryMappingResult.rows[0];
 
       const quantity = Number(ticket.available_quantity || 0);
+
       if (quantity <= 0) {
         return res.status(400).json({
           error: `Impossibile pubblicare su Ticombo: quantità non disponibile per ticket ${ticket.id}`,
@@ -977,6 +996,7 @@ router.post("/publish", async (req, res) => {
     });
   }
 });
+
 /*
 |--------------------------------------------------------------------------
 | DELETE / UNPUBLISH MARKETPLACE LISTING
@@ -1004,12 +1024,6 @@ router.delete("/listings/:id", async (req, res) => {
     }
 
     const listing = listingResult.rows[0];
-
-    /*
-    |--------------------------------------------------------------------------
-    | TICOMBO
-    |--------------------------------------------------------------------------
-    */
 
     if (listing.marketplace === "ticombo") {
       if (!listing.remote_listing_id) {
