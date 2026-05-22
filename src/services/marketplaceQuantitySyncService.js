@@ -237,7 +237,7 @@ async function syncMarketplaceQuantities() {
       FROM marketplace_listings ml
       JOIN tickets t
         ON t.id = ml.ticket_id
-      WHERE ml.sync_status IN ('synced', 'deleted')
+      WHERE ml.sync_status = 'synced'
     `);
 
     const listings = listingsResult.rows;
