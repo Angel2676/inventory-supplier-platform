@@ -158,7 +158,13 @@ async function createGigsbergListing(ticketId) {
   }
 
   const priceCheck = calculateSafePrice({
-    currentPrice: Number(ticket.price || 0),
+    currentPrice: Number(
+      ticket.marketplace_price ||
+        ticket.final_price ||
+        ticket.partner_price ||
+        ticket.price ||
+        0,
+    ),
     marketLowestPrice: Number(ticket.last_market_price || 0),
     minPrice: Number(ticket.min_price || 0),
     undercutAmount: Number(ticket.undercut_amount || 0.01),
