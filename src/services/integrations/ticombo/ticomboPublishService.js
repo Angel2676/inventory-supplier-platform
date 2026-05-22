@@ -61,7 +61,13 @@ async function publishTicomboTicket(ticketId) {
   const eventMapping = eventMappingResult.rows[0];
   const categoryMapping = categoryMappingResult.rows[0];
 
-  const quantity = Number(ticket.available_quantity || 1);
+  const quantity = Number(ticket.available_quantity || 0);
+  if (quantity <= 0) {
+    throw new Error(
+      `Impossibile pubblicare su Ticombo: quantità non disponibile per ticket ${ticket.id}`,
+    );
+  }
+
   const price = Number(
     ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
   );
