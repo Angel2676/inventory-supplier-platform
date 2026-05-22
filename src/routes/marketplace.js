@@ -863,7 +863,7 @@ router.post("/publish", async (req, res) => {
       const sportEventsPayload = [
         {
           categoryId: Number(categoryMapping.remote_category_id),
-          quantity: Number(ticket.available_quantity || 1),
+          quantity: Number(ticket.available_quantity || 0),
           price: Number(
             ticket.marketplace_price ||
               ticket.partner_price ||
