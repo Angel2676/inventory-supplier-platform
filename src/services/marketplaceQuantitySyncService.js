@@ -9,6 +9,10 @@ const {
   deleteTicomboListing,
 } = require("./integrations/ticombo/ticomboListings");
 
+const {
+  publishTicomboTicket,
+} = require("./integrations/ticombo/ticomboPublishService");
+
 /*
 |--------------------------------------------------------------------------
 | SPORTSEVENTS365 QUANTITY SYNC
@@ -130,6 +134,35 @@ async function autoDelistTicomboListing(listing) {
 
 /*
 |--------------------------------------------------------------------------
+| TICOMBO AUTO REPUBLISH
+|--------------------------------------------------------------------------
+*/
+
+async function autoRepublishTicomboListing(listing, quantity, price) {
+  const publishResult = await publishTicomboTicket(listing.ticket_id);
+
+  return {
+    marketplace: "ticombo",
+    action: "auto_republish_quantity_restored",
+    listing_id: listing.id,
+    previous_remote_listing_id: listing.remote_listing_id,
+    new_remote_listing_id: publishResult.remoteListingId,
+    quantity: Number(quantity),
+    price: Number(price),
+    publishResponse: publishResult.publishResponse,
+    eventMapping: {
+      remote_event_id: publishResult.eventMapping.remote_event_id,
+      remote_event_name: publishResult.eventMapping.remote_event_name,
+    },
+    categoryMapping: {
+      remote_category_id: publishResult.categoryMapping.remote_category_id,
+      remote_category_name: publishResult.categoryMapping.remote_category_name,
+    },
+  };
+}
+
+/*
+|--------------------------------------------------------------------------
 | GIGSBERG PLACEHOLDER
 |--------------------------------------------------------------------------
 */
@@ -183,7 +216,7 @@ async function syncMarketplaceQuantities() {
       FROM marketplace_listings ml
       JOIN tickets t
         ON t.id = ml.ticket_id
-      WHERE ml.sync_status = 'synced'
+      WHERE ml.sync_status IN ('synced', 'deleted')
     `);
 
     const listings = listingsResult.rows;
@@ -195,7 +228,126 @@ async function syncMarketplaceQuantities() {
 
         let responsePayload = null;
         let action = "quantity_price_sync";
-        let resultingSyncStatus = "synced";
+        let resultingSyncStatus = listing.sync_status || "synced";
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTO REPUBLISH WHEN QUANTITY RETURNS ABOVE ZERO
+        |--------------------------------------------------------------------------
+        */
+
+        if (listing.sync_status === "deleted" && currentQuantity > 0) {
+          action = "auto_republish_quantity_restored";
+          resultingSyncStatus = "synced";
+
+          if (listing.marketplace === "ticombo") {
+            responsePayload = await autoRepublishTicomboListing(
+              listing,
+              currentQuantity,
+              currentPrice,
+            );
+
+            await pool.query(
+              `
+              UPDATE marketplace_listings
+              SET
+                sync_status = $1,
+                remote_listing_id = $2,
+                external_listing_id = $2,
+                last_quantity_synced = $3,
+                last_quantity_sync_at = NOW(),
+                marketplace_price = $4,
+                quantity_sync_attempts =
+                  COALESCE(quantity_sync_attempts, 0) + 1,
+                last_sync_at = NOW(),
+                updated_at = NOW(),
+                last_error = NULL
+              WHERE id = $5
+              `,
+              [
+                resultingSyncStatus,
+                responsePayload.new_remote_listing_id,
+                currentQuantity,
+                currentPrice,
+                listing.id,
+              ],
+            );
+
+            await pool.query(
+              `
+              INSERT INTO marketplace_sync_logs (
+                marketplace_listing_id,
+                ticket_id,
+                marketplace,
+                action,
+                status,
+                response_payload
+              )
+              VALUES ($1,$2,$3,$4,$5,$6)
+              `,
+              [
+                listing.id,
+                listing.ticket_id,
+                listing.marketplace,
+                action,
+                "success",
+                JSON.stringify(responsePayload),
+              ],
+            );
+
+            continue;
+          }
+
+          responsePayload = {
+            marketplace: listing.marketplace,
+            action,
+            listing_id: listing.id,
+            placeholder: true,
+            message:
+              "Auto republish non ancora implementato per questo marketplace",
+          };
+
+          await pool.query(
+            `
+            UPDATE marketplace_listings
+            SET
+              last_quantity_synced = $1,
+              last_quantity_sync_at = NOW(),
+              marketplace_price = $3,
+              quantity_sync_attempts =
+                COALESCE(quantity_sync_attempts, 0) + 1,
+              last_sync_at = NOW(),
+              updated_at = NOW(),
+              last_error = NULL
+            WHERE id = $2
+            `,
+            [currentQuantity, listing.id, currentPrice],
+          );
+
+          await pool.query(
+            `
+            INSERT INTO marketplace_sync_logs (
+              marketplace_listing_id,
+              ticket_id,
+              marketplace,
+              action,
+              status,
+              response_payload
+            )
+            VALUES ($1,$2,$3,$4,$5,$6)
+            `,
+            [
+              listing.id,
+              listing.ticket_id,
+              listing.marketplace,
+              action,
+              "skipped",
+              JSON.stringify(responsePayload),
+            ],
+          );
+
+          continue;
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -203,7 +355,7 @@ async function syncMarketplaceQuantities() {
         |--------------------------------------------------------------------------
         */
 
-        if (currentQuantity <= 0) {
+        if (listing.sync_status === "synced" && currentQuantity <= 0) {
           action = "auto_delist_zero_quantity";
           resultingSyncStatus = "deleted";
 
@@ -283,6 +435,16 @@ async function syncMarketplaceQuantities() {
 
         /*
         |--------------------------------------------------------------------------
+        | SKIP DELETED LISTINGS WITH ZERO QUANTITY
+        |--------------------------------------------------------------------------
+        */
+
+        if (listing.sync_status === "deleted" && currentQuantity <= 0) {
+          continue;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | SPORTSEVENTS365
         |--------------------------------------------------------------------------
         */
@@ -331,12 +493,6 @@ async function syncMarketplaceQuantities() {
           );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | UPDATE MARKETPLACE LISTING
-        |--------------------------------------------------------------------------
-        */
-
         await pool.query(
           `
           UPDATE marketplace_listings
@@ -354,12 +510,6 @@ async function syncMarketplaceQuantities() {
           `,
           [resultingSyncStatus, currentQuantity, listing.id, currentPrice],
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | LOG SUCCESS
-        |--------------------------------------------------------------------------
-        */
 
         await pool.query(
           `
