@@ -254,13 +254,17 @@ async function syncMarketplaceQuantities() {
   try {
     const listingsResult = await pool.query(`
       SELECT
-        ml.*,
-        t.available_quantity,
-        COALESCE(t.marketplace_price, t.partner_price, t.price) AS current_price
-      FROM marketplace_listings ml
-      JOIN tickets t
-        ON t.id = ml.ticket_id
-      WHERE ml.sync_status = 'synced'
+  ml.*,
+  t.available_quantity,
+  COALESCE(t.marketplace_price, t.partner_price, t.price) AS current_price
+FROM marketplace_listings ml
+JOIN tickets t
+  ON t.id = ml.ticket_id
+JOIN marketplace_settings ms
+  ON ms.marketplace = ml.marketplace
+WHERE ml.sync_status = 'synced'
+  AND ms.enabled = true
+  AND ms.api_configured = true
     `);
 
     const listings = listingsResult.rows;
