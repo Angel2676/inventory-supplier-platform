@@ -325,35 +325,39 @@ router.patch("/settings/:id", async (req, res) => {
     const { id } = req.params;
 
     const {
-      is_active,
+      enabled,
       environment,
-      default_markup_percentage,
+      default_min_price,
       default_undercut_amount,
-      auto_publish_enabled,
-      auto_reprice_enabled,
+      api_configured,
+      notes,
     } = req.body;
 
     const result = await pool.query(
       `
       UPDATE marketplace_settings
       SET
-        is_active = COALESCE($1, is_active),
+        enabled = COALESCE($1, enabled),
         environment = COALESCE($2, environment),
-        default_markup_percentage = COALESCE($3, default_markup_percentage),
+        default_min_price = COALESCE($3, default_min_price),
         default_undercut_amount = COALESCE($4, default_undercut_amount),
-        auto_publish_enabled = COALESCE($5, auto_publish_enabled),
-        auto_reprice_enabled = COALESCE($6, auto_reprice_enabled),
+        api_configured = COALESCE($5, api_configured),
+        notes = COALESCE($6, notes),
         updated_at = NOW()
       WHERE id = $7
       RETURNING *
       `,
       [
-        is_active,
+        enabled,
         environment,
-        default_markup_percentage,
-        default_undercut_amount,
-        auto_publish_enabled,
-        auto_reprice_enabled,
+        default_min_price !== undefined && default_min_price !== ""
+          ? Number(default_min_price)
+          : null,
+        default_undercut_amount !== undefined && default_undercut_amount !== ""
+          ? Number(default_undercut_amount)
+          : null,
+        api_configured,
+        notes ?? null,
         id,
       ],
     );
@@ -361,9 +365,10 @@ router.patch("/settings/:id", async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Errore aggiornamento marketplace settings:", error);
-    res
-      .status(500)
-      .json({ error: "Errore aggiornamento marketplace settings" });
+
+    res.status(500).json({
+      error: error.message || "Errore aggiornamento marketplace settings",
+    });
   }
 });
 
