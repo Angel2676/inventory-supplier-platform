@@ -14,10 +14,13 @@ async function runRepricingJob() {
       t.partner_price
     FROM marketplace_listings ml
     JOIN tickets t ON t.id = ml.ticket_id
+    JOIN marketplace_settings ms ON ms.marketplace = ml.marketplace
     WHERE ml.auto_reprice_enabled = true
       AND t.status = 'available'
       AND t.available_quantity > 0
       AND ml.sync_status = 'synced'
+      AND ms.enabled = true
+      AND ms.api_configured = true
   `);
 
   const listings = listingsResult.rows;
