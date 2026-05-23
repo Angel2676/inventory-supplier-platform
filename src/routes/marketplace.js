@@ -411,6 +411,35 @@ router.post("/publish", async (req, res) => {
     }
 
     const normalizedMarketplace = String(marketplace).toLowerCase();
+    const marketplaceSettingResult = await pool.query(
+      `
+      SELECT *
+      FROM marketplace_settings
+      WHERE marketplace = $1
+      LIMIT 1
+      `,
+      [normalizedMarketplace],
+    );
+
+    if (marketplaceSettingResult.rows.length === 0) {
+      return res.status(400).json({
+        error: `Marketplace non configurato: ${normalizedMarketplace}`,
+      });
+    }
+
+    const marketplaceSetting = marketplaceSettingResult.rows[0];
+
+    if (!marketplaceSetting.enabled) {
+      return res.status(400).json({
+        error: `Marketplace disabilitato: ${normalizedMarketplace}`,
+      });
+    }
+
+    if (!marketplaceSetting.api_configured) {
+      return res.status(400).json({
+        error: `API marketplace non configurate: ${normalizedMarketplace}`,
+      });
+    }
 
     /**
      * GIGSBERG
