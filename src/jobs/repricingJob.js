@@ -17,7 +17,7 @@ async function runRepricingJob() {
     WHERE ml.auto_reprice_enabled = true
       AND t.status = 'available'
       AND t.available_quantity > 0
-      AND ml.sync_status IN ('active', 'pending', 'failed')
+      AND ml.sync_status = 'synced'
   `);
 
   const listings = listingsResult.rows;
