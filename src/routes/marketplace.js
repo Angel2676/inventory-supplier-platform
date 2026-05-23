@@ -322,7 +322,7 @@ router.get("/settings", async (req, res) => {
 
 router.patch("/settings/:id", async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: marketplace } = req.params;
 
     const {
       enabled,
@@ -344,7 +344,7 @@ router.patch("/settings/:id", async (req, res) => {
         api_configured = COALESCE($5, api_configured),
         notes = COALESCE($6, notes),
         updated_at = NOW()
-      WHERE id = $7
+      WHERE marketplace = $7
       RETURNING *
       `,
       [
@@ -358,7 +358,7 @@ router.patch("/settings/:id", async (req, res) => {
           : null,
         api_configured,
         notes ?? null,
-        id,
+        marketplace,
       ],
     );
 
@@ -377,7 +377,7 @@ router.patch("/settings/:id", async (req, res) => {
  */
 router.post("/listings/:id/retry", async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: marketplace } = req.params;
 
     const result = await pool.query(
       `
@@ -812,7 +812,7 @@ router.post("/publish", async (req, res) => {
             marketplace_price = $6,
             last_error = NULL,
             updated_at = NOW()
-          WHERE id = $7
+          WHERE marketplace = $7
           RETURNING *
           `,
           [
