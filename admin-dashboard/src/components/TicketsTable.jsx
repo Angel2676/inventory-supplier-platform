@@ -58,6 +58,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
   const [successModal, setSuccessModal] = useState(null);
   const [publishingTicketId, setPublishingTicketId] = useState(null);
+  const [readinessByTicketId, setReadinessByTicketId] = useState({});
   const [error, setError] = useState("");
 
   const [editForm, setEditForm] = useState({
@@ -875,6 +876,31 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           {marketplaceMode && (
                             <button
                               className="btn btn-secondary"
+                              onClick={() => loadPublishReadiness(ticket.id)}
+                            >
+                              Check Publish Readiness
+                            </button>
+                          )}
+
+                          {marketplaceMode && readinessByTicketId[ticket.id] && (
+                            <div className="marketplace-readiness">
+                              {Object.entries(readinessByTicketId[ticket.id].checks || {}).map(
+                                ([marketplace, check]) => (
+                                  <div key={marketplace}>
+                                    <strong>{marketplace}</strong>:{" "}
+                                    {check.ready ? "READY" : "NOT READY"}
+                                    {check.errors?.length > 0 && (
+                                      <span> — {check.errors.join(", ")}</span>
+                                    )}
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          )}
+
+                          {marketplaceMode && (
+                            <button
+                              className="btn btn-secondary"
                               onClick={() => publishToGigsberg(ticket)}
                               disabled={publishingTicketId === ticket.id}
                             >
@@ -886,6 +912,15 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           {marketplaceMode && (
                             <button
                               className="btn btn-secondary"
+                              onClick={() => loadPublishReadiness(ticket.id)}
+                            >
+                              Check Publish Readiness
+                            </button>
+                          )}
+
+                          {marketplaceMode && (
+                            <button
+                              className="btn btn-secondary"
                               onClick={() => publishToTicombo(ticket)}
                               disabled={publishingTicketId === ticket.id}
                             >
@@ -894,6 +929,15 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 : "Publish Ticombo"}
                             </button>
                           )}
+                          {marketplaceMode && (
+                            <button
+                              className="btn btn-secondary"
+                              onClick={() => loadPublishReadiness(ticket.id)}
+                            >
+                              Check Publish Readiness
+                            </button>
+                          )}
+
                           {marketplaceMode && (
                             <button
                               className="btn btn-secondary"
