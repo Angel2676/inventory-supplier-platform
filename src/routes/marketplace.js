@@ -341,7 +341,10 @@ router.get("/settings", async (req, res) => {
 
       if (setting.marketplace === "gigsberg") {
         apiConfigured = Boolean(
-          process.env.GIGSBERG_API_KEY && process.env.GIGSBERG_USER_ID,
+          process.env.GIGSBERG_API_KEY &&
+          process.env.GIGSBERG_USER_ID &&
+          process.env.GIGSBERG_ADDRESS_ID &&
+          process.env.GIGSBERG_PRESENT_ADDRESS_ID,
         );
       }
 
