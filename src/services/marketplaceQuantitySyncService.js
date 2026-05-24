@@ -265,6 +265,9 @@ JOIN marketplace_settings ms
 WHERE ml.sync_status = 'synced'
   AND ms.enabled = true
   AND ms.api_configured = true
+   AND (
+    ml.circuit_breaker_until IS NULL
+    OR ml.circuit_breaker_until < NOW()
     `);
 
     const listings = listingsResult.rows;
@@ -309,7 +312,10 @@ WHERE ml.sync_status = 'synced'
                   COALESCE(quantity_sync_attempts, 0) + 1,
                 last_sync_at = NOW(),
                 updated_at = NOW(),
-                last_error = NULL
+                last_error = NULL,
+              retry_count = 0,
+              next_retry_at = NULL,
+              circuit_breaker_until = NULL
               WHERE id = $5
               `,
               [
@@ -366,7 +372,10 @@ WHERE ml.sync_status = 'synced'
                 COALESCE(quantity_sync_attempts, 0) + 1,
               last_sync_at = NOW(),
               updated_at = NOW(),
-              last_error = NULL
+              last_error = NULL,
+              retry_count = 0,
+              next_retry_at = NULL,
+              circuit_breaker_until = NULL
             WHERE id = $2
             `,
             [currentQuantity, listing.id, currentPrice],
@@ -443,7 +452,10 @@ WHERE ml.sync_status = 'synced'
                 COALESCE(quantity_sync_attempts, 0) + 1,
               last_sync_at = NOW(),
               updated_at = NOW(),
-              last_error = NULL
+              last_error = NULL,
+              retry_count = 0,
+              next_retry_at = NULL,
+              circuit_breaker_until = NULL
             WHERE id = $3
             `,
             [resultingSyncStatus, currentQuantity, listing.id, currentPrice],
@@ -547,7 +559,10 @@ WHERE ml.sync_status = 'synced'
               COALESCE(quantity_sync_attempts, 0) + 1,
             last_sync_at = NOW(),
             updated_at = NOW(),
-            last_error = NULL
+            last_error = NULL,
+              retry_count = 0,
+              next_retry_at = NULL,
+              circuit_breaker_until = NULL
           WHERE id = $3
           `,
           [resultingSyncStatus, currentQuantity, listing.id, currentPrice],
@@ -585,6 +600,21 @@ WHERE ml.sync_status = 'synced'
           SET
             quantity_sync_attempts =
               COALESCE(quantity_sync_attempts, 0) + 1,
+            retry_count =
+              COALESCE(retry_count, 0) + 1,
+            next_retry_at = NOW() + INTERVAL '5 minutes',
+            circuit_breaker_until =
+              CASE
+                 WHEN COALESCE(retry_count, 0) + 1 >= 5
+                 THEN NOW() + INTERVAL '30 minutes'
+                 ELSE circuit_breaker_until
+              END,
+            sync_status =
+              CASE
+                WHEN COALESCE(retry_count, 0) + 1 >= 10
+                THEN 'failed'
+                ELSE sync_status
+              END,
             last_error = $1,
             last_sync_at = NOW(),
             updated_at = NOW()
