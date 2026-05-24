@@ -471,6 +471,165 @@ router.post("/listings/:id/retry", async (req, res) => {
 /**
  * PUBLISH MARKETPLACE LISTING
  */
+router.get("/publish-readiness/:ticketId", async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+
+    const ticketResult = await pool.query(
+      `
+      SELECT
+        t.*,
+        e.name AS event_name,
+        e.city,
+        e.venue
+      FROM tickets t
+      JOIN events e ON e.id = t.event_id
+      WHERE t.id = $1
+      LIMIT 1
+      `,
+      [ticketId],
+    );
+
+    if (ticketResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Ticket non trovato",
+      });
+    }
+
+    const ticket = ticketResult.rows[0];
+
+    const settingsResult = await pool.query(`
+      SELECT *
+      FROM marketplace_settings
+      ORDER BY marketplace ASC
+    `);
+
+    const existingListingsResult = await pool.query(
+      `
+      SELECT *
+      FROM marketplace_listings
+      WHERE ticket_id = $1
+        AND sync_status = 'synced'
+      `,
+      [ticketId],
+    );
+
+    const existingListingsByMarketplace = new Map(
+      existingListingsResult.rows.map((listing) => [
+        listing.marketplace,
+        listing,
+      ]),
+    );
+
+    const checks = {};
+
+    for (const setting of settingsResult.rows) {
+      const marketplace = setting.marketplace;
+      const errors = [];
+      const warnings = [];
+
+      if (!setting.enabled) {
+        errors.push("Marketplace disabilitato");
+      }
+
+      if (!setting.api_configured) {
+        errors.push("API marketplace non configurate");
+      }
+
+      if (existingListingsByMarketplace.has(marketplace)) {
+        errors.push("Ticket già pubblicato su questo marketplace");
+      }
+
+      if (Number(ticket.available_quantity || 0) <= 0) {
+        errors.push("Quantità non disponibile");
+      }
+
+      if (
+        !Number(
+          ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
+        )
+      ) {
+        errors.push("Prezzo marketplace mancante");
+      }
+
+      if (!ticket.category) {
+        errors.push("Categoria interna mancante");
+      }
+
+      if (marketplace === "ticombo" || marketplace === "sportevents365") {
+        const eventMappingResult = await pool.query(
+          `
+          SELECT *
+          FROM marketplace_mappings
+          WHERE marketplace = $1
+            AND mapping_type = 'event'
+            AND internal_event_id = $2
+            AND is_active = true
+          LIMIT 1
+          `,
+          [marketplace, ticket.event_id],
+        );
+
+        if (eventMappingResult.rows.length === 0) {
+          errors.push("Mapping evento mancante");
+        }
+
+        const categoryMappingResult = await pool.query(
+          `
+          SELECT *
+          FROM marketplace_mappings
+          WHERE marketplace = $1
+            AND mapping_type = 'category'
+            AND internal_event_id = $2
+            AND internal_category = $3
+            AND is_active = true
+          LIMIT 1
+          `,
+          [marketplace, ticket.event_id, ticket.category],
+        );
+
+        if (categoryMappingResult.rows.length === 0) {
+          errors.push("Mapping categoria mancante");
+        }
+      }
+
+      if (marketplace === "gigsberg") {
+        warnings.push(
+          "Gigsberg usa matching automatico evento/categoria tramite API",
+        );
+      }
+
+      checks[marketplace] = {
+        ready: errors.length === 0,
+        errors,
+        warnings,
+      };
+    }
+
+    return res.json({
+      ticket_id: Number(ticketId),
+      ticket: {
+        id: ticket.id,
+        event_id: ticket.event_id,
+        event_name: ticket.event_name,
+        city: ticket.city,
+        venue: ticket.venue,
+        category: ticket.category,
+        block: ticket.block,
+        available_quantity: ticket.available_quantity,
+        marketplace_price:
+          ticket.marketplace_price || ticket.partner_price || ticket.price,
+      },
+      checks,
+    });
+  } catch (error) {
+    console.error("Errore publish readiness:", error);
+
+    return res.status(500).json({
+      error: error.message || "Errore publish readiness",
+    });
+  }
+});
 router.post("/publish", async (req, res) => {
   try {
     const { ticket_id, marketplace } = req.body;
