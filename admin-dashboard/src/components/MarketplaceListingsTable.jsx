@@ -111,6 +111,13 @@ function MarketplaceListingsTable() {
               <th>Last Market</th>
               <th>Last Suggested</th>
               <th>Sync Status</th>
+              <th>Retry</th>
+
+              <th>Next Retry</th>
+
+              <th>Circuit Breaker</th>
+
+              <th>Last Error</th>
               <th>Remote Listing</th>
               <th>Actions</th>
             </tr>
@@ -179,6 +186,26 @@ function MarketplaceListingsTable() {
                   >
                     {(listing.sync_status || "-").toUpperCase()}
                   </span>
+                </td>
+
+                <td>{listing.retry_count ?? 0}</td>
+
+                <td>
+                  {listing.next_retry_at
+                    ? new Date(listing.next_retry_at).toLocaleString()
+                    : "-"}
+                </td>
+
+                <td>
+                  {listing.circuit_breaker_until
+                    ? new Date(listing.circuit_breaker_until).toLocaleString()
+                    : "-"}
+                </td>
+
+                <td title={listing.last_error || ""}>
+                  {listing.last_error
+                    ? String(listing.last_error).slice(0, 60)
+                    : "-"}
                 </td>
 
                 <td>
