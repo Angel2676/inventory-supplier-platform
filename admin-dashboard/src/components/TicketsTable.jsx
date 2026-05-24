@@ -439,6 +439,22 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       return dateB - dateA;
     });
 
+  async function loadPublishReadiness(ticketId) {
+    try {
+      const response = await api.get(`/api/marketplace/publish-readiness/`);
+
+      setReadinessByTicketId((prev) => ({
+        ...prev,
+        [ticketId]: response.data,
+      }));
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.error || "Errore controllo publish readiness",
+      );
+    }
+  }
+
   return (
     <div className="section">
       <h2>{canEdit ? t("ticketsInventory") : t("inventory")}</h2>
