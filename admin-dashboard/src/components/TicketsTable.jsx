@@ -882,10 +882,12 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                             </button>
                           )}
 
-                          {marketplaceMode && readinessByTicketId[ticket.id] && (
-                            <div className="marketplace-readiness">
-                              {Object.entries(readinessByTicketId[ticket.id].checks || {}).map(
-                                ([marketplace, check]) => (
+                          {marketplaceMode &&
+                            readinessByTicketId[ticket.id] && (
+                              <div className="marketplace-readiness">
+                                {Object.entries(
+                                  readinessByTicketId[ticket.id].checks || {},
+                                ).map(([marketplace, check]) => (
                                   <div key={marketplace}>
                                     <strong>{marketplace}</strong>:{" "}
                                     {check.ready ? "READY" : "NOT READY"}
@@ -893,10 +895,9 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                       <span> — {check.errors.join(", ")}</span>
                                     )}
                                   </div>
-                                ),
-                              )}
-                            </div>
-                          )}
+                                ))}
+                              </div>
+                            )}
 
                           {marketplaceMode && (
                             <button
@@ -909,14 +910,6 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 : "Publish Gigsberg"}
                             </button>
                           )}
-                          {marketplaceMode && (
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => loadPublishReadiness(ticket.id)}
-                            >
-                              Check Publish Readiness
-                            </button>
-                          )}
 
                           {marketplaceMode && (
                             <button
@@ -927,14 +920,6 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                               {publishingTicketId === ticket.id
                                 ? "Publishing..."
                                 : "Publish Ticombo"}
-                            </button>
-                          )}
-                          {marketplaceMode && (
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => loadPublishReadiness(ticket.id)}
-                            >
-                              Check Publish Readiness
                             </button>
                           )}
 
