@@ -202,9 +202,21 @@ function MarketplaceListingsTable() {
                     : "-"}
                 </td>
 
-                <td title={listing.last_error || ""}>
+                <td
+                  title={
+                    listing.last_error
+                      ? typeof listing.last_error === "object"
+                        ? JSON.stringify(listing.last_error)
+                        : String(listing.last_error)
+                      : ""
+                  }
+                >
                   {listing.last_error
-                    ? String(listing.last_error).slice(0, 60)
+                    ? String(
+                        typeof listing.last_error === "object"
+                          ? JSON.stringify(listing.last_error)
+                          : listing.last_error,
+                      ).slice(0, 80)
                     : "-"}
                 </td>
 
