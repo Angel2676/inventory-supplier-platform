@@ -441,14 +441,34 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
   async function loadPublishReadiness(ticketId) {
     try {
-      const response = await api.get(`/api/marketplace/publish-readiness/`);
+      const response = await api.get(
+        `/api/marketplace/publish-readiness/${ticketId}`,
+      );
 
       setReadinessByTicketId((prev) => ({
         ...prev,
         [ticketId]: response.data,
       }));
+
+      const checksText = Object.entries(response.data.checks || {})
+        .map(([marketplace, check]) => {
+          const status = check.ready ? "READY" : "NOT READY";
+
+          const errors = check.errors?.length
+            ? ` — ${check.errors.join(", ")}`
+            : "";
+
+          return `${marketplace}: ${status}${errors}`;
+        })
+        .join("\n");
+
+      setSuccessModal({
+        title: "Publish Readiness",
+        message: checksText,
+      });
     } catch (err) {
       console.error(err);
+
       setError(
         err.response?.data?.error || "Errore controllo publish readiness",
       );
@@ -897,23 +917,6 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                               Check Publish Readiness
                             </button>
                           )}
-
-                          {marketplaceMode &&
-                            readinessByTicketId[ticket.id] && (
-                              <div className="marketplace-readiness">
-                                {Object.entries(
-                                  readinessByTicketId[ticket.id].checks || {},
-                                ).map(([marketplace, check]) => (
-                                  <div key={marketplace}>
-                                    <strong>{marketplace}</strong>:{" "}
-                                    {check.ready ? "READY" : "NOT READY"}
-                                    {check.errors?.length > 0 && (
-                                      <span> — {check.errors.join(", ")}</span>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
 
                           {marketplaceMode && (
                             <button
