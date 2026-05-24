@@ -221,9 +221,11 @@ function MarketplaceListingsTable() {
                 </td>
 
                 <td>
-                  {listing.remote_listing_id ||
-                    listing.external_listing_id ||
-                    "-"}
+                  {listing.remote_listing_id
+                    ? String(listing.remote_listing_id)
+                    : listing.external_listing_id
+                      ? String(listing.external_listing_id)
+                      : "-"}
                 </td>
 
                 <td>
