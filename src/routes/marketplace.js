@@ -313,7 +313,37 @@ router.get("/settings", async (req, res) => {
       ORDER BY marketplace ASC
     `);
 
-    res.json(result.rows);
+    const settings = result.rows.map((setting) => {
+      let apiConfigured = Boolean(setting.api_configured);
+
+      if (setting.marketplace === "gigsberg") {
+        apiConfigured = Boolean(
+          process.env.GIGSBERG_API_KEY && process.env.GIGSBERG_USER_ID,
+        );
+      }
+
+      if (setting.marketplace === "ticombo") {
+        apiConfigured = Boolean(
+          process.env.TICOMBO_API_TOKEN ||
+          process.env.TICOMBO_API_KEY ||
+          process.env.TICOMBO_AUTH_TOKEN,
+        );
+      }
+
+      if (setting.marketplace === "sportevents365") {
+        apiConfigured = Boolean(
+          process.env.SPORTSEVENTS365_API_KEY ||
+          process.env.SPORTSEVENTS365_TOKEN,
+        );
+      }
+
+      return {
+        ...setting,
+        api_configured: apiConfigured,
+      };
+    });
+
+    res.json(settings);
   } catch (error) {
     console.error("Errore caricamento marketplace settings:", error);
     res.status(500).json({ error: "Errore caricamento marketplace settings" });
@@ -341,7 +371,7 @@ router.patch("/settings/:id", async (req, res) => {
         environment = COALESCE($2, environment),
         default_min_price = COALESCE($3, default_min_price),
         default_undercut_amount = COALESCE($4, default_undercut_amount),
-        api_configured = COALESCE($5, api_configured),
+        api_configured = api_configured,
         notes = COALESCE($6, notes),
         updated_at = NOW()
       WHERE marketplace = $7
