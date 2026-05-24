@@ -25,6 +25,7 @@ const {
 
 const router = express.Router();
 
+const createAuditLog = require("../services/auditLogService");
 /**
  * LIST MARKETPLACE LISTINGS
  */
@@ -174,6 +175,17 @@ router.post("/mappings", async (req, res) => {
       ],
     );
 
+    await createAuditLog({
+      client_id: null,
+      action: "UPDATE_MARKETPLACE_SETTINGS",
+      resource_type: "marketplace_settings",
+      resource_id: marketplace,
+      metadata: {
+        updated_fields: req.body,
+        marketplace,
+      },
+    });
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Errore creazione marketplace mapping:", error);
@@ -241,6 +253,17 @@ router.patch("/mappings/:id", async (req, res) => {
         id,
       ],
     );
+
+    await createAuditLog({
+      client_id: null,
+      action: "UPDATE_MARKETPLACE_SETTINGS",
+      resource_type: "marketplace_settings",
+      resource_id: marketplace,
+      metadata: {
+        updated_fields: req.body,
+        marketplace,
+      },
+    });
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -390,6 +413,17 @@ router.patch("/settings/:id", async (req, res) => {
         marketplace,
       ],
     );
+
+    await createAuditLog({
+      client_id: null,
+      action: "UPDATE_MARKETPLACE_SETTINGS",
+      resource_type: "marketplace_settings",
+      resource_id: marketplace,
+      metadata: {
+        updated_fields: req.body,
+        marketplace,
+      },
+    });
 
     res.json(result.rows[0]);
   } catch (error) {
