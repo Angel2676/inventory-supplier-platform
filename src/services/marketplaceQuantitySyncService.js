@@ -253,22 +253,27 @@ async function syncMarketplaceQuantities() {
 
   try {
     const listingsResult = await pool.query(`
-      SELECT
-  ml.*,
-  t.available_quantity,
-  COALESCE(t.marketplace_price, t.partner_price, t.price) AS current_price
-FROM marketplace_listings ml
-JOIN tickets t
-  ON t.id = ml.ticket_id
-JOIN marketplace_settings ms
-  ON ms.marketplace = ml.marketplace
-WHERE ml.sync_status = 'synced'
-  AND ms.enabled = true
-  AND ms.api_configured = true
-   AND (
-    ml.circuit_breaker_until IS NULL
-    OR ml.circuit_breaker_until < NOW()
-    `);
+    SELECT
+      ml.*,
+      t.available_quantity,
+      COALESCE(t.marketplace_price, t.partner_price, t.price) AS current_price
+    FROM marketplace_listings ml
+    JOIN tickets t
+      ON t.id = ml.ticket_id
+    JOIN marketplace_settings ms
+      ON ms.marketplace = ml.marketplace
+    WHERE ml.sync_status = 'synced'
+      AND ms.enabled = true
+      AND ms.api_configured = true
+      AND (
+        ml.next_retry_at IS NULL
+        OR ml.next_retry_at <= NOW()
+      )
+      AND (
+        ml.circuit_breaker_until IS NULL
+        OR ml.circuit_breaker_until <= NOW()
+      )
+  `);
 
     const listings = listingsResult.rows;
 
