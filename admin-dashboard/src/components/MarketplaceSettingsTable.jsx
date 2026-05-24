@@ -31,7 +31,7 @@ function MarketplaceSettingsTable() {
       default_min_price: setting.default_min_price || "",
       default_undercut_amount: setting.default_undercut_amount || "0.01",
       api_configured: Boolean(setting.api_configured),
-      notes: setting.notes || ""
+      notes: setting.notes || "",
     });
   }
 
@@ -49,10 +49,10 @@ function MarketplaceSettingsTable() {
           ? Number(editForm.default_min_price)
           : null,
         default_undercut_amount: Number(
-          editForm.default_undercut_amount || 0.01
+          editForm.default_undercut_amount || 0.01,
         ),
-        api_configured: Boolean(editForm.api_configured),
-        notes: editForm.notes || ""
+
+        notes: editForm.notes || "",
       });
 
       setEditingMarketplace(null);
@@ -60,7 +60,8 @@ function MarketplaceSettingsTable() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.error || "Errore aggiornamento marketplace settings"
+        err.response?.data?.error ||
+          "Errore aggiornamento marketplace settings",
       );
     }
   }
@@ -125,7 +126,7 @@ function MarketplaceSettingsTable() {
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            enabled: e.target.checked
+                            enabled: e.target.checked,
                           })
                         }
                       />
@@ -144,7 +145,7 @@ function MarketplaceSettingsTable() {
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            environment: e.target.value
+                            environment: e.target.value,
                           })
                         }
                       >
@@ -154,7 +155,7 @@ function MarketplaceSettingsTable() {
                     ) : (
                       <span
                         className={getEnvironmentBadgeClass(
-                          setting.environment
+                          setting.environment,
                         )}
                       >
                         {(setting.environment || "sandbox").toUpperCase()}
@@ -172,7 +173,7 @@ function MarketplaceSettingsTable() {
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            default_min_price: e.target.value
+                            default_min_price: e.target.value,
                           })
                         }
                       />
@@ -193,36 +194,23 @@ function MarketplaceSettingsTable() {
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            default_undercut_amount: e.target.value
+                            default_undercut_amount: e.target.value,
                           })
                         }
                       />
                     ) : (
                       `€ ${Number(
-                        setting.default_undercut_amount || 0.01
+                        setting.default_undercut_amount || 0.01,
                       ).toFixed(2)}`
                     )}
                   </td>
 
                   <td>
-                    {isEditing ? (
-                      <input
-                        type="checkbox"
-                        checked={editForm.api_configured}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            api_configured: e.target.checked
-                          })
-                        }
-                      />
-                    ) : (
-                      <span
-                        className={getEnabledBadgeClass(setting.api_configured)}
-                      >
-                        {setting.api_configured ? "YES" : "NO"}
-                      </span>
-                    )}
+                    <span
+                      className={getEnabledBadgeClass(setting.api_configured)}
+                    >
+                      {setting.api_configured ? "YES" : "NO"}
+                    </span>
                   </td>
 
                   <td>
@@ -234,7 +222,7 @@ function MarketplaceSettingsTable() {
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            notes: e.target.value
+                            notes: e.target.value,
                           })
                         }
                       />
