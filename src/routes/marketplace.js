@@ -372,9 +372,9 @@ router.patch("/settings/:id", async (req, res) => {
         default_min_price = COALESCE($3, default_min_price),
         default_undercut_amount = COALESCE($4, default_undercut_amount),
         api_configured = api_configured,
-        notes = COALESCE($6, notes),
+        notes = COALESCE($5, notes),
         updated_at = NOW()
-      WHERE marketplace = $7
+      WHERE marketplace = $6
       RETURNING *
       `,
       [
@@ -386,7 +386,6 @@ router.patch("/settings/:id", async (req, res) => {
         default_undercut_amount !== undefined && default_undercut_amount !== ""
           ? Number(default_undercut_amount)
           : null,
-        api_configured,
         notes ?? null,
         marketplace,
       ],
