@@ -58,11 +58,23 @@ function MarketplaceListingsTable() {
   }
   async function runRepricing(listingId) {
     try {
-      await api.post(`/api/marketplace/listings/${listingId}/run-repricing`);
+      const response = await api.post(
+        `/api/marketplace/listings/${listingId}/run-repricing`,
+      );
+
+      alert(
+        response.data.updated
+          ? `Repricing completato. Nuovo prezzo: € ${response.data.new_price}`
+          : `Nessun aggiornamento necessario (${response.data.reason})`,
+      );
 
       await loadListings();
     } catch (err) {
       console.error(err);
+
+      alert(
+        err.response?.data?.error || "Errore run repricing marketplace listing",
+      );
 
       setError(
         err.response?.data?.error || "Errore run repricing marketplace listing",
