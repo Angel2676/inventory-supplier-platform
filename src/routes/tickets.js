@@ -534,6 +534,22 @@ router.patch("/:id/pricing", async (req, res) => {
       `,
       [min_price, auto_reprice_enabled, undercut_amount, id],
     );
+    await pool.query(
+      `
+
+  UPDATE marketplace_listings
+
+  SET
+
+    min_price = $1,
+    auto_reprice_enabled = $2,
+    undercut_amount = $3,
+    updated_at = NOW()
+  WHERE ticket_id = $4
+    AND sync_status = 'synced'
+  `,
+      [min_price, auto_reprice_enabled, undercut_amount, id],
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({
