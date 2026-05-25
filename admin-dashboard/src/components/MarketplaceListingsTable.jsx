@@ -94,6 +94,16 @@ function MarketplaceListingsTable() {
     return String(value);
   }
 
+  function safeNumber(value, fallback = "-") {
+    if (value === null || value === undefined || value === "") {
+      return fallback;
+    }
+
+    const number = Number(value);
+
+    return Number.isNaN(number) ? fallback : `€ ${number.toFixed(2)}`;
+  }
+
   return (
     <div className="section">
       <h2>Marketplace Listings</h2>
@@ -148,46 +158,28 @@ function MarketplaceListingsTable() {
                 <td>{listing.available_quantity ?? "-"}</td>
 
                 <td>
-                  €{" "}
-                  {Number(
-                    listing.partner_price || listing.base_price || 0,
-                  ).toFixed(2)}
+                  {safeNumber(listing.partner_price || listing.base_price)}
                 </td>
 
                 <td>
-                  €{" "}
-                  {Number(
-                    listing.marketplace_price || listing.base_price || 0,
-                  ).toFixed(2)}
+                  {safeNumber(listing.marketplace_price || listing.base_price)}
                 </td>
 
-                <td>
-                  {listing.min_price
-                    ? `€ ${Number(listing.min_price).toFixed(2)}`
-                    : "-"}
-                </td>
+                <td>{safeNumber(listing.min_price)}</td>
 
                 <td>{listing.auto_reprice_enabled ? "ON" : "OFF"}</td>
 
-                <td>€ {Number(listing.undercut_amount || 0.01).toFixed(2)}</td>
+                <td>{safeNumber(listing.undercut_amount || 0.01)}</td>
 
-                <td>
-                  {listing.last_market_price
-                    ? `€ ${Number(listing.last_market_price).toFixed(2)}`
-                    : "-"}
-                </td>
+                <td>{safeNumber(listing.last_market_price)}</td>
 
-                <td>
-                  {listing.last_suggested_price
-                    ? `€ ${Number(listing.last_suggested_price).toFixed(2)}`
-                    : "-"}
-                </td>
+                <td>{safeNumber(listing.last_suggested_price)}</td>
 
                 <td>
                   <span
                     className={getSyncStatusBadgeClass(listing.sync_status)}
                   >
-                    {(listing.sync_status || "-").toUpperCase()}
+                    {safeText(listing.sync_status).toUpperCase()}
                   </span>
                 </td>
 
