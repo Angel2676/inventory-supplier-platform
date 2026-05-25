@@ -28,7 +28,7 @@ async function getAuthToken() {
 }
 
 async function gigsbergRequest({ method, url, data, params }) {
-  const jwt = await getAuthToken();
+  let jwt = await getAuthToken();
 
   try {
     const response = await axios({
@@ -44,11 +44,45 @@ async function gigsbergRequest({ method, url, data, params }) {
 
     return response.data;
   } catch (error) {
+    const status = error.response?.status;
+    const responseData = error.response?.data;
+
+    const isInvalidToken =
+      status === 401 ||
+      JSON.stringify(responseData || {})
+        .toLowerCase()
+        .includes("invalid token");
+
+    if (isInvalidToken) {
+      console.warn(
+        "Gigsberg token invalid, refreshing token and retrying once",
+      );
+
+      cachedJwt = null;
+      cachedRefreshToken = null;
+      lastAuthAt = null;
+
+      jwt = await getAuthToken();
+
+      const retryResponse = await axios({
+        method,
+        url: `${GIGSBERG_BASE_URL}${url}`,
+        data,
+        params,
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+
+      return retryResponse.data;
+    }
+
     console.error("Errore richiesta Gigsberg:", {
       method,
       url,
-      status: error.response?.status,
-      data: error.response?.data || error.message,
+      status,
+      data: responseData || error.message,
     });
 
     throw error;
