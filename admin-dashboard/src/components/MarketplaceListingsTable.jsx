@@ -56,6 +56,19 @@ function MarketplaceListingsTable() {
       );
     }
   }
+  async function runRepricing(listingId) {
+    try {
+      await api.post(`/api/marketplace/listings/${listingId}/run-repricing`);
+
+      await loadListings();
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.error || "Errore run repricing marketplace listing",
+      );
+    }
+  }
 
   async function unpublishListing(listing) {
     const remoteId =
