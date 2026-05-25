@@ -239,6 +239,12 @@ function MarketplaceListingsTable() {
                         ↻ Retry
                       </button>
                     )}
+                    <button
+                      className="marketplace-action-btn marketplace-retry-btn"
+                      onClick={() => runRepricing(listing.id)}
+                    >
+                      💶 Run Repricing
+                    </button>
 
                     {canUnpublish(listing) && (
                       <button
