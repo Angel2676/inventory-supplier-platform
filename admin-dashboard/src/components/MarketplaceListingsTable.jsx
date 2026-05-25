@@ -84,6 +84,16 @@ function MarketplaceListingsTable() {
     );
   }
 
+  function safeText(value) {
+    if (value === null || value === undefined || value === "") return "-";
+
+    if (typeof value === "object") {
+      return JSON.stringify(value).slice(0, 80);
+    }
+
+    return String(value);
+  }
+
   return (
     <div className="section">
       <h2>Marketplace Listings</h2>
@@ -128,20 +138,13 @@ function MarketplaceListingsTable() {
               <tr key={listing.id}>
                 <td>{listing.id}</td>
 
-                <td>{listing.marketplace}</td>
+                <td>{safeText(listing.marketplace)}</td>
 
-                <td>{listing.event_name || "-"}</td>
+                <td>{safeText(listing.event_name)}</td>
 
-                <td>
-                  {listing.event_date
-                    ? new Date(listing.event_date).toLocaleString()
-                    : "-"}
-                </td>
+                <td>{safeText(listing.category)}</td>
 
-                <td>{listing.category || "-"}</td>
-
-                <td>{listing.block || "-"}</td>
-
+                <td>{safeText(listing.block)}</td>
                 <td>{listing.available_quantity ?? "-"}</td>
 
                 <td>
@@ -202,30 +205,14 @@ function MarketplaceListingsTable() {
                     : "-"}
                 </td>
 
-                <td
-                  title={
-                    listing.last_error
-                      ? typeof listing.last_error === "object"
-                        ? JSON.stringify(listing.last_error)
-                        : String(listing.last_error)
-                      : ""
-                  }
-                >
-                  {listing.last_error
-                    ? String(
-                        typeof listing.last_error === "object"
-                          ? JSON.stringify(listing.last_error)
-                          : listing.last_error,
-                      ).slice(0, 80)
-                    : "-"}
+                <td title={safeText(listing.last_error)}>
+                  {safeText(listing.last_error)}
                 </td>
 
                 <td>
-                  {listing.remote_listing_id
-                    ? String(listing.remote_listing_id)
-                    : listing.external_listing_id
-                      ? String(listing.external_listing_id)
-                      : "-"}
+                  {safeText(
+                    listing.remote_listing_id || listing.external_listing_id,
+                  )}
                 </td>
 
                 <td>
