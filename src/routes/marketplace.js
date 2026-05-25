@@ -26,6 +26,7 @@ const {
 const router = express.Router();
 
 const createAuditLog = require("../services/auditLogService");
+const { calculateSafePrice } = require("../services/priceCheckerService");
 /**
  * LIST MARKETPLACE LISTINGS
  */
@@ -1338,6 +1339,101 @@ router.post("/publish", async (req, res) => {
 | DELETE / UNPUBLISH MARKETPLACE LISTING
 |--------------------------------------------------------------------------
 */
+router.post("/listings/:id/run-repricing", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const listingResult = await pool.query(
+      `
+      SELECT
+        ml.*,
+        t.id AS ticket_id,
+        t.marketplace_price AS ticket_marketplace_price
+      FROM marketplace_listings ml
+      JOIN tickets t ON t.id = ml.ticket_id
+      WHERE ml.id = $1
+      LIMIT 1
+      `,
+      [id],
+    );
+
+    if (listingResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Marketplace listing non trovato",
+      });
+    }
+
+    const listing = listingResult.rows[0];
+
+    const priceCheck = calculateSafePrice({
+      currentPrice: Number(
+        listing.marketplace_price || listing.ticket_marketplace_price || 0,
+      ),
+      marketLowestPrice: Number(listing.last_market_price || 0),
+      minPrice: Number(listing.min_price || 0),
+      undercutAmount: Number(listing.undercut_amount || 0.01),
+    });
+
+    if (!priceCheck.shouldUpdate) {
+      await pool.query(
+        `
+        UPDATE marketplace_listings
+        SET
+          last_suggested_price = $1,
+          last_reprice_at = NOW(),
+          updated_at = NOW()
+        WHERE id = $2
+        `,
+        [priceCheck.suggestedPrice, id],
+      );
+
+      return res.json({
+        success: true,
+        updated: false,
+        reason: priceCheck.reason,
+        result: priceCheck,
+      });
+    }
+
+    await pool.query(
+      `
+      UPDATE marketplace_listings
+      SET
+        marketplace_price = $1,
+        last_suggested_price = $2,
+        last_reprice_at = NOW(),
+        updated_at = NOW()
+      WHERE id = $3
+      `,
+      [priceCheck.finalPrice, priceCheck.suggestedPrice, id],
+    );
+
+    await pool.query(
+      `
+      UPDATE tickets
+      SET
+        marketplace_price = $1,
+        updated_at = NOW()
+      WHERE id = $2
+      `,
+      [priceCheck.finalPrice, listing.ticket_id],
+    );
+
+    return res.json({
+      success: true,
+      updated: true,
+      old_price: listing.marketplace_price,
+      new_price: priceCheck.finalPrice,
+      result: priceCheck,
+    });
+  } catch (error) {
+    console.error("Errore run repricing listing:", error);
+
+    return res.status(500).json({
+      error: error.message || "Errore run repricing listing",
+    });
+  }
+});
 
 router.delete("/listings/:id", async (req, res) => {
   try {
