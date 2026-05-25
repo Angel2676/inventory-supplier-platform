@@ -151,6 +151,11 @@ function MarketplaceListingsTable() {
                 <td>{safeText(listing.marketplace)}</td>
 
                 <td>{safeText(listing.event_name)}</td>
+                <td>
+                  {listing.event_date
+                    ? new Date(listing.event_date).toLocaleString()
+                    : "-"}
+                </td>
 
                 <td>{safeText(listing.category)}</td>
 

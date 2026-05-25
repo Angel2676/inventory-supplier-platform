@@ -32,20 +32,29 @@ const createAuditLog = require("../services/auditLogService");
 router.get("/listings", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT 
+      SELECT
         ml.*,
+
         t.category,
         t.block,
         t.available_quantity,
-        t.price,
+
         t.price AS base_price,
         t.partner_price,
         t.marketplace_price AS ticket_marketplace_price,
-        e.name AS event_name
-      FROM marketplace_listings ml
-      LEFT JOIN tickets t ON t.id = ml.ticket_id
-      LEFT JOIN events e ON e.id = t.event_id
-      ORDER BY ml.created_at DESC
+        
+        e.name AS event_name,
+        e.event_date
+        
+        FROM marketplace_listings ml
+
+        LEFT JOIN tickets t
+          ON t.id = ml.ticket_id
+
+        LEFT JOIN events e
+          ON e.id = t.event_id
+
+        ORDER BY ml.created_at DESC
     `);
 
     res.json(result.rows);
