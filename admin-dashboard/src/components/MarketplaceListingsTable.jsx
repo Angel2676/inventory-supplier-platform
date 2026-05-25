@@ -162,7 +162,11 @@ function MarketplaceListingsTable() {
                 </td>
 
                 <td>
-                  {safeNumber(listing.marketplace_price || listing.base_price)}
+                  {safeNumber(
+                    listing.marketplace_price ||
+                      listing.ticket_marketplace_price ||
+                      listing.base_price,
+                  )}
                 </td>
 
                 <td>{safeNumber(listing.min_price)}</td>

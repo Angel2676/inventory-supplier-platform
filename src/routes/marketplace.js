@@ -38,6 +38,9 @@ router.get("/listings", async (req, res) => {
         t.block,
         t.available_quantity,
         t.price,
+        t.price AS base_price,
+        t.partner_price,
+        t.marketplace_price AS ticket_marketplace_price,
         e.name AS event_name
       FROM marketplace_listings ml
       LEFT JOIN tickets t ON t.id = ml.ticket_id
