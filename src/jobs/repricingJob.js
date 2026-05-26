@@ -11,7 +11,7 @@ async function runRepricingJob() {
       t.status AS ticket_status,
       t.available_quantity,
       t.price AS base_price,
-      t.partner_price
+      t.partner_price,
       ms.default_min_price AS marketplace_default_min_price
     FROM marketplace_listings ml
     JOIN tickets t ON t.id = ml.ticket_id
