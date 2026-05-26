@@ -456,7 +456,7 @@ router.patch("/settings/:id", async (req, res) => {
  */
 router.post("/listings/:id/retry", async (req, res) => {
   try {
-    const { id: marketplace } = req.params;
+    const { id } = req.params;
 
     const result = await pool.query(
       `
