@@ -186,6 +186,54 @@ function MarketplaceListingsTable() {
       <h2>Marketplace Listings</h2>
 
       {error && <div className="error">{error}</div>}
+      <div className="filters-row">
+        <input
+          type="text"
+          placeholder="Cerca ID, evento, categoria, remote listing..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <select
+          value={marketplaceFilter}
+          onChange={(e) => setMarketplaceFilter(e.target.value)}
+        >
+          <option value="all">Tutti i marketplace</option>
+          <option value="gigsberg">Gigsberg</option>
+          <option value="ticombo">Ticombo</option>
+          <option value="sportevents365">SportEvents365</option>
+        </select>
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="all">Tutti gli status</option>
+          <option value="synced">Synced</option>
+          <option value="needs_sync">Needs Sync</option>
+          <option value="failed">Failed</option>
+          <option value="deleted">Deleted</option>
+          <option value="pending">Pending</option>
+        </select>
+
+        <select
+          value={autoRepriceFilter}
+          onChange={(e) => setAutoRepriceFilter(e.target.value)}
+        >
+          <option value="all">Auto Reprice: tutti</option>
+          <option value="on">Auto Reprice ON</option>
+          <option value="off">Auto Reprice OFF</option>
+        </select>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={errorsOnly}
+            onChange={(e) => setErrorsOnly(e.target.checked)}
+          />
+          Solo errori
+        </label>
+      </div>
 
       {listings.length === 0 ? (
         <p>Nessun marketplace listing presente.</p>
