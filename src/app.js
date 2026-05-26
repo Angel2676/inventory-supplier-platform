@@ -22,6 +22,9 @@ const { startMarketplaceSyncJob } = require("./jobs/marketplaceSyncJob");
 const cleanupExpiredReservations = require("./services/reservationCleanup");
 const webhooksRoutes = require("./routes/webhooks");
 const PORT = process.env.PORT || 3000;
+const {
+  runGigsbergMarketScannerJob,
+} = require("./jobs/gigsbergMarketScannerJob");
 
 app.use(
   cors({
@@ -71,4 +74,5 @@ app.listen(PORT, () => {
   startRepricingJob();
   startMarketplaceSyncJob();
   startAutoPublishJob();
+  runGigsbergMarketScannerJob();
 });

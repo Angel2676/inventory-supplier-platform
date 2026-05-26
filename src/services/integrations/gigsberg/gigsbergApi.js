@@ -155,6 +155,23 @@ async function updateListing(listingId, payload) {
     data: payload,
   });
 }
+async function searchListings({
+  event_id,
+  category_id,
+  page = 1,
+  per_page = 50,
+}) {
+  return gigsbergRequest({
+    method: "POST",
+    url: "/listing/search",
+    data: {
+      event_id,
+      category_id,
+      page,
+      per_page,
+    },
+  });
+}
 
 module.exports = {
   getAuthToken,
@@ -163,4 +180,5 @@ module.exports = {
   getEventCategories,
   deleteListing,
   updateListing,
+  searchListings,
 };
