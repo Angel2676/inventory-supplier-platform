@@ -12,11 +12,17 @@ async function runRepricingJob() {
       t.available_quantity,
       t.price AS base_price,
       t.partner_price,
+      t.marketplace_price AS ticket_marketplace_price,
+      t.min_price AS ticket_min_price,
+      t.undercut_amount AS ticket_undercut_amount,
+      t.last_market_price AS ticket_last_market_price,
+      t.suggested_marketplace_price AS ticket_suggested_marketplace_price,
+      t.auto_reprice_enabled AS ticket_auto_reprice_enabled,
       ms.default_min_price AS marketplace_default_min_price
     FROM marketplace_listings ml
     JOIN tickets t ON t.id = ml.ticket_id
     JOIN marketplace_settings ms ON ms.marketplace = ml.marketplace
-    WHERE ml.auto_reprice_enabled = true
+    WHERE COALESCE(ml.auto_reprice_enabled, t.auto_reprice_enabled) = true
       AND t.status = 'available'
       AND t.available_quantity > 0
       AND ml.sync_status = 'synced'
@@ -29,10 +35,15 @@ async function runRepricingJob() {
   for (const listing of listings) {
     try {
       const currentMarketplacePrice = Number(
-        listing.marketplace_price || listing.base_price || 0,
+        listing.marketplace_price ||
+          listing.ticket_marketplace_price ||
+          listing.base_price ||
+          0,
       );
 
-      const marketLowestPrice = Number(listing.last_market_price || 0);
+      const marketLowestPrice = Number(
+        listing.last_market_price || listing.ticket_last_market_price || 0,
+      );
 
       const priceCheck = calculateSafePrice({
         currentPrice: currentMarketplacePrice,
@@ -40,7 +51,9 @@ async function runRepricingJob() {
         minPrice: Number(
           listing.min_price || listing.marketplace_default_min_price || 0,
         ),
-        undercutAmount: Number(listing.undercut_amount || 0.01),
+        undercutAmount: Number(
+          listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
+        ),
       });
 
       if (!priceCheck.shouldUpdate) {
