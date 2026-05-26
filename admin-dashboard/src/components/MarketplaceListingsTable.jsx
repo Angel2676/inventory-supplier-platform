@@ -4,6 +4,11 @@ import api from "../api";
 function MarketplaceListingsTable() {
   const [listings, setListings] = useState([]);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [marketplaceFilter, setMarketplaceFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [autoRepriceFilter, setAutoRepriceFilter] = useState("all");
+  const [errorsOnly, setErrorsOnly] = useState(false);
 
   async function loadListings() {
     try {
@@ -128,7 +133,54 @@ function MarketplaceListingsTable() {
 
     return Number.isNaN(number) ? fallback : `€ ${number.toFixed(2)}`;
   }
+  const filteredListings = listings.filter((listing) => {
+    const search = searchTerm.toLowerCase();
 
+    const matchesSearch =
+      !search ||
+      String(listing.id || "")
+        .toLowerCase()
+        .includes(search) ||
+      String(listing.marketplace || "")
+        .toLowerCase()
+        .includes(search) ||
+      String(listing.event_name || "")
+        .toLowerCase()
+        .includes(search) ||
+      String(listing.category || "")
+        .toLowerCase()
+        .includes(search) ||
+      String(listing.block || "")
+        .toLowerCase()
+        .includes(search) ||
+      String(listing.remote_listing_id || "")
+        .toLowerCase()
+        .includes(search) ||
+      String(listing.external_listing_id || "")
+        .toLowerCase()
+        .includes(search);
+
+    const matchesMarketplace =
+      marketplaceFilter === "all" || listing.marketplace === marketplaceFilter;
+
+    const matchesStatus =
+      statusFilter === "all" || listing.sync_status === statusFilter;
+
+    const matchesAutoReprice =
+      autoRepriceFilter === "all" ||
+      (autoRepriceFilter === "on" && listing.auto_reprice_enabled) ||
+      (autoRepriceFilter === "off" && !listing.auto_reprice_enabled);
+
+    const matchesErrors = !errorsOnly || Boolean(listing.last_error);
+
+    return (
+      matchesSearch &&
+      matchesMarketplace &&
+      matchesStatus &&
+      matchesAutoReprice &&
+      matchesErrors
+    );
+  });
   return (
     <div className="section">
       <h2>Marketplace Listings</h2>
