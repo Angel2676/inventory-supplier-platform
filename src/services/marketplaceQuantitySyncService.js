@@ -262,7 +262,7 @@ async function syncMarketplaceQuantities() {
       ON t.id = ml.ticket_id
     JOIN marketplace_settings ms
       ON ms.marketplace = ml.marketplace
-    WHERE ml.sync_status = 'synced'
+    WHERE ml.sync_status IN ('synced', 'needs_sync')
       AND ms.enabled = true
       AND ms.api_configured = true
       AND (
