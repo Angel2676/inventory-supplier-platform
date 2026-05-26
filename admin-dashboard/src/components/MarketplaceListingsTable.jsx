@@ -307,7 +307,12 @@ function MarketplaceListingsTable() {
 
                 <td>{safeNumber(listing.last_market_price)}</td>
 
-                <td>{safeNumber(listing.last_suggested_price)}</td>
+                <td>
+                  {safeNumber(
+                    listing.suggested_marketplace_price ||
+                      listing.last_suggested_price,
+                  )}
+                </td>
 
                 <td>
                   <span
