@@ -9,7 +9,8 @@ function normalizeTicomboEvent(event) {
     name: event.eventName || event.name,
     venue: event.eventVenue || event.venue?.name || "-",
     city: event.eventVenue || "-",
-    date: event.eventDate || event.date?.start || null,
+    date:
+      event.eventDate || event.date?.localStart || event.date?.start || null,
     ticketCategories: event.ticketCategories || [],
     ticketSections: event.ticketSections || [],
     raw: event,
@@ -19,14 +20,15 @@ function normalizeTicomboEvent(event) {
 async function searchTicomboEvents(query = "") {
   const client = getTicomboClient();
 
-  const response = await client.get("/sellerStats", {
+  const response = await client.get("/events", {
     params: {
       page: 1,
-      limit: 50,
+      limit: 100,
     },
   });
 
-  const events = response.data?.data || [];
+  const events =
+    response.data?.data || response.data?.events || response.data || [];
 
   const normalized = events.map(normalizeTicomboEvent);
 
