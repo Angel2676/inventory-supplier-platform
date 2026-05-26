@@ -31,10 +31,14 @@ async function runGigsbergMarketScannerJob() {
     `);
 
     const listings = result.rows;
+    console.log(`Gigsberg scanner listings found: ${listings.length}`);
 
     for (const listing of listings) {
       try {
-        console.log("Scanning listing:", listing.id);
+        console.log(
+          "Scanning Gigsberg listing:",
+          listing.marketplace_listing_id,
+        );
 
         const remoteListingId = Number(listing.remote_listing_id);
 
@@ -75,7 +79,8 @@ async function runGigsbergMarketScannerJob() {
       } catch (error) {
         console.error(
           "Errore scanner listing:",
-          listing.id,
+
+          listing.marketplace_listing_id,
           error.response?.data || error.message,
         );
       }
