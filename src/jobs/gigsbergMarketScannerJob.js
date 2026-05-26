@@ -1,5 +1,6 @@
 const cron = require("node-cron");
 const pool = require("../db");
+const { calculateSafePrice } = require("../services/priceCheckerService");
 
 const {
   searchListings,
@@ -23,6 +24,9 @@ async function runGigsbergMarketScannerJob() {
         ml.remote_listing_id,
         ml.marketplace,
         t.category,
+        t.marketplace_price,
+        t.min_price,
+        t.undercut_amount,
         t.last_market_price
       FROM marketplace_listings ml
       JOIN tickets t ON t.id = ml.ticket_id
@@ -66,15 +70,34 @@ async function runGigsbergMarketScannerJob() {
 
         console.log("Lowest market price:", lowestPrice);
 
+        const priceCheck = calculateSafePrice({
+          currentPrice: Number(listing.marketplace_price || 0),
+
+          marketLowestPrice: Number(lowestPrice || 0),
+
+          minPrice: Number(listing.min_price || 0),
+
+          undercutAmount: Number(listing.undercut_amount || 0.01),
+        });
+
         await pool.query(
           `
-          UPDATE tickets
-          SET
-            last_market_price = $1,
-            updated_at = NOW()
-          WHERE id = $2
-          `,
-          [lowestPrice, listing.ticket_id],
+
+            UPDATE tickets
+
+            SET
+
+                last_market_price = $1,
+
+                suggested_marketplace_price = $2,
+
+                updated_at = NOW()
+
+            WHERE id = $3
+
+            `,
+
+          [lowestPrice, priceCheck.suggestedPrice, listing.ticket_id],
         );
       } catch (error) {
         console.error(
