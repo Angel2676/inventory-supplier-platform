@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { startRepricingJob } = require("./jobs/repricingJob");
+const { startAutoPublishJob } = require("./jobs/autoPublishJob");
 const app = express();
 const marketplaceRoutes = require("./routes/marketplace");
 const authRoutes = require("./routes/auth");
@@ -69,4 +70,5 @@ app.listen(PORT, () => {
 
   startRepricingJob();
   startMarketplaceSyncJob();
+  startAutoPublishJob();
 });
