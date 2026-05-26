@@ -82,7 +82,7 @@ router.post(
           row_name || null,
           seat_from || null,
           seat_to || null,
-          NNumber(quantity),
+          Number(quantity),
           Number(price),
           marketplace_price !== undefined && marketplace_price !== null
             ? Number(marketplace_price)
