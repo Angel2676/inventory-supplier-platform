@@ -235,7 +235,7 @@ function MarketplaceListingsTable() {
         </label>
       </div>
 
-      {listings.length === 0 ? (
+      {filteredListings.length === 0 ? (
         <p>Nessun marketplace listing presente.</p>
       ) : (
         <table className="tickets-table">
@@ -269,7 +269,7 @@ function MarketplaceListingsTable() {
           </thead>
 
           <tbody>
-            {listings.map((listing) => (
+            {filteredListings.map((listing) => (
               <tr key={listing.id}>
                 <td>{listing.id}</td>
 
