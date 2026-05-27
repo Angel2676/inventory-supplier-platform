@@ -604,6 +604,7 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
         );
 
         if (categoryMappingResult.rows.length === 0) {
+          console.log("TICOMBO CONTENT REQUEST TRIGGERED");
           const errorText = `Mapping categoria Ticombo mancante per ${ticket.category}`;
 
           await pool.query(
@@ -1074,8 +1075,9 @@ router.post("/publish", async (req, res) => {
             [errorText, waitingListing.id],
           );
 
-          await pool.query(
-            `
+          try {
+            await pool.query(
+              `
     INSERT INTO marketplace_content_requests (
       marketplace,
       event_id,
@@ -1091,19 +1093,27 @@ router.post("/publish", async (req, res) => {
     )
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
     `,
-            [
-              "ticombo",
-              ticket.event_id,
-              ticket.event_name,
-              ticket.event_date,
-              ticket.venue,
-              ticket.city,
-              ticket.country,
-              "pending",
-              eventMapping.remote_event_id,
-              errorText,
-            ],
-          );
+              [
+                "ticombo",
+                ticket.event_id,
+                ticket.event_name,
+                ticket.event_date,
+                ticket.venue,
+                ticket.city,
+                ticket.country,
+                "pending",
+                eventMappingResult.rows[0]?.remote_event_id || null,
+                errorText,
+              ],
+            );
+
+            console.log("TICOMBO CONTENT REQUEST INSERTED");
+          } catch (insertError) {
+            console.error(
+              "TICOMBO CONTENT REQUEST INSERT FAILED:",
+              insertError,
+            );
+          }
 
           return res.status(202).json({
             success: false,
