@@ -47,10 +47,16 @@ async function runRepricingJob() {
 
       const priceCheck = calculateSafePrice({
         currentPrice: currentMarketplacePrice,
+
         marketLowestPrice,
+
         minPrice: Number(
-          listing.min_price || listing.marketplace_default_min_price || 0,
+          listing.min_price ||
+            listing.ticket_min_price ||
+            listing.marketplace_default_min_price ||
+            0,
         ),
+
         undercutAmount: Number(
           listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
         ),
