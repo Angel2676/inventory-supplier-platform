@@ -20,7 +20,7 @@ function MarketplaceContentRequestsTable() {
 
   return (
     <div className="table-container">
-      <table>
+      <table className="marketplace-content-requests-table">
         <thead>
           <tr>
             <th>Marketplace</th>
@@ -37,9 +37,19 @@ function MarketplaceContentRequestsTable() {
             <tr key={request.id}>
               <td>{request.marketplace}</td>
               <td>{request.event_name}</td>
-              <td>{request.request_status}</td>
-              <td>{request.remote_event_id}</td>
-              <td>{request.notes}</td>
+              <td>
+                <span
+                  className={`content-request-status ${request.request_status}`}
+                >
+                  {request.request_status}
+                </span>
+              </td>
+              <td>
+                <span className="content-request-remote-id">
+                  {request.remote_event_id || "-"}
+                </span>
+              </td>
+              <td className="content-request-notes">{request.notes || "-"}</td>
               <td>{new Date(request.created_at).toLocaleString()}</td>
             </tr>
           ))}

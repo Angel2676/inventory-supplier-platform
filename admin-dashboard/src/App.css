@@ -2364,3 +2364,83 @@ body {
   height: 16px;
   accent-color: #2563eb;
 }
+.marketplace-content-requests-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.marketplace-content-requests-table thead th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+  background: transparent;
+  padding: 10px 14px;
+}
+
+.marketplace-content-requests-table tbody tr {
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+}
+
+.marketplace-content-requests-table tbody td {
+  padding: 14px;
+  vertical-align: top;
+  border-top: 1px solid #eef2f7;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.marketplace-content-requests-table tbody td:first-child {
+  border-left: 1px solid #eef2f7;
+  border-radius: 14px 0 0 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.marketplace-content-requests-table tbody td:last-child {
+  border-right: 1px solid #eef2f7;
+  border-radius: 0 14px 14px 0;
+}
+
+.content-request-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.content-request-status.pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.content-request-status.resolved {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.content-request-status.failed,
+.content-request-status.rejected {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.content-request-remote-id {
+  font-family: monospace;
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: #374151;
+}
+
+.content-request-notes {
+  max-width: 360px;
+  white-space: normal;
+  color: #374151;
+  line-height: 1.4;
+}
