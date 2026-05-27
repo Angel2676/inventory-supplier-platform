@@ -5,6 +5,7 @@ import MarketplaceOrdersTable from "./MarketplaceOrdersTable";
 import MarketplaceListingsTable from "./MarketplaceListingsTable";
 import MarketplaceLogsTable from "./MarketplaceLogsTable";
 import TicketsTable from "./TicketsTable";
+import MarketplaceContentRequestsTable from "./MarketplaceContentRequestsTable";
 
 function MarketplaceHub() {
   return (
@@ -31,6 +32,13 @@ function MarketplaceHub() {
         defaultOpen={false}
       >
         <MarketplaceMappingsTable />
+        <CollapsibleSection
+          title="Marketplace Content Requests"
+          description="Track missing mappings, invalid marketplace eventIds and pending supplier content requests."
+          defaultOpen={true}
+        >
+          <MarketplaceContentRequestsTable />
+        </CollapsibleSection>
       </CollapsibleSection>
 
       <CollapsibleSection
