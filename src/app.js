@@ -22,6 +22,7 @@ const { startMarketplaceSyncJob } = require("./jobs/marketplaceSyncJob");
 const cleanupExpiredReservations = require("./services/reservationCleanup");
 const webhooksRoutes = require("./routes/webhooks");
 const PORT = process.env.PORT || 3000;
+const marketplaceContentRequestsRoutes = require("./routes/marketplaceContentRequests");
 const {
   runGigsbergMarketScannerJob,
 } = require("./jobs/gigsbergMarketScannerJob");
@@ -76,3 +77,4 @@ app.listen(PORT, () => {
   startAutoPublishJob();
   runGigsbergMarketScannerJob();
 });
+app.use("/api/marketplace-content-requests", marketplaceContentRequestsRoutes);
