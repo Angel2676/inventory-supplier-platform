@@ -635,7 +635,7 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
               ticket.city,
               ticket.country,
               "pending",
-              eventMapping.remote_event_id,
+              eventMapping?.remote_event_id || null,
               errorText,
             ],
           );
