@@ -640,11 +640,15 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
             ],
           );
 
-          return res.status(202).json({
-            success: false,
-            status: "pending_content_request",
-            message: errorText,
-          });
+          warnings.push("Marketplace content request created");
+
+          checks[marketplace] = {
+            ready: false,
+            errors,
+            warnings,
+          };
+
+          continue;
         }
       }
 
