@@ -452,7 +452,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
       const data = response.data;
 
-      let checksText = `Publish Readiness per ticket #${data.ticket_id}\n\n`;
+      let checksText = `Publish Readiness per ticket #${data.ticket_id || ticketId}\n\n`;
 
       Object.entries(data.checks || {}).forEach(([marketplace, check]) => {
         checksText += `${marketplace.toUpperCase()}: ${
