@@ -969,6 +969,107 @@ router.post("/publish", async (req, res) => {
           "Errore publish Ticombo:",
           publishError.response?.data || publishError.message,
         );
+        const ticomboError = publishError.response?.data || {};
+
+        const ticomboErrorText = JSON.stringify(ticomboError).toLowerCase();
+
+        const isEventNotFound =
+          ticomboErrorText.includes("event not found") ||
+          ticomboErrorText.includes('"eventid"');
+
+        if (isEventNotFound) {
+          const errorText = JSON.stringify(ticomboError);
+
+          const listingResult = pendingListingResult.rows[0]
+            ? { rows: [pendingListingResult.rows[0]] }
+            : await pool.query(
+                `
+        INSERT INTO marketplace_listings (
+          ticket_id,
+          marketplace,
+          external_event_id,
+          external_category_id,
+          remote_event_id,
+          remote_category_id,
+          sync_status,
+          sync_direction,
+          last_sync_at,
+          marketplace_price,
+          last_error
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10)
+        RETURNING *
+        `,
+                [
+                  ticket.id,
+                  "ticombo",
+                  eventMapping.remote_event_id,
+                  categoryMapping.remote_category_id,
+                  eventMapping.remote_event_id,
+                  categoryMapping.remote_category_id,
+                  "waiting_content",
+                  "inventory_to_marketplace",
+                  price,
+                  errorText,
+                ],
+              );
+
+          const waitingListing = listingResult.rows[0];
+
+          await pool.query(
+            `
+    UPDATE marketplace_listings
+    SET
+      sync_status = 'waiting_content',
+      last_error = $1,
+      last_sync_at = NOW(),
+      updated_at = NOW(),
+      next_retry_at = NULL,
+      circuit_breaker_until = NULL
+    WHERE id = $2
+    `,
+            [errorText, waitingListing.id],
+          );
+
+          await pool.query(
+            `
+    INSERT INTO marketplace_content_requests (
+      marketplace,
+      event_id,
+      event_name,
+      event_date,
+      venue,
+      city,
+      country,
+      request_status,
+      remote_event_id,
+      notes,
+      updated_at
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+    `,
+            [
+              "ticombo",
+              ticket.event_id,
+              ticket.event_name,
+              ticket.event_date,
+              ticket.venue,
+              ticket.city,
+              ticket.country,
+              "pending",
+              eventMapping.remote_event_id,
+              errorText,
+            ],
+          );
+
+          return res.status(202).json({
+            success: false,
+            status: "waiting_content",
+            message:
+              "Evento Ticombo non disponibile nel catalogo Seller API. Creata richiesta per content team.",
+            details: ticomboError,
+          });
+        }
 
         const failedListing =
           pendingListingResult.rows[0] ||
