@@ -450,17 +450,33 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
         [ticketId]: response.data,
       }));
 
-      const checksText = Object.entries(response.data.checks || {})
-        .map(([marketplace, check]) => {
-          const status = check.ready ? "READY" : "NOT READY";
+      const data = response.data;
 
-          const errors = check.errors?.length
-            ? ` — ${check.errors.join(", ")}`
-            : "";
+      let checksText = `Publish Readiness per ticket #${data.ticket_id}\n\n`;
 
-          return `${marketplace}: ${status}${errors}`;
-        })
-        .join("\n");
+      Object.entries(data.checks || {}).forEach(([marketplace, check]) => {
+        checksText += `${marketplace.toUpperCase()}: ${
+          check.ready ? "READY" : "NOT READY"
+        }\n`;
+
+        if (check.errors?.length) {
+          checksText += `Errori:\n`;
+
+          check.errors.forEach((err) => {
+            checksText += `- ${err}\n`;
+          });
+        }
+
+        if (check.warnings?.length) {
+          checksText += `Warnings:\n`;
+
+          check.warnings.forEach((warn) => {
+            checksText += `- ${warn}\n`;
+          });
+        }
+
+        checksText += `\n`;
+      });
 
       setSuccessModal({
         title: "Publish Readiness",
