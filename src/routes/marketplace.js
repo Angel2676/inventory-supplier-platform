@@ -973,11 +973,16 @@ router.post("/publish", async (req, res) => {
 
         const ticomboErrorText = JSON.stringify(ticomboError).toLowerCase();
 
-        const isEventNotFound =
+        const isMarketplaceContentIssue =
           ticomboErrorText.includes("event not found") ||
-          ticomboErrorText.includes('"eventid"');
+          ticomboErrorText.includes('"eventid"') ||
+          ticomboErrorText.includes("category not found") ||
+          ticomboErrorText.includes("mapping") ||
+          ticomboErrorText.includes("invalid event") ||
+          ticomboErrorText.includes("supplier not enabled") ||
+          ticomboErrorText.includes("publication unavailable");
 
-        if (isEventNotFound) {
+        if (isMarketplaceContentIssue) {
           const errorText = JSON.stringify(ticomboError);
 
           const listingResult = pendingListingResult.rows[0]
@@ -1007,7 +1012,7 @@ router.post("/publish", async (req, res) => {
                   categoryMapping.remote_category_id,
                   eventMapping.remote_event_id,
                   categoryMapping.remote_category_id,
-                  "waiting_content",
+                  "pending_content_request",
                   "inventory_to_marketplace",
                   price,
                   errorText,
@@ -1020,7 +1025,7 @@ router.post("/publish", async (req, res) => {
             `
     UPDATE marketplace_listings
     SET
-      sync_status = 'waiting_content',
+      sync_status = 'pending_content_request',
       last_error = $1,
       last_sync_at = NOW(),
       updated_at = NOW(),
@@ -1064,7 +1069,7 @@ router.post("/publish", async (req, res) => {
 
           return res.status(202).json({
             success: false,
-            status: "waiting_content",
+            status: "pending_content_request",
             message:
               "Evento Ticombo non disponibile nel catalogo Seller API. Creata richiesta per content team.",
             details: ticomboError,
