@@ -589,6 +589,8 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
           errors.push("Mapping evento mancante");
         }
 
+        const eventMapping = eventMappingResult.rows[0];
+
         const categoryMappingResult = await pool.query(
           `
           SELECT *
