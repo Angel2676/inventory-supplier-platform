@@ -948,6 +948,7 @@ router.post("/publish", async (req, res) => {
       );
 
       if (categoryMappingResult.rows.length === 0) {
+        console.log("TICOMBO CONTENT REQUEST TRIGGERED");
         return res.status(400).json({
           error: `Mapping categoria Ticombo mancante per ${ticket.category}`,
         });
