@@ -53,9 +53,40 @@ async function publishTicomboTicket(ticketId) {
   );
 
   if (categoryMappingResult.rows.length === 0) {
-    throw new Error(
-      `Mapping categoria Ticombo mancante per ${ticket.category}`,
+    const errorText = `Mapping categoria Ticombo mancante per ${ticket.category}`;
+
+    await pool.query(
+      `
+    INSERT INTO marketplace_content_requests (
+      marketplace,
+      event_id,
+      event_name,
+      event_date,
+      venue,
+      city,
+      country,
+      request_status,
+      remote_event_id,
+      notes,
+      updated_at
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+    `,
+      [
+        "ticombo",
+        ticket.event_id,
+        ticket.event_name,
+        ticket.event_date,
+        ticket.venue,
+        ticket.city,
+        ticket.country,
+        "pending",
+        eventMappingResult.rows[0]?.remote_event_id || null,
+        errorText,
+      ],
     );
+
+    throw new Error(errorText);
   }
 
   const eventMapping = eventMappingResult.rows[0];
