@@ -645,7 +645,14 @@ async function syncMarketplaceQuantities() {
       } catch (listingError) {
         const detailedError = normalizeMarketplaceError(listingError);
 
-        console.error("Marketplace quantity/price sync error:", detailedError);
+        console.error("Marketplace quantity/price sync error:", {
+          marketplace: listing.marketplace,
+          listing_id: listing.id,
+          ticket_id: listing.ticket_id,
+          remote_listing_id: listing.remote_listing_id,
+          sync_status: listing.sync_status,
+          error: detailedError,
+        });
 
         await pool.query(
           `
@@ -704,7 +711,7 @@ async function syncMarketplaceQuantities() {
       `Marketplace quantity/price sync job completed. Listings processed: ${listings.length}`,
     );
   } catch (err) {
-    cconsole.error("Marketplace quantity/price sync fatal error:", {
+    console.error("Marketplace quantity/price sync fatal error:", {
       marketplace: listing?.marketplace,
       listing_id: listing?.id,
       ticket_id: listing?.ticket_id,
