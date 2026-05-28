@@ -14,8 +14,6 @@ const {
   createSupplierTickets,
 } = require("../services/integrations/sportevents365/sportevents365Api");
 
-const { searchTicomboEvents } = require("../services/ticomboService");
-
 const {
   searchTicomboEvents,
 } = require("../services/integrations/ticombo/ticomboEvents");
