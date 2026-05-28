@@ -30,7 +30,15 @@ async function searchTicomboEvents(query) {
 
   return response.data;
 }
+async function getTicomboEventById(eventId) {
+  const client = getTicomboClient();
+
+  const response = await client.get(`/events/${eventId}`);
+
+  return response.data;
+}
 
 module.exports = {
   searchTicomboEvents,
+  getTicomboEventById,
 };

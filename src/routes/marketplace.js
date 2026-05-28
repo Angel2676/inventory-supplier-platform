@@ -16,7 +16,8 @@ const {
 
 const {
   searchTicomboEvents,
-} = require("../services/integrations/ticombo/ticomboEvents");
+  getTicomboEventById,
+} = require("../services/ticomboService");
 
 const {
   createTicomboListing,
@@ -71,6 +72,29 @@ router.get("/listings", async (req, res) => {
 /**
  * MARKETPLACE REMOTE EVENT SEARCH
  */
+router.get("/ticombo/events/:eventId", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const data = await getTicomboEventById(eventId);
+
+    return res.json({
+      success: true,
+      eventId,
+      data,
+    });
+  } catch (error) {
+    console.error("Ticombo event detail error:", error.response?.data || error);
+
+    return res.status(500).json({
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Ticombo event detail failed",
+      details: error.response?.data || null,
+    });
+  }
+});
 
 router.get("/search-events", async (req, res) => {
   try {
