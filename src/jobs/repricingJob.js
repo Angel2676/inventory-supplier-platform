@@ -1,9 +1,11 @@
 const cron = require("node-cron");
 const pool = require("../db");
 const { calculateSafePrice } = require("../services/priceCheckerService");
+
 const {
   updateListing: updateGigsbergListing,
 } = require("../services/integrations/gigsberg/gigsbergApi");
+
 async function runRepricingJob() {
   console.log("Marketplace repricing job started");
 
@@ -49,16 +51,13 @@ async function runRepricingJob() {
 
       const priceCheck = calculateSafePrice({
         currentPrice: currentMarketplacePrice,
-
         marketLowestPrice,
-
         minPrice: Number(
           listing.min_price ||
             listing.ticket_min_price ||
             listing.marketplace_default_min_price ||
             0,
         ),
-
         undercutAmount: Number(
           listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
         ),
@@ -82,36 +81,43 @@ async function runRepricingJob() {
 
         continue;
       }
-      if (listing.marketplace === "gigsberg") {
+
+      if (listing.marketplace === "gigsberg" && listing.remote_listing_id) {
+        console.log(
+          `Updating Gigsberg listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
+        );
+
         await updateGigsbergListing(listing.remote_listing_id, {
           price: Number(priceCheck.finalPrice),
-
           quantity: Number(listing.available_quantity),
-
           presented_quantity: Number(listing.available_quantity),
         });
+
+        console.log(
+          `Gigsberg listing ${listing.remote_listing_id} updated successfully`,
+        );
       }
 
       await pool.query(
         `
-  UPDATE marketplace_listings
-  SET
-    marketplace_price = $1,
-    last_suggested_price = $2,
-    last_reprice_at = NOW()
-  WHERE id = $3
-  `,
+        UPDATE marketplace_listings
+        SET
+          marketplace_price = $1,
+          last_suggested_price = $2,
+          last_reprice_at = NOW()
+        WHERE id = $3
+        `,
         [priceCheck.finalPrice, priceCheck.suggestedPrice, listing.id],
       );
 
       await pool.query(
         `
-  UPDATE tickets
-  SET
-    marketplace_price = $1,
-    updated_at = NOW()
-  WHERE id = $2
-  `,
+        UPDATE tickets
+        SET
+          marketplace_price = $1,
+          updated_at = NOW()
+        WHERE id = $2
+        `,
         [priceCheck.finalPrice, listing.ticket_id],
       );
 
@@ -121,7 +127,7 @@ async function runRepricingJob() {
     } catch (error) {
       console.error(
         `Marketplace listing ${listing.id} (${listing.marketplace}): repricing error`,
-        error.message,
+        error.response?.data || error.message,
       );
     }
   }
