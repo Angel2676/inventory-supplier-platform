@@ -1,7 +1,9 @@
 const cron = require("node-cron");
 const pool = require("../db");
 const { calculateSafePrice } = require("../services/priceCheckerService");
-
+const {
+  updateListing: updateGigsbergListing,
+} = require("../services/integrations/gigsberg/gigsbergApi");
 async function runRepricingJob() {
   console.log("Marketplace repricing job started");
 
@@ -79,6 +81,15 @@ async function runRepricingJob() {
         );
 
         continue;
+      }
+      if (listing.marketplace === "gigsberg") {
+        await updateGigsbergListing(listing.remote_listing_id, {
+          price: Number(priceCheck.finalPrice),
+
+          quantity: Number(listing.available_quantity),
+
+          presented_quantity: Number(listing.available_quantity),
+        });
       }
 
       await pool.query(
