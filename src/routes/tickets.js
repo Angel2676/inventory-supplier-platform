@@ -437,31 +437,97 @@ router.post(
             const insertedTickets = [];
 
             for (const row of rows) {
+              let eventId = row.event_id ? Number(row.event_id) : null;
+
+              if (!eventId) {
+                if (!row.event_name || !row.event_date) {
+                  throw new Error(
+                    "event_id mancante: event_name ed event_date sono obbligatori per creare/trovare l'evento",
+                  );
+                }
+
+                const eventLookup = await client.query(
+                  `
+      SELECT *
+      FROM events
+      WHERE LOWER(name) = LOWER($1)
+        AND event_date = $2
+        AND LOWER(COALESCE(venue, '')) = LOWER(COALESCE($3, ''))
+        AND LOWER(COALESCE(city, '')) = LOWER(COALESCE($4, ''))
+      LIMIT 1
+      `,
+                  [
+                    row.event_name,
+                    row.event_date,
+                    row.venue || null,
+                    row.city || null,
+                  ],
+                );
+
+                if (eventLookup.rows.length > 0) {
+                  eventId = eventLookup.rows[0].id;
+                } else {
+                  const eventCreate = await client.query(
+                    `
+        INSERT INTO events (
+          name,
+          event_date,
+          venue,
+          city,
+          country,
+          event_type,
+          event_subcategory,
+          team_name,
+          status,
+          visibility
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'active','public')
+        RETURNING *
+        `,
+                    [
+                      row.event_name,
+                      row.event_date,
+                      row.venue || null,
+                      row.city || null,
+                      row.country || null,
+                      row.event_type || null,
+                      row.event_subcategory || null,
+                      row.team_name || row.event_name,
+                    ],
+                  );
+
+                  eventId = eventCreate.rows[0].id;
+                }
+              }
+
               const result = await client.query(
                 `
-                INSERT INTO tickets (
-                  event_id,
-                  supplier_ticket_id,
-                  category,
-                  block,
-                  row_name,
-                  seat_from,
-                  seat_to,
-                  quantity,
-                  available_quantity,
-                  price,
-                  marketplace_price,
-                  currency,
-                  status
-                )
-                VALUES (
-                  $1,$2,$3,$4,$5,$6,$7,
-                  $8,$8,$9,$10,$11,'available'
-                )
-                RETURNING *
-                `,
+    INSERT INTO tickets (
+      event_id,
+      supplier_ticket_id,
+      category,
+      block,
+      row_name,
+      seat_from,
+      seat_to,
+      quantity,
+      available_quantity,
+      price,
+      marketplace_price,
+      min_price,
+      auto_reprice_enabled,
+      undercut_amount,
+      currency,
+      status
+    )
+    VALUES (
+      $1,$2,$3,$4,$5,$6,$7,
+      $8,$8,$9,$10,$11,$12,$13,$14,'available'
+    )
+    RETURNING *
+    `,
                 [
-                  Number(row.event_id),
+                  eventId,
                   row.supplier_ticket_id,
                   row.category,
                   row.block || null,
@@ -470,11 +536,13 @@ router.post(
                   row.seat_to || null,
                   Number(row.quantity),
                   Number(row.price),
-                  row.marketplace_price !== undefined &&
-                  row.marketplace_price !== null &&
-                  row.marketplace_price !== ""
+                  row.marketplace_price
                     ? Number(row.marketplace_price)
                     : Number(row.price),
+                  row.min_price ? Number(row.min_price) : null,
+                  String(row.auto_reprice_enabled || "").toLowerCase() ===
+                    "true",
+                  row.undercut_amount ? Number(row.undercut_amount) : 0.01,
                   row.currency || "EUR",
                 ],
               );
