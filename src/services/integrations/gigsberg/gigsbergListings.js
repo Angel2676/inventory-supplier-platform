@@ -154,7 +154,11 @@ async function findBestGigsbergEvent(ticket) {
     const nameMatches =
       eventName === localName || eventName.includes(localName);
     const cityMatches = !localCity || eventCity.includes(localCity);
-    const venueMatches = !localVenue || eventVenue.includes(localVenue);
+    const venueMatches =
+      !localVenue ||
+      !eventVenue ||
+      eventVenue.includes(localVenue) ||
+      localVenue.includes(eventVenue);
     const dateMatches = !localDate || eventDate === localDate;
 
     return nameMatches && cityMatches && venueMatches && dateMatches;
