@@ -24,7 +24,7 @@ async function searchTicomboEvents(query) {
 
   const response = await client.get("/events", {
     params: {
-      search: query,
+      name: query,
     },
   });
 
