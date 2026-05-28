@@ -82,21 +82,29 @@ async function runGigsbergMarketScannerJob() {
 
         await pool.query(
           `
+  UPDATE marketplace_listings
+  SET
+    last_market_price = $1,
+    last_suggested_price = $2,
+    updated_at = NOW()
+  WHERE id = $3
+  `,
+          [
+            lowestPrice,
+            priceCheck.suggestedPrice,
+            listing.marketplace_listing_id,
+          ],
+        );
 
-            UPDATE tickets
-
-            SET
-
-                last_market_price = $1,
-
-                suggested_marketplace_price = $2,
-
-                updated_at = NOW()
-
-            WHERE id = $3
-
-            `,
-
+        await pool.query(
+          `
+          UPDATE tickets
+          SET
+            last_market_price = $1,
+            suggested_marketplace_price = $2,
+            updated_at = NOW()
+          WHERE id = $3
+          `,
           [lowestPrice, priceCheck.suggestedPrice, listing.ticket_id],
         );
       } catch (error) {
