@@ -2464,171 +2464,58 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
 }
+/* DARK MODE CLEAN VERSION */
 
 body.dark-mode {
-  background: #020617;
+  background: #0b1120;
   color: #e5e7eb;
 }
 
 body.dark-mode .dashboard-shell,
 body.dark-mode .dashboard-main,
 body.dark-mode .dashboard-content {
-  background: #020617;
-  color: #e5e7eb;
+  background: #0b1120 !important;
+  color: #e5e7eb !important;
 }
 
-body.dark-mode .dashboard-header {
-  background: #0f172a;
-  color: #f9fafb;
-  border-bottom: 1px solid #1e293b;
-}
-
-body.dark-mode .dashboard-header h1,
-body.dark-mode .dashboard-header p {
-  color: #f9fafb;
-}
-
+body.dark-mode .dashboard-header,
 body.dark-mode .section,
-body.dark-mode .table-container,
-body.dark-mode .stat-card,
-body.dark-mode .accordion,
-body.dark-mode .modal-content {
-  background: #0f172a;
-  color: #e5e7eb;
-  border-color: #1e293b;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+body.dark-mode .table-container {
+  background: #111827 !important;
+  color: #f9fafb !important;
+  border-color: #374151 !important;
 }
 
 body.dark-mode table,
 body.dark-mode .tickets-table {
-  background: #0f172a;
-  color: #e5e7eb;
-}
-
-body.dark-mode thead,
-body.dark-mode th {
-  background: #1e293b;
-  color: #f8fafc;
-}
-
-body.dark-mode td {
-  background: #0f172a;
-  color: #e5e7eb;
-  border-color: #334155;
-}
-
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
-  background: #020617;
-  color: #f9fafb;
-  border-color: #334155;
-}
-
-body.dark-mode .theme-toggle-btn {
-  background: linear-gradient(135deg, #1e293b, #020617);
-  color: #f8fafc;
-  border-color: #475569;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-}
-
-body.dark-mode .btn,
-body.dark-mode .btn-secondary {
-  background: #1e293b;
-  color: #f8fafc;
-  border-color: #334155;
-}
-
-body.dark-mode .status-badge {
-  border: 1px solid #334155;
-}
-
-/* ===== DARK MODE FULL UI ===== */
-
-body.dark-mode {
-  background: #020617;
-  color: #e2e8f0;
-}
-
-/* Main containers */
-body.dark-mode .dashboard-shell,
-body.dark-mode .dashboard-main,
-body.dark-mode .dashboard-content {
-  background: #020617 !important;
-}
-
-/* Header */
-body.dark-mode .dashboard-header {
-  background: #0f172a !important;
-  border-bottom: 1px solid #1e293b;
-}
-
-body.dark-mode .dashboard-header h1,
-body.dark-mode .dashboard-header p {
-  color: #f8fafc !important;
-}
-
-/* Generic cards */
-body.dark-mode .section,
-body.dark-mode .card,
-body.dark-mode .accordion,
-body.dark-mode .modal,
-body.dark-mode .modal-content,
-body.dark-mode .marketplace-card,
-body.dark-mode .mapping-card {
-  background: #0f172a !important;
-  color: #e2e8f0 !important;
-  border: 1px solid #1e293b !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-}
-
-/* White blocks fix */
-body.dark-mode div[style*="background: white"],
-body.dark-mode div[style*="background-color: white"] {
-  background: #0f172a !important;
-}
-
-/* Tables */
-body.dark-mode table {
-  background: #0f172a !important;
-  color: #e2e8f0 !important;
-}
-
-body.dark-mode thead,
-body.dark-mode th {
-  background: #1e293b !important;
-  color: #f8fafc !important;
-}
-
-body.dark-mode td {
-  background: #0f172a !important;
-  color: #e2e8f0 !important;
-  border-color: #334155 !important;
-}
-
-/* Inputs */
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
   background: #111827 !important;
-  color: #f8fafc !important;
-  border: 1px solid #334155 !important;
+  color: #f9fafb !important;
 }
 
-/* Placeholder */
-body.dark-mode input::placeholder,
-body.dark-mode textarea::placeholder {
-  color: #94a3b8 !important;
+body.dark-mode th {
+  background: #1f2937 !important;
+  color: #ffffff !important;
 }
 
-/* Buttons */
-body.dark-mode button {
-  border-color: #334155;
+body.dark-mode td {
+  background: #111827 !important;
+  color: #e5e7eb !important;
+  border-color: #374151 !important;
 }
 
-/* Theme button */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #d1d5db !important;
+}
+
 body.dark-mode .theme-toggle-btn {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  color: #f8fafc;
-  border: 1px solid #475569;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 700;
 }
