@@ -12,7 +12,7 @@ function getTicomboClient() {
   return axios.create({
     baseURL: TICOMBO_API_BASE_URL,
     headers: {
-      Authorization: `Bearer ${TICOMBO_API_TOKEN}`,
+      "x-api-key": TICOMBO_API_TOKEN,
       Accept: "application/json",
       "Content-Type": "application/json",
     },
