@@ -73,11 +73,35 @@ function extractCategories(categories) {
   return [];
 }
 
+function getDateOnly(value) {
+  if (!value) return null;
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return null;
+
+  return date.toISOString().slice(0, 10);
+}
+
+function getGigsbergEventDate(event) {
+  return (
+    event.date ||
+    event.event_date ||
+    event.eventDate ||
+    event.start_date ||
+    event.startDate ||
+    event.start ||
+    event.datetime ||
+    event.date_time ||
+    null
+  );
+}
+
 async function findBestGigsbergEvent(ticket) {
   let searchResult = await searchEvents({
     keyword: ticket.event_name,
     future_events_only: true,
-    per_page: 30,
+    per_page: 50,
   });
 
   let events = extractEvents(searchResult);
@@ -87,7 +111,7 @@ async function findBestGigsbergEvent(ticket) {
       keyword: ticket.event_name,
       city: ticket.city,
       future_events_only: true,
-      per_page: 30,
+      per_page: 50,
     });
 
     events = extractEvents(searchResult);
@@ -99,19 +123,51 @@ async function findBestGigsbergEvent(ticket) {
 
   const localName = normalizeText(ticket.event_name);
   const localCity = normalizeText(ticket.city);
+  const localVenue = normalizeText(ticket.venue);
+  const localDate = getDateOnly(ticket.event_date);
 
-  const exactCityMatch = events.find((event) => {
+  const candidates = events.filter((event) => {
+    const eventName = normalizeText(event.name);
+    const eventCity = normalizeText(event.city);
+    const eventVenue = normalizeText(event.venue);
+    const eventDate = getDateOnly(getGigsbergEventDate(event));
+
+    const nameMatches =
+      eventName === localName || eventName.includes(localName);
+    const cityMatches = !localCity || eventCity.includes(localCity);
+    const venueMatches = !localVenue || eventVenue.includes(localVenue);
+    const dateMatches = !localDate || eventDate === localDate;
+
+    return nameMatches && cityMatches && venueMatches && dateMatches;
+  });
+
+  if (candidates.length > 0) {
+    return candidates[0];
+  }
+
+  const sameNameDifferentDate = events.find((event) => {
+    const eventName = normalizeText(event.name);
+    const eventDate = getDateOnly(getGigsbergEventDate(event));
+
     return (
-      normalizeText(event.name) === localName &&
-      (!localCity || normalizeText(event.city).includes(localCity))
+      eventName === localName &&
+      localDate &&
+      eventDate &&
+      eventDate !== localDate
     );
   });
 
-  const exactNameMatch = events.find(
-    (event) => normalizeText(event.name) === localName,
-  );
+  if (sameNameDifferentDate) {
+    throw new Error(
+      `Evento Gigsberg trovato per "${ticket.event_name}", ma con data diversa. Inventory: ${localDate}, Gigsberg: ${getDateOnly(
+        getGigsbergEventDate(sameNameDifferentDate),
+      )}. Pubblicazione bloccata.`,
+    );
+  }
 
-  return exactCityMatch || exactNameMatch || events[0];
+  throw new Error(
+    `Nessun evento Gigsberg compatibile trovato per "${ticket.event_name}" in data ${localDate || "N/D"}. Pubblicazione bloccata.`,
+  );
 }
 
 async function findBestGigsbergCategory(gigsbergEventId, ticket) {
