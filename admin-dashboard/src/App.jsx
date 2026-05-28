@@ -41,6 +41,7 @@ function App() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [activeSection, setActiveSection] = useState("tickets");
   const [showIntro, setShowIntro] = useState(true);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   const resetMatch = window.location.pathname.match(/^\/reset-password\/(.+)$/);
 
@@ -60,6 +61,12 @@ function App() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("dark-mode", theme === "dark");
+
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
