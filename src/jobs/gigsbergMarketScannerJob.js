@@ -57,15 +57,42 @@ async function runGigsbergMarketScannerJob() {
           );
           continue;
         }
+        console.log("Gigsberg search params:", {
+          marketplace_listing_id: listing.marketplace_listing_id,
 
-        const marketplaceResult = await searchListings({
+          remote_listing_id: listing.remote_listing_id,
+
+          event_id: listing.remote_event_id,
+
+          category_id: listing.remote_category_id,
+        });
+
+        let marketplaceResult = await searchListings({
           event_id: Number(listing.remote_event_id),
           category_id: Number(listing.remote_category_id),
           page: 1,
           per_page: 50,
         });
 
-        const items = extractItems(marketplaceResult);
+        let items = extractItems(marketplaceResult);
+
+        if (items.length === 0) {
+          console.log(
+            "No listings found by event/category, retrying by event only:",
+            {
+              marketplace_listing_id: listing.marketplace_listing_id,
+              event_id: listing.remote_event_id,
+            },
+          );
+
+          marketplaceResult = await searchListings({
+            event_id: Number(listing.remote_event_id),
+            page: 1,
+            per_page: 100,
+          });
+
+          items = extractItems(marketplaceResult);
+        }
 
         const activeListings = items.filter(
           (item) => item.active === 1 && Number(item.id) !== remoteListingId,
