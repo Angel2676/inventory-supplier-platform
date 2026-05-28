@@ -812,6 +812,20 @@ router.post("/publish", async (req, res) => {
           });
         }
 
+        const ticketResult = await pool.query(
+          `
+          SELECT
+            auto_reprice_enabled,
+            min_price,
+            last_market_price,
+            undercut_amount
+          FROM tickets
+          WHERE id = $1
+          `,
+          [ticket_id],
+        );
+
+        const ticket = ticketResult.rows[0] || {};
         const gigsbergResult = await createGigsbergListing(ticket_id);
 
         const remoteListingId =
@@ -836,9 +850,18 @@ router.post("/publish", async (req, res) => {
             marketplace_price,
             last_quantity_synced,
             last_quantity_sync_at,
-            last_error
+            last_error,
+            auto_reprice_enabled,
+            min_price,
+            last_market_price,
+            undercut_amount
           )
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,NOW(),$10,$11,NOW(),$12)
+          VALUES (
+            $1,$2,$3,$4,$5,$6,$7,$7,$8,$9,
+            NOW(),
+            $10,$11,NOW(),$12,
+            $13,$14,$15,$16
+          )
           RETURNING *
           `,
           [
@@ -854,6 +877,14 @@ router.post("/publish", async (req, res) => {
             gigsbergResult.price_check?.finalPrice || null,
             null,
             null,
+
+            ticket.auto_reprice_enabled || false,
+
+            ticket.min_price || null,
+
+            ticket.last_market_price || null,
+
+            ticket.undercut_amount || 0.01,
           ],
         );
 
