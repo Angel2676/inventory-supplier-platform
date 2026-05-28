@@ -76,9 +76,13 @@ async function runGigsbergMarketScannerJob() {
 
         let items = extractItems(marketplaceResult);
 
-        if (items.length === 0) {
+        let activeListings = items.filter(
+          (item) => item.active === 1 && Number(item.id) !== remoteListingId,
+        );
+
+        if (activeListings.length === 0) {
           console.log(
-            "No listings found by event/category, retrying by event only:",
+            "No competitors found by event/category, retrying by event only:",
             {
               marketplace_listing_id: listing.marketplace_listing_id,
               event_id: listing.remote_event_id,
@@ -92,23 +96,19 @@ async function runGigsbergMarketScannerJob() {
           });
 
           items = extractItems(marketplaceResult);
+
+          activeListings = items.filter(
+            (item) => item.active === 1 && Number(item.id) !== remoteListingId,
+          );
         }
 
-        const activeListings = items.filter(
-          (item) => item.active === 1 && Number(item.id) !== remoteListingId,
-        );
         console.log(
           "Gigsberg competitors found:",
-
           activeListings.map((item) => ({
             id: item.id,
-
             price: item.price,
-
             category_id: item.category_id,
-
             event_id: item.event_id,
-
             active: item.active,
           })),
         );
