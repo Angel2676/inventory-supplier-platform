@@ -6,6 +6,11 @@ const {
   searchListings,
 } = require("../services/integrations/gigsberg/gigsbergApi");
 
+const {
+  getGigsbergMarketDataHtml,
+  parseMarketPricesFromHtml,
+} = require("../services/integrations/gigsberg/gigsbergMarketData");
+
 function extractItems(result) {
   if (Array.isArray(result?.items)) return result.items;
   if (Array.isArray(result?.data)) return result.data;
@@ -82,24 +87,75 @@ async function runGigsbergMarketScannerJob() {
 
         if (activeListings.length === 0) {
           console.log(
-            "No competitors found by event/category, retrying by event only:",
-            {
-              marketplace_listing_id: listing.marketplace_listing_id,
+            "No API competitor listings found, trying Gigsberg market-data HTML",
+          );
+
+          try {
+            const html = await getGigsbergMarketDataHtml(
+              listing.remote_event_id,
+            );
+
+            const htmlPrices = parseMarketPricesFromHtml(
+              html,
+              listing.category,
+            ).filter((item) => {
+              const sameListing =
+                String(item.listingId) === String(listing.remote_listing_id);
+
+              return Number(item.price) > 0 && !sameListing;
+            });
+
+            console.log("Gigsberg market-data HTML prices:", htmlPrices);
+
+            if (htmlPrices.length === 0) {
+              console.log("No competitor listings found");
+
+              await pool.query(
+                `
+        UPDATE marketplace_listings
+        SET
+          last_market_price = NULL,
+          last_suggested_price = NULL,
+          updated_at = NOW()
+        WHERE id = $1
+        `,
+                [listing.marketplace_listing_id],
+              );
+
+              await pool.query(
+                `
+        UPDATE tickets
+        SET
+          last_market_price = NULL,
+          suggested_marketplace_price = NULL,
+          updated_at = NOW()
+        WHERE id = $1
+        `,
+                [listing.ticket_id],
+              );
+
+              continue;
+            }
+
+            const lowestHtmlPrice = Math.min(
+              ...htmlPrices.map((item) => Number(item.price)),
+            );
+
+            activeListings.push({
+              id: "market-data-html",
+              price: lowestHtmlPrice,
+              active: 1,
               event_id: listing.remote_event_id,
-            },
-          );
+              category_id: listing.remote_category_id,
+            });
+          } catch (htmlError) {
+            console.error(
+              "Gigsberg market-data HTML fallback error:",
+              htmlError.response?.data || htmlError.message,
+            );
 
-          marketplaceResult = await searchListings({
-            event_id: Number(listing.remote_event_id),
-            page: 1,
-            per_page: 100,
-          });
-
-          items = extractItems(marketplaceResult);
-
-          activeListings = items.filter(
-            (item) => item.active === 1 && Number(item.id) !== remoteListingId,
-          );
+            continue;
+          }
         }
 
         console.log(
