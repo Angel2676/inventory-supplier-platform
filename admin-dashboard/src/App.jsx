@@ -263,7 +263,24 @@ function App() {
                 {user?.company_name || user?.email} · {user?.role}
               </p>
             </div>
-            <LanguageSwitcher />
+            <div
+              style={{
+                display: "flex",
+
+                alignItems: "center",
+
+                gap: "12px",
+              }}
+            >
+              <button
+                className="theme-toggle-btn"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+              </button>
+
+              <LanguageSwitcher />
+            </div>
           </header>
 
           <div className="dashboard-content">
