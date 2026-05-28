@@ -7,6 +7,26 @@ const authJwt = require("../middleware/authJwt");
 const requireRole = require("../middleware/requireRole");
 const sendEmail = require("../services/emailService");
 
+function normalizeAndValidateEventDate(eventDate) {
+  if (!eventDate) return null;
+
+  const date = new Date(eventDate);
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("Data evento non valida");
+  }
+
+  const year = date.getFullYear();
+
+  if (year < 2025 || year > 2035) {
+    throw new Error(
+      "Anno evento non valido. Controllare la data inserita prima di salvare.",
+    );
+  }
+
+  return eventDate;
+}
+
 function formatDate(value) {
   if (!value) return "Data da confermare";
   return new Date(value).toLocaleString("it-IT");
@@ -228,7 +248,7 @@ router.post(
           error: "Il nome evento è obbligatorio",
         });
       }
-
+      const validatedEventDate = normalizeAndValidateEventDate(event_date);
       const result = await pool.query(
         `
         INSERT INTO events (
@@ -256,7 +276,7 @@ router.post(
         `,
         [
           name,
-          event_date || null,
+          validatedEventDate,
           venue || null,
           city || null,
           country || null,
@@ -320,6 +340,10 @@ router.patch(
         notes,
       } = req.body;
 
+      const validatedEventDate =
+        event_date !== undefined
+          ? normalizeAndValidateEventDate(event_date)
+          : undefined;
       const result = await pool.query(
         `
         UPDATE events
@@ -343,7 +367,7 @@ router.patch(
         `,
         [
           name || null,
-          event_date || null,
+          validatedEventDate ?? null,
           venue || null,
           city || null,
           country || null,

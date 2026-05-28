@@ -1,8 +1,16 @@
 const axios = require("axios");
 
+const TICOMBO_ENV = process.env.TICOMBO_ENV || "uat";
+
 const TICOMBO_API_BASE_URL =
-  process.env.TICOMBO_BASE_URL || "https://external-api.devtic.net/v1";
-const TICOMBO_API_TOKEN = process.env.TICOMBO_API_TOKEN;
+  TICOMBO_ENV === "production"
+    ? process.env.TICOMBO_PROD_BASE_URL
+    : process.env.TICOMBO_UAT_BASE_URL;
+
+const TICOMBO_API_TOKEN =
+  TICOMBO_ENV === "production"
+    ? process.env.TICOMBO_PROD_API_TOKEN
+    : process.env.TICOMBO_UAT_API_TOKEN;
 
 function getTicomboClient() {
   if (!TICOMBO_API_BASE_URL || !TICOMBO_API_TOKEN) {
