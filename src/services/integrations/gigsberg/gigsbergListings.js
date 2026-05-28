@@ -170,12 +170,27 @@ async function findBestGigsbergEvent(ticket) {
     return candidates[0];
   }
 
+  const sameNameSameDate = events.filter((event) => {
+    const eventName = normalizeText(event.name);
+    const eventDate = getDateOnly(getGigsbergEventDate(event));
+
+    return (
+      (eventName === localName || eventName.includes(localName)) &&
+      localDate &&
+      eventDate === localDate
+    );
+  });
+
+  if (sameNameSameDate.length > 0) {
+    return sameNameSameDate[0];
+  }
+
   const sameNameDifferentDate = events.find((event) => {
     const eventName = normalizeText(event.name);
     const eventDate = getDateOnly(getGigsbergEventDate(event));
 
     return (
-      eventName === localName &&
+      (eventName === localName || eventName.includes(localName)) &&
       localDate &&
       eventDate &&
       eventDate !== localDate
