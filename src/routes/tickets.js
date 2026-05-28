@@ -450,13 +450,13 @@ router.post(
                   quantity,
                   available_quantity,
                   price,
-        marketplace_price,
-        currency,
+                  marketplace_price,
+                  currency,
                   status
                 )
                 VALUES (
                   $1,$2,$3,$4,$5,$6,$7,
-                  $8,$8,$9,$10,'available'
+                  $8,$8,$9,$10,$11,'available'
                 )
                 RETURNING *
                 `,
@@ -470,6 +470,11 @@ router.post(
                   row.seat_to || null,
                   Number(row.quantity),
                   Number(row.price),
+                  row.marketplace_price !== undefined &&
+                  row.marketplace_price !== null &&
+                  row.marketplace_price !== ""
+                    ? Number(row.marketplace_price)
+                    : Number(row.price),
                   row.currency || "EUR",
                 ],
               );
