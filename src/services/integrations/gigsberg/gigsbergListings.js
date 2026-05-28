@@ -105,25 +105,27 @@ async function findBestGigsbergEvent(ticket) {
   });
 
   let events = extractEvents(searchResult);
-  console.log(
-    "GIGSBERG EVENTS FOUND:",
-    JSON.stringify(
-      events.map((event) => ({
-        id: event.id,
-        name: event.name,
-        date:
-          event.date ||
-          event.event_date ||
-          event.eventDate ||
-          event.start_date ||
-          event.startDate,
-        city: event.city,
-        venue: event.venue,
-      })),
-      null,
-      2,
-    ),
-  );
+  if (process.env.DEBUG_GIGSBERG === "true") {
+    console.log(
+      "GIGSBERG EVENTS FOUND:",
+      JSON.stringify(
+        events.map((event) => ({
+          id: event.id,
+          name: event.name,
+          date:
+            event.date ||
+            event.event_date ||
+            event.eventDate ||
+            event.start_date ||
+            event.startDate,
+          city: event.city,
+          venue: event.venue,
+        })),
+        null,
+        2,
+      ),
+    );
+  }
 
   if (events.length === 0 && ticket.city) {
     searchResult = await searchEvents({
