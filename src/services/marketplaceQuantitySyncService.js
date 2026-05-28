@@ -704,10 +704,13 @@ async function syncMarketplaceQuantities() {
       `Marketplace quantity/price sync job completed. Listings processed: ${listings.length}`,
     );
   } catch (err) {
-    console.error(
-      "Marketplace quantity/price sync fatal error:",
-      normalizeMarketplaceError(err),
-    );
+    cconsole.error("Marketplace quantity/price sync fatal error:", {
+      marketplace: listing?.marketplace,
+      listing_id: listing?.id,
+      ticket_id: listing?.ticket_id,
+      remote_listing_id: listing?.remote_listing_id,
+      error: normalizeMarketplaceError(err),
+    });
   }
 }
 

@@ -22,6 +22,8 @@ async function runGigsbergMarketScannerJob() {
         ml.id AS marketplace_listing_id,
         ml.ticket_id,
         ml.remote_listing_id,
+        ml.remote_event_id,
+        ml.remote_category_id,
         ml.marketplace,
         t.category,
         t.marketplace_price,
@@ -48,7 +50,17 @@ async function runGigsbergMarketScannerJob() {
 
         if (!remoteListingId) continue;
 
+        if (!listing.remote_event_id || !listing.remote_category_id) {
+          console.log(
+            "Skipping Gigsberg listing: missing remote_event_id or remote_category_id",
+            listing.marketplace_listing_id,
+          );
+          continue;
+        }
+
         const marketplaceResult = await searchListings({
+          event_id: Number(listing.remote_event_id),
+          category_id: Number(listing.remote_category_id),
           page: 1,
           per_page: 50,
         });
