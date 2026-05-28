@@ -82,7 +82,7 @@ router.post("/marketplace-sale", async (req, res) => {
 
     await pool.query(
       `
-        INSERT INTO marketplace_sales (
+        INSERT INTO marketplace_orders (
             marketplace,
             marketplace_order_id,
             marketplace_listing_id,
