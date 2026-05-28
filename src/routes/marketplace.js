@@ -14,6 +14,8 @@ const {
   createSupplierTickets,
 } = require("../services/integrations/sportevents365/sportevents365Api");
 
+const { searchTicomboEvents } = require("../services/ticomboService");
+
 const {
   searchTicomboEvents,
 } = require("../services/integrations/ticombo/ticomboEvents");
@@ -27,6 +29,7 @@ const router = express.Router();
 
 const createAuditLog = require("../services/auditLogService");
 const { calculateSafePrice } = require("../services/priceCheckerService");
+
 /**
  * LIST MARKETPLACE LISTINGS
  */
@@ -70,6 +73,7 @@ router.get("/listings", async (req, res) => {
 /**
  * MARKETPLACE REMOTE EVENT SEARCH
  */
+
 router.get("/search-events", async (req, res) => {
   try {
     const marketplace = String(req.query.marketplace || "").toLowerCase();
@@ -110,6 +114,36 @@ router.get("/search-events", async (req, res) => {
         error.response?.data ||
         error.message ||
         "Errore ricerca eventi marketplace",
+    });
+  }
+});
+
+router.get("/ticombo/events/search", async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q) {
+      return res.status(400).json({
+        error: "Missing search query",
+      });
+    }
+
+    const data = await searchTicomboEvents(q);
+
+    return res.json({
+      success: true,
+      query: q,
+      data,
+    });
+  } catch (error) {
+    console.error("Ticombo event search error:", error.response?.data || error);
+
+    return res.status(500).json({
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "Ticombo event search failed",
+      details: error.response?.data || null,
     });
   }
 });
