@@ -2444,3 +2444,101 @@ body {
   color: #374151;
   line-height: 1.4;
 }
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d1d5db;
+  background: linear-gradient(135deg, #ffffff, #f3f4f6);
+  color: #111827;
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+}
+
+body.dark-mode {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+body.dark-mode .dashboard-shell,
+body.dark-mode .dashboard-main,
+body.dark-mode .dashboard-content {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+body.dark-mode .dashboard-header {
+  background: #0f172a;
+  color: #f9fafb;
+  border-bottom: 1px solid #1e293b;
+}
+
+body.dark-mode .dashboard-header h1,
+body.dark-mode .dashboard-header p {
+  color: #f9fafb;
+}
+
+body.dark-mode .section,
+body.dark-mode .table-container,
+body.dark-mode .stat-card,
+body.dark-mode .accordion,
+body.dark-mode .modal-content {
+  background: #0f172a;
+  color: #e5e7eb;
+  border-color: #1e293b;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+body.dark-mode table,
+body.dark-mode .tickets-table {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.dark-mode thead,
+body.dark-mode th {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+body.dark-mode td {
+  background: #0f172a;
+  color: #e5e7eb;
+  border-color: #334155;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #020617;
+  color: #f9fafb;
+  border-color: #334155;
+}
+
+body.dark-mode .theme-toggle-btn {
+  background: linear-gradient(135deg, #1e293b, #020617);
+  color: #f8fafc;
+  border-color: #475569;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .btn,
+body.dark-mode .btn-secondary {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+body.dark-mode .status-badge {
+  border: 1px solid #334155;
+}

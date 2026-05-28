@@ -276,7 +276,9 @@ function App() {
                 className="theme-toggle-btn"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               >
-                {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+                <span>{theme === "dark" ? "☀️" : "🌙"}</span>
+
+                <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
               </button>
 
               <LanguageSwitcher />
