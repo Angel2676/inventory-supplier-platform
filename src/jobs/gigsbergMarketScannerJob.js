@@ -70,9 +70,49 @@ async function runGigsbergMarketScannerJob() {
         const activeListings = items.filter(
           (item) => item.active === 1 && Number(item.id) !== remoteListingId,
         );
+        console.log(
+          "Gigsberg competitors found:",
+
+          activeListings.map((item) => ({
+            id: item.id,
+
+            price: item.price,
+
+            category_id: item.category_id,
+
+            event_id: item.event_id,
+
+            active: item.active,
+          })),
+        );
 
         if (activeListings.length === 0) {
           console.log("No competitor listings found");
+
+          await pool.query(
+            `
+    UPDATE marketplace_listings
+    SET
+      last_market_price = NULL,
+      last_suggested_price = NULL,
+      updated_at = NOW()
+    WHERE id = $1
+    `,
+            [listing.marketplace_listing_id],
+          );
+
+          await pool.query(
+            `
+    UPDATE tickets
+    SET
+      last_market_price = NULL,
+      suggested_marketplace_price = NULL,
+      updated_at = NOW()
+    WHERE id = $1
+    `,
+            [listing.ticket_id],
+          );
+
           continue;
         }
 

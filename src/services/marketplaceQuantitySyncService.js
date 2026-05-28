@@ -91,9 +91,7 @@ async function updateTicomboQuantityAndPrice(listing, quantity, price) {
     throw new Error("remote_listing_id mancante per Ticombo");
   }
 
-  const payload = {
-    quantity: Number(quantity),
-  };
+  const payload = {};
 
   if (price !== undefined && price !== null) {
     payload.price = Number(price);
