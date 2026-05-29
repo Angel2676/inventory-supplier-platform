@@ -11,6 +11,10 @@ const {
   parseMarketPricesFromHtml,
 } = require("../services/integrations/gigsberg/gigsbergMarketData");
 
+const {
+  getPublicLowestPriceForCategory,
+} = require("../services/integrations/gigsberg/gigsbergPublicMarket");
+
 function extractItems(result) {
   if (Array.isArray(result?.items)) return result.items;
   if (Array.isArray(result?.data)) return result.data;
@@ -86,75 +90,79 @@ async function runGigsbergMarketScannerJob() {
         );
 
         if (activeListings.length === 0) {
-          console.log(
-            "No API competitor listings found, trying Gigsberg market-data HTML",
+          const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
+
+          const publicMarket = await getPublicLowestPriceForCategory(
+            publicUrl,
+            listing.remote_category_id,
           );
 
-          try {
-            const html = await getGigsbergMarketDataHtml(
-              listing.remote_event_id,
-            );
-
-            const htmlPrices = parseMarketPricesFromHtml(
-              html,
-              listing.category,
-            ).filter((item) => {
-              const sameListing =
-                String(item.listingId) === String(listing.remote_listing_id);
-
-              return Number(item.price) > 0 && !sameListing;
-            });
-
-            console.log("Gigsberg market-data HTML prices:", htmlPrices);
-
-            if (htmlPrices.length === 0) {
-              console.log("No competitor listings found");
-
-              await pool.query(
-                `
-        UPDATE marketplace_listings
-        SET
-          last_market_price = NULL,
-          last_suggested_price = NULL,
-          updated_at = NOW()
-        WHERE id = $1
-        `,
-                [listing.marketplace_listing_id],
-              );
-
-              await pool.query(
-                `
-        UPDATE tickets
-        SET
-          last_market_price = NULL,
-          suggested_marketplace_price = NULL,
-          updated_at = NOW()
-        WHERE id = $1
-        `,
-                [listing.ticket_id],
-              );
-
-              continue;
-            }
-
-            const lowestHtmlPrice = Math.min(
-              ...htmlPrices.map((item) => Number(item.price)),
-            );
+          if (publicMarket?.min_price) {
+            console.log("Gigsberg public market price found:", publicMarket);
 
             activeListings.push({
-              id: "market-data-html",
-              price: lowestHtmlPrice,
+              id: "public-market",
+              price: Number(publicMarket.min_price),
               active: 1,
               event_id: listing.remote_event_id,
               category_id: listing.remote_category_id,
             });
-          } catch (htmlError) {
-            console.error(
-              "Gigsberg market-data HTML fallback error:",
-              htmlError.response?.data || htmlError.message,
+          } else {
+            console.log("No competitor listings found");
+
+            await pool.query(
+              `
+      UPDATE marketplace_listings
+      SET
+        last_market_price = NULL,
+        last_suggested_price = NULL,
+        updated_at = NOW()
+      WHERE id = $1
+      `,
+              [listing.marketplace_listing_id],
+            );
+
+            await pool.query(
+              `
+      UPDATE tickets
+      SET
+        last_market_price = NULL,
+        suggested_marketplace_price = NULL,
+        updated_at = NOW()
+      WHERE id = $1
+      `,
+              [listing.ticket_id],
             );
 
             continue;
+          }
+        }
+
+        if (activeListings.length === 0) {
+          try {
+            const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
+
+            const publicMarket = await getPublicLowestPriceForCategory(
+              publicUrl,
+              listing.remote_category_id,
+            );
+
+            if (publicMarket?.min_price) {
+              console.log("Gigsberg public market price found:", publicMarket);
+
+              activeListings.push({
+                id: "public-market",
+                price: Number(publicMarket.min_price),
+                active: 1,
+                event_id: listing.remote_event_id,
+                category_id: listing.remote_category_id,
+              });
+            }
+          } catch (publicError) {
+            console.error(
+              "Gigsberg public market fallback error:",
+              publicError.response?.data || publicError.message,
+            );
           }
         }
 
@@ -170,33 +178,52 @@ async function runGigsbergMarketScannerJob() {
         );
 
         if (activeListings.length === 0) {
-          console.log("No competitor listings found");
+          const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
-          await pool.query(
-            `
-    UPDATE marketplace_listings
-    SET
-      last_market_price = NULL,
-      last_suggested_price = NULL,
-      updated_at = NOW()
-    WHERE id = $1
-    `,
-            [listing.marketplace_listing_id],
+          const publicMarket = await getPublicLowestPriceForCategory(
+            publicUrl,
+            listing.remote_category_id,
           );
 
-          await pool.query(
-            `
-    UPDATE tickets
-    SET
-      last_market_price = NULL,
-      suggested_marketplace_price = NULL,
-      updated_at = NOW()
-    WHERE id = $1
-    `,
-            [listing.ticket_id],
-          );
+          if (publicMarket?.min_price) {
+            console.log("Gigsberg public market price found:", publicMarket);
 
-          continue;
+            activeListings.push({
+              id: "public-market",
+              price: Number(publicMarket.min_price),
+              active: 1,
+              event_id: listing.remote_event_id,
+              category_id: listing.remote_category_id,
+            });
+          } else {
+            console.log("No competitor listings found");
+
+            await pool.query(
+              `
+      UPDATE marketplace_listings
+      SET
+        last_market_price = NULL,
+        last_suggested_price = NULL,
+        updated_at = NOW()
+      WHERE id = $1
+      `,
+              [listing.marketplace_listing_id],
+            );
+
+            await pool.query(
+              `
+      UPDATE tickets
+      SET
+        last_market_price = NULL,
+        suggested_marketplace_price = NULL,
+        updated_at = NOW()
+      WHERE id = $1
+      `,
+              [listing.ticket_id],
+            );
+
+            continue;
+          }
         }
 
         const lowestPrice = Math.min(
