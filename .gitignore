@@ -1,2 +1,9 @@
 .env
+
 admin-dashboard/dist/
+
+node_modules/
+
+debug-*.html
+
+*.log

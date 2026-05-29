@@ -12,8 +12,8 @@ const {
 } = require("../services/integrations/gigsberg/gigsbergMarketData");
 
 const {
-  getPublicLowestPriceForCategory,
-} = require("../services/integrations/gigsberg/gigsbergPublicMarket");
+  getVisibleLowestPublicPrice,
+} = require("../services/integrations/gigsberg/gigsbergPublicBrowserMarket");
 
 function extractItems(result) {
   if (Array.isArray(result?.items)) return result.items;
@@ -76,23 +76,52 @@ async function runGigsbergMarketScannerJob() {
           category_id: listing.remote_category_id,
         });
 
-        let marketplaceResult = await searchListings({
-          event_id: Number(listing.remote_event_id),
-          category_id: Number(listing.remote_category_id),
-          page: 1,
-          per_page: 50,
-        });
+        let activeListings = [];
 
-        let items = extractItems(marketplaceResult);
+        try {
+          const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
-        let activeListings = items.filter(
-          (item) => item.active === 1 && Number(item.id) !== remoteListingId,
-        );
+          const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
+            headless: true,
+          });
+
+          if (publicMarket?.min_price) {
+            console.log("Gigsberg public market price found:", publicMarket);
+
+            activeListings.push({
+              id: "public-market",
+              price: Number(publicMarket.min_price),
+              active: 1,
+              event_id: listing.remote_event_id,
+              category_id: listing.remote_category_id,
+            });
+          }
+        } catch (publicError) {
+          console.error(
+            "Gigsberg public market primary error:",
+            publicError.response?.data || publicError.message,
+          );
+        }
+
+        if (activeListings.length === 0) {
+          let marketplaceResult = await searchListings({
+            event_id: Number(listing.remote_event_id),
+            category_id: Number(listing.remote_category_id),
+            page: 1,
+            per_page: 50,
+          });
+
+          let items = extractItems(marketplaceResult);
+
+          activeListings = items.filter(
+            (item) => item.active === 1 && Number(item.id) !== remoteListingId,
+          );
+        }
 
         if (activeListings.length === 0) {
           const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
-          const publicMarket = await getPublicLowestPriceForCategory(
+          const publicMarket = await getVisibleLowestPublicPrice(
             publicUrl,
             listing.remote_category_id,
           );
@@ -142,7 +171,7 @@ async function runGigsbergMarketScannerJob() {
           try {
             const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
-            const publicMarket = await getPublicLowestPriceForCategory(
+            const publicMarket = await getVisibleLowestPublicPrice(
               publicUrl,
               listing.remote_category_id,
             );
@@ -180,7 +209,7 @@ async function runGigsbergMarketScannerJob() {
         if (activeListings.length === 0) {
           const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
-          const publicMarket = await getPublicLowestPriceForCategory(
+          const publicMarket = await getVisibleLowestPublicPrice(
             publicUrl,
             listing.remote_category_id,
           );
