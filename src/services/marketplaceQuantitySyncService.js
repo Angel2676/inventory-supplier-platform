@@ -205,6 +205,17 @@ async function updateGigsbergQuantityAndPrice(listing, quantity, price) {
   if (price !== undefined && price !== null) {
     payload.price = Number(price);
   }
+  console.log("Gigsberg update payload:", {
+    listing_id: listing.id,
+
+    remote_listing_id: listing.remote_listing_id,
+
+    quantity: Number(quantity),
+
+    price: price !== undefined && price !== null ? Number(price) : null,
+
+    payload,
+  });
 
   const response = await updateGigsbergListing(
     listing.remote_listing_id,
