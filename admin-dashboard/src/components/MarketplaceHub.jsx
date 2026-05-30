@@ -1,11 +1,11 @@
 import CollapsibleSection from "./CollapsibleSection";
-import MarketplaceSettingsTable from "./MarketplaceSettingsTable";
+// import MarketplaceSettingsTable from "./MarketplaceSettingsTable";
 import MarketplaceMappingsTable from "./MarketplaceMappingsTable";
 import MarketplaceOrdersTable from "./MarketplaceOrdersTable";
 import MarketplaceListingsTable from "./MarketplaceListingsTable";
 import MarketplaceLogsTable from "./MarketplaceLogsTable";
 import TicketsTable from "./TicketsTable";
-import MarketplaceContentRequestsTable from "./MarketplaceContentRequestsTable";
+// import MarketplaceContentRequestsTable from "./MarketplaceContentRequestsTable";
 import MarketplaceEventSearch from "./MarketplaceEventSearch";
 
 function MarketplaceHub() {
@@ -19,6 +19,7 @@ function MarketplaceHub() {
         </p>
       </div>
 
+      {/*
       <CollapsibleSection
         title="Marketplace Settings"
         description="Configura marketplace attivi, ambiente sandbox/production e default pricing."
@@ -26,6 +27,7 @@ function MarketplaceHub() {
       >
         <MarketplaceSettingsTable />
       </CollapsibleSection>
+        */}
 
       <CollapsibleSection
         title="Marketplace Mappings"
@@ -40,6 +42,8 @@ function MarketplaceHub() {
           <MarketplaceEventSearch />
         </CollapsibleSection>
         <MarketplaceMappingsTable />
+
+        {/*
         <CollapsibleSection
           title="Marketplace Content Requests"
           description="Track missing mappings, invalid marketplace eventIds and pending supplier content requests."
@@ -47,6 +51,7 @@ function MarketplaceHub() {
         >
           <MarketplaceContentRequestsTable />
         </CollapsibleSection>
+        */}
       </CollapsibleSection>
 
       <CollapsibleSection
