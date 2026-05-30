@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
+function getRemoteEventId(event) {
+  return event.remote_event_id || event.eventId || event.id || "";
+}
+
+function getRemoteEventName(event) {
+  return event.name || event.eventName || "";
+}
+
 function MarketplaceContentRequestsTable() {
   const [requests, setRequests] = useState([]);
   const [activeResolveId, setActiveResolveId] = useState(null);
+
   const [form, setForm] = useState({
     internal_category: "",
     remote_event_id: "",
@@ -11,6 +20,11 @@ function MarketplaceContentRequestsTable() {
     remote_category_name: "",
     notes: "",
   });
+
+  const [remoteKeyword, setRemoteKeyword] = useState("");
+  const [remoteResults, setRemoteResults] = useState([]);
+  const [remoteLoading, setRemoteLoading] = useState(false);
+
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -28,13 +42,44 @@ function MarketplaceContentRequestsTable() {
 
   function openResolve(request) {
     setActiveResolveId(request.id);
+    setRemoteKeyword(request.event_name || "");
+    setRemoteResults([]);
 
     setForm({
-      internal_category: "",
+      internal_category: request.internal_category || "",
       remote_event_id: request.remote_event_id || "",
       remote_event_name: request.event_name || "",
-      remote_category_name: "",
+      remote_category_name: request.internal_category || "",
       notes: request.notes || "",
+    });
+  }
+
+  async function searchRemoteEvents(request) {
+    try {
+      setRemoteLoading(true);
+
+      const response = await api.get("/api/marketplace/search-events", {
+        params: {
+          marketplace: request.marketplace,
+          keyword: remoteKeyword || request.event_name,
+        },
+      });
+
+      const items = response.data?.results || response.data?.data || [];
+      setRemoteResults(Array.isArray(items) ? items : []);
+    } catch (error) {
+      console.error("Error searching remote events", error);
+      alert(error.response?.data?.error || "Errore ricerca evento remoto");
+    } finally {
+      setRemoteLoading(false);
+    }
+  }
+
+  function selectRemoteEvent(event) {
+    setForm({
+      ...form,
+      remote_event_id: getRemoteEventId(event),
+      remote_event_name: getRemoteEventName(event),
     });
   }
 
@@ -48,6 +93,7 @@ function MarketplaceContentRequestsTable() {
       );
 
       setActiveResolveId(null);
+      setRemoteResults([]);
       await loadRequests();
     } catch (error) {
       console.error("Error resolving mapping", error);
@@ -112,6 +158,69 @@ function MarketplaceContentRequestsTable() {
                       <h3>Resolve Mapping</h3>
 
                       <div className="form-grid">
+                        <label>
+                          Search Remote Event
+                          <input
+                            value={remoteKeyword}
+                            onChange={(e) => setRemoteKeyword(e.target.value)}
+                            placeholder="es. Bad Bunny"
+                          />
+                        </label>
+
+                        <div style={{ display: "flex", alignItems: "end" }}>
+                          <button
+                            className="btn btn-secondary"
+                            type="button"
+                            disabled={remoteLoading}
+                            onClick={() => searchRemoteEvents(request)}
+                          >
+                            {remoteLoading ? "Searching..." : "Search"}
+                          </button>
+                        </div>
+                      </div>
+
+                      {remoteResults.length > 0 && (
+                        <div style={{ marginTop: 12, overflowX: "auto" }}>
+                          <table className="tickets-table">
+                            <thead>
+                              <tr>
+                                <th>Remote Event ID</th>
+                                <th>Name</th>
+                                <th>Venue</th>
+                                <th>Date</th>
+                                <th>Select</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {remoteResults.map((event, index) => (
+                                <tr key={getRemoteEventId(event) || index}>
+                                  <td>{getRemoteEventId(event) || "-"}</td>
+                                  <td>{getRemoteEventName(event) || "-"}</td>
+                                  <td>
+                                    {event.venue || event.eventVenue || "-"}
+                                  </td>
+                                  <td>
+                                    {event.date
+                                      ? new Date(event.date).toLocaleString()
+                                      : event.eventDate || "-"}
+                                  </td>
+                                  <td>
+                                    <button
+                                      className="btn btn-primary"
+                                      type="button"
+                                      onClick={() => selectRemoteEvent(event)}
+                                    >
+                                      Select
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+
+                      <div className="form-grid" style={{ marginTop: 16 }}>
                         <label>
                           Internal Category
                           <input
