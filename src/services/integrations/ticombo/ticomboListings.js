@@ -1,40 +1,26 @@
-const axios = require("axios");
-
-const TICOMBO_BASE_URL =
-  process.env.TICOMBO_BASE_URL || "https://external-api.devtic.net/v1";
-
-const TICOMBO_API_TOKEN = process.env.TICOMBO_API_TOKEN;
-
-function getHeaders() {
-  return {
-    "x-api-key": TICOMBO_API_TOKEN,
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  };
-}
+const { getTicomboClient } = require("./ticomboApi");
 
 async function createTicomboListing(payload) {
-  const response = await axios.post(`${TICOMBO_BASE_URL}/listings`, payload, {
-    headers: getHeaders(),
-  });
+  const client = getTicomboClient();
+
+  const response = await client.post("/listings", payload);
 
   return response.data;
 }
 
 async function getTicomboListing(listingId) {
-  const response = await axios.get(
-    `${TICOMBO_BASE_URL}/listings/${listingId}`,
-    {
-      headers: getHeaders(),
-    },
-  );
+  const client = getTicomboClient();
+
+  const response = await client.get(`/listings/${listingId}`);
 
   return response.data;
 }
 
 async function updateTicomboListing(listingId, updates) {
+  const client = getTicomboClient();
+
   const currentResponse = await getTicomboListing(listingId);
-  const current = currentResponse.data;
+  const current = currentResponse.data || currentResponse;
 
   const quantity =
     updates.quantity !== undefined
@@ -63,7 +49,9 @@ async function updateTicomboListing(listingId, updates) {
 
     price,
     currency: current.currency || "EUR",
-    faceValue: Number(current.faceValue?.amount || price || 0),
+    faceValue: Number(
+      current.faceValue?.amount || current.faceValue || price || 0,
+    ),
     allowProposals: current.allowProposals || false,
     refId: current.refId,
 
@@ -74,32 +62,22 @@ async function updateTicomboListing(listingId, updates) {
     },
   };
 
-  const response = await axios.put(
-    `${TICOMBO_BASE_URL}/listings/${listingId}`,
-    payload,
-    { headers: getHeaders() },
-  );
+  const response = await client.put(`/listings/${listingId}`, payload);
 
   return response.data;
 }
-async function deleteTicomboListing(listingId) {
-  const response = await axios.delete(
-    `${TICOMBO_BASE_URL}/listings/${listingId}`,
 
-    {
-      headers: getHeaders(),
-    },
-  );
+async function deleteTicomboListing(listingId) {
+  const client = getTicomboClient();
+
+  const response = await client.delete(`/listings/${listingId}`);
 
   return response.data;
 }
 
 module.exports = {
   createTicomboListing,
-
   getTicomboListing,
-
   updateTicomboListing,
-
   deleteTicomboListing,
 };

@@ -2,7 +2,6 @@ const axios = require("axios");
 
 function getTicomboConfig() {
   const env = (process.env.TICOMBO_ENV || "uat").toLowerCase();
-
   const isProduction = env === "prod" || env === "production";
 
   const baseURL = isProduction
@@ -92,7 +91,6 @@ async function searchTicomboEvents(query = "") {
   const config = getTicomboConfig();
 
   const cleanQuery = String(query || "").trim();
-
   const limit = 100;
   const maxPages = 10;
   const allEvents = [];
@@ -149,10 +147,8 @@ async function searchTicomboEvents(query = "") {
     keys: lastKeys,
   });
 
-  const events = allEvents;
-
-  const normalized = Array.isArray(events)
-    ? events.map(normalizeTicomboEvent)
+  const normalized = Array.isArray(allEvents)
+    ? allEvents.map(normalizeTicomboEvent)
     : [];
 
   if (!cleanQuery) return normalized;
