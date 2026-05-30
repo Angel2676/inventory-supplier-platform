@@ -1,41 +1,64 @@
 const axios = require("axios");
 
-const TICOMBO_BASE_URL =
-  process.env.TICOMBO_BASE_URL || "https://external-api.devtic.net/v1";
-
 function getTicomboConfig() {
-  const token = process.env.TICOMBO_API_TOKEN;
+  const env = (process.env.TICOMBO_ENV || "uat").toLowerCase();
 
-  if (!token) {
-    throw new Error("TICOMBO_API_TOKEN mancante nel file .env");
+  if (env === "prod") {
+    const token = process.env.TICOMBO_PROD_API_TOKEN;
+
+    if (!token) {
+      throw new Error("TICOMBO_PROD_API_TOKEN mancante");
+    }
+
+    return {
+      environment: "prod",
+      baseURL: process.env.TICOMBO_PROD_BASE_URL,
+      token,
+    };
   }
 
-  return { token };
+  const token = process.env.TICOMBO_UAT_API_TOKEN;
+
+  if (!token) {
+    throw new Error("TICOMBO_UAT_API_TOKEN mancante");
+  }
+
+  return {
+    environment: "uat",
+    baseURL: process.env.TICOMBO_UAT_BASE_URL,
+    token,
+  };
 }
 
 function getTicomboClient() {
-  const { token } = getTicomboConfig();
+  const config = getTicomboConfig();
 
   return axios.create({
-    baseURL: TICOMBO_BASE_URL,
+    baseURL: config.baseURL,
     timeout: 30000,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      "x-api-key": token,
+      "x-api-key": config.token,
     },
   });
 }
 
-async function testTicomboConnection(path = "/api") {
+async function testTicomboConnection(path = "/events") {
   const client = getTicomboClient();
 
-  const response = await client.get(path);
+  const response = await client.get(path, {
+    params: {
+      page: 1,
+      limit: 5,
+    },
+  });
 
   return response.data;
 }
 
 module.exports = {
   getTicomboClient,
+  getTicomboConfig,
   testTicomboConnection,
 };
