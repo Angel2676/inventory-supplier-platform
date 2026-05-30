@@ -96,9 +96,16 @@ async function searchTicomboEvents(query = "") {
   const response = await client.get("/events", {
     params: {
       page: 1,
-      limit: 100,
+
+      limit: 500,
+
       status: "Active",
+
       name: cleanQuery || undefined,
+
+      city: cleanQuery || undefined,
+
+      competition: cleanQuery || undefined,
     },
   });
 
