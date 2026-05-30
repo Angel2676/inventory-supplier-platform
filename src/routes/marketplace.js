@@ -820,6 +820,35 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
         }
       }
 
+      const categoryMapping = categoryMappingResult.rows[0];
+
+      let blockMapping = null;
+
+      if (ticket.block) {
+        const blockMappingResult = await pool.query(
+          `
+            SELECT *
+            FROM marketplace_mappings
+            WHERE marketplace = $1
+              AND mapping_type = 'block'
+              AND internal_event_id = $2
+              AND internal_category = $3
+              AND internal_block = $4
+              AND is_active = true
+            LIMIT 1
+            `,
+          [marketplace, ticket.event_id, ticket.category, ticket.block],
+        );
+
+        blockMapping = blockMappingResult.rows[0] || null;
+
+        if (!blockMapping) {
+          warnings.push(
+            `Block mapping opzionale mancante per ${ticket.category} / ${ticket.block}`,
+          );
+        }
+      }
+
       if (marketplace === "gigsberg") {
         warnings.push(
           "Gigsberg usa matching automatico evento/categoria tramite API",
