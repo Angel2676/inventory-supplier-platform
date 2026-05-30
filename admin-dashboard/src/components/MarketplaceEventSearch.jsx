@@ -23,10 +23,11 @@ function MarketplaceEventSearch() {
   const [mappingForm, setMappingForm] = useState({
     internal_event_id: "",
     internal_category: "",
+    internal_block: "",
     remote_event_id: "",
     remote_event_name: "",
     remote_category_name: "",
-    notes: "",
+    remote_block_name: "",
   });
 
   async function searchEvents(e) {
@@ -93,11 +94,18 @@ function MarketplaceEventSearch() {
 
     setMappingForm({
       internal_event_id: "",
+
       internal_category: "",
+
+      internal_block: "",
+
       remote_event_id: remoteEventId,
+
       remote_event_name: remoteEventName,
+
       remote_category_name: "",
-      notes: "",
+
+      remote_block_name: "",
     });
   }
 
@@ -135,9 +143,28 @@ function MarketplaceEventSearch() {
         internal_event_id: internalEventId,
         remote_event_id: mappingForm.remote_event_id,
         remote_event_name: mappingForm.remote_event_name || null,
-        notes: mappingForm.notes || null,
+
         is_active: true,
       });
+
+      if (
+        mappingForm.internal_block.trim() &&
+        mappingForm.remote_block_name.trim()
+      ) {
+        await api.post("/api/marketplace/mappings", {
+          marketplace,
+          mapping_type: "block",
+          internal_event_id: internalEventId,
+          internal_category: mappingForm.internal_category.trim(),
+          internal_block: mappingForm.internal_block.trim(),
+          remote_event_id: mappingForm.remote_event_id,
+          remote_event_name: mappingForm.remote_event_name || null,
+          remote_category_name: mappingForm.remote_category_name.trim(),
+          remote_block_name: mappingForm.remote_block_name.trim(),
+
+          is_active: true,
+        });
+      }
 
       await api.post("/api/marketplace/mappings", {
         marketplace,
@@ -147,7 +174,7 @@ function MarketplaceEventSearch() {
         remote_event_id: mappingForm.remote_event_id,
         remote_event_name: mappingForm.remote_event_name || null,
         remote_category_name: mappingForm.remote_category_name.trim(),
-        notes: mappingForm.notes || null,
+
         is_active: true,
       });
 
@@ -323,107 +350,179 @@ function MarketplaceEventSearch() {
                               padding: "14px",
                             }}
                           >
-                            <h4 style={{ marginTop: 0 }}>
-                              Create Event + Category Mapping
-                            </h4>
+                            <div style={{ marginBottom: 14 }}>
+                              <h4 style={{ margin: 0 }}>
+                                Create Marketplace Mapping
+                              </h4>
+                              <p
+                                style={{
+                                  margin: "6px 0 0",
+                                  color: "#6b7280",
+                                  fontSize: 13,
+                                }}
+                              >
+                                Crea il mapping evento/categoria. Il block
+                                mapping è opzionale e va usato solo se vuoi
+                                pubblicare settori specifici.
+                              </p>
+                            </div>
 
                             <div
                               style={{
-                                display: "grid",
-                                gridTemplateColumns:
-                                  "repeat(auto-fit, minmax(220px, 1fr))",
-                                gap: "12px",
+                                background: "#ffffff",
+                                border: "1px solid #e5e7eb",
+                                borderRadius: 10,
+                                padding: 12,
+                                marginBottom: 12,
                               }}
                             >
-                              <label>
-                                Internal Event
-                                <select
-                                  value={mappingForm.internal_event_id}
-                                  onChange={(e) =>
-                                    setMappingForm({
-                                      ...mappingForm,
-                                      internal_event_id: e.target.value,
-                                    })
-                                  }
-                                >
-                                  <option value="">
-                                    Select internal event
-                                  </option>
+                              <h5
+                                style={{ margin: "0 0 10px", color: "#111827" }}
+                              >
+                                Internal Inventory
+                              </h5>
 
-                                  {internalEvents.map((event) => (
-                                    <option key={event.id} value={event.id}>
-                                      #{event.id} - {event.name}
+                              <div
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns:
+                                    "repeat(auto-fit, minmax(220px, 1fr))",
+                                  gap: "12px",
+                                }}
+                              >
+                                <label>
+                                  Internal Event
+                                  <select
+                                    value={mappingForm.internal_event_id}
+                                    onChange={(e) =>
+                                      setMappingForm({
+                                        ...mappingForm,
+                                        internal_event_id: e.target.value,
+                                      })
+                                    }
+                                  >
+                                    <option value="">
+                                      Select internal event
                                     </option>
-                                  ))}
-                                </select>
-                              </label>
 
-                              <label>
-                                Internal Category
-                                <input
-                                  value={mappingForm.internal_category}
-                                  onChange={(e) =>
-                                    setMappingForm({
-                                      ...mappingForm,
-                                      internal_category: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Es. Los Vecinos"
-                                />
-                              </label>
+                                    {internalEvents.map((event) => (
+                                      <option key={event.id} value={event.id}>
+                                        #{event.id} - {event.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
 
-                              <label>
-                                Remote Event ID
-                                <input
-                                  value={mappingForm.remote_event_id}
-                                  onChange={(e) =>
-                                    setMappingForm({
-                                      ...mappingForm,
-                                      remote_event_id: e.target.value,
-                                    })
-                                  }
-                                />
-                              </label>
+                                <label>
+                                  Internal Category
+                                  <input
+                                    value={mappingForm.internal_category}
+                                    onChange={(e) =>
+                                      setMappingForm({
+                                        ...mappingForm,
+                                        internal_category: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Es. Terzo Anello Rosso"
+                                  />
+                                </label>
 
-                              <label>
-                                Remote Event Name
-                                <input
-                                  value={mappingForm.remote_event_name}
-                                  onChange={(e) =>
-                                    setMappingForm({
-                                      ...mappingForm,
-                                      remote_event_name: e.target.value,
-                                    })
-                                  }
-                                />
-                              </label>
+                                <label>
+                                  Internal Block{" "}
+                                  <span style={{ color: "#9ca3af" }}>
+                                    (optional)
+                                  </span>
+                                  <input
+                                    value={mappingForm.internal_block}
+                                    onChange={(e) =>
+                                      setMappingForm({
+                                        ...mappingForm,
+                                        internal_block: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Es. 329"
+                                  />
+                                </label>
+                              </div>
+                            </div>
 
-                              <label>
-                                Remote Category Name
-                                <input
-                                  value={mappingForm.remote_category_name}
-                                  onChange={(e) =>
-                                    setMappingForm({
-                                      ...mappingForm,
-                                      remote_category_name: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Es. Los Vecinos"
-                                />
-                              </label>
+                            <div
+                              style={{
+                                background: "#ffffff",
+                                border: "1px solid #e5e7eb",
+                                borderRadius: 10,
+                                padding: 12,
+                              }}
+                            >
+                              <h5
+                                style={{ margin: "0 0 10px", color: "#111827" }}
+                              >
+                                Marketplace Mapping
+                              </h5>
 
-                              <label>
-                                Notes
-                                <input
-                                  value={mappingForm.notes}
-                                  onChange={(e) =>
-                                    setMappingForm({
-                                      ...mappingForm,
-                                      notes: e.target.value,
-                                    })
-                                  }
-                                />
-                              </label>
+                              <div
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns:
+                                    "repeat(auto-fit, minmax(220px, 1fr))",
+                                  gap: "12px",
+                                }}
+                              >
+                                <label>
+                                  Remote Event ID
+                                  <input
+                                    value={mappingForm.remote_event_id}
+                                    readOnly
+                                    style={{
+                                      background: "#f3f4f6",
+                                      color: "#374151",
+                                    }}
+                                  />
+                                </label>
+
+                                <label>
+                                  Remote Event Name
+                                  <input
+                                    value={mappingForm.remote_event_name}
+                                    readOnly
+                                    style={{
+                                      background: "#f3f4f6",
+                                      color: "#374151",
+                                    }}
+                                  />
+                                </label>
+
+                                <label>
+                                  Remote Category Name
+                                  <input
+                                    value={mappingForm.remote_category_name}
+                                    onChange={(e) =>
+                                      setMappingForm({
+                                        ...mappingForm,
+                                        remote_category_name: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Es. Third Red Ring"
+                                  />
+                                </label>
+
+                                <label>
+                                  Remote Block Name{" "}
+                                  <span style={{ color: "#9ca3af" }}>
+                                    (optional)
+                                  </span>
+                                  <input
+                                    value={mappingForm.remote_block_name}
+                                    onChange={(e) =>
+                                      setMappingForm({
+                                        ...mappingForm,
+                                        remote_block_name: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Es. Section 329"
+                                  />
+                                </label>
+                              </div>
                             </div>
 
                             <div
