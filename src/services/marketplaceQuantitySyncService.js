@@ -191,6 +191,17 @@ async function autoDelistGigsbergListing(listing) {
 | GIGSBERG PLACEHOLDER
 |--------------------------------------------------------------------------
 */
+const GIGSBERG_PROCEEDS_RATE = Number(
+  process.env.GIGSBERG_PROCEEDS_RATE || 0.909,
+);
+
+function grossPriceFromProceeds(proceeds) {
+  const value = Number(proceeds || 0);
+
+  if (!value || value <= 0) return value;
+
+  return Number((value / GIGSBERG_PROCEEDS_RATE).toFixed(2));
+}
 
 async function updateGigsbergQuantityAndPrice(listing, quantity, price) {
   if (!listing.remote_listing_id) {
@@ -202,18 +213,21 @@ async function updateGigsbergQuantityAndPrice(listing, quantity, price) {
     presented_quantity: Number(quantity),
   };
 
+  let grossPrice = null;
+
   if (price !== undefined && price !== null) {
-    payload.price = Number(price);
+    grossPrice = grossPriceFromProceeds(price);
+    payload.price = grossPrice;
   }
+
   console.log("Gigsberg update payload:", {
     listing_id: listing.id,
-
     remote_listing_id: listing.remote_listing_id,
-
     quantity: Number(quantity),
-
-    price: price !== undefined && price !== null ? Number(price) : null,
-
+    target_proceeds:
+      price !== undefined && price !== null ? Number(price) : null,
+    gross_price_sent_to_gigsberg: grossPrice,
+    proceeds_rate: GIGSBERG_PROCEEDS_RATE,
     payload,
   });
 
@@ -228,7 +242,9 @@ async function updateGigsbergQuantityAndPrice(listing, quantity, price) {
     listing_id: listing.id,
     remote_listing_id: listing.remote_listing_id,
     quantity: Number(quantity),
-    price: price !== undefined && price !== null ? Number(price) : null,
+    target_proceeds:
+      price !== undefined && price !== null ? Number(price) : null,
+    gross_price_sent_to_gigsberg: grossPrice,
     response,
   };
 }
