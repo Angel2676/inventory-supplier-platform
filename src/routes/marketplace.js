@@ -1350,7 +1350,18 @@ router.post("/publish", async (req, res) => {
         });
       }
 
-      const remoteListingId = publishResponse?.data?.listingId || null;
+      const remoteListingId =
+        publishResponse?.data?.listingId ||
+        publishResponse?.data?.id ||
+        publishResponse?.listingId ||
+        publishResponse?.id ||
+        publishResponse?.data?.listing?.id ||
+        null;
+
+      console.log("TICOMBO PUBLISH RESPONSE:", {
+        remoteListingId,
+        publishResponse,
+      });
 
       let listingResult;
 
