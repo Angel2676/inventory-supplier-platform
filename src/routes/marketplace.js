@@ -209,42 +209,124 @@ router.post("/mappings", async (req, res) => {
       is_active,
     } = req.body;
 
-    const result = await pool.query(
-      `
-      INSERT INTO marketplace_mappings (
-        marketplace,
-        mapping_type,
-        internal_event_id,
-        internal_category,
-        internal_block,
-        remote_event_id,
-        remote_event_name,
-        remote_category_id,
-        remote_category_name,
-        remote_block_id,
-        remote_block_name,
-        notes,
-        is_active
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-      RETURNING *
-      `,
-      [
-        marketplace,
-        mapping_type,
-        internal_event_id || null,
-        internal_category || null,
-        internal_block || null,
-        remote_event_id || null,
-        remote_event_name || null,
-        remote_category_id || null,
-        remote_category_name || null,
-        remote_block_id || null,
-        remote_block_name || null,
-        notes || null,
-        is_active !== false,
-      ],
-    );
+    if (!marketplace || !mapping_type || !internal_event_id) {
+      return res.status(400).json({
+        error: "marketplace, mapping_type e internal_event_id sono obbligatori",
+      });
+    }
+
+    let existingResult;
+
+    if (mapping_type === "event") {
+      existingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_mappings
+        WHERE marketplace = $1
+          AND mapping_type = 'event'
+          AND internal_event_id = $2
+          AND is_active = true
+        LIMIT 1
+        `,
+        [marketplace, internal_event_id],
+      );
+    } else if (mapping_type === "category") {
+      existingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_mappings
+        WHERE marketplace = $1
+          AND mapping_type = 'category'
+          AND internal_event_id = $2
+          AND internal_category = $3
+          AND COALESCE(internal_block, '') = COALESCE($4, '')
+          AND is_active = true
+        LIMIT 1
+        `,
+        [
+          marketplace,
+          internal_event_id,
+          internal_category || null,
+          internal_block || null,
+        ],
+      );
+    } else {
+      existingResult = { rows: [] };
+    }
+
+    let result;
+
+    if (existingResult.rows.length > 0) {
+      result = await pool.query(
+        `
+        UPDATE marketplace_mappings
+        SET
+          internal_category = $1,
+          internal_block = $2,
+          remote_event_id = $3,
+          remote_event_name = $4,
+          remote_category_id = $5,
+          remote_category_name = $6,
+          remote_block_id = $7,
+          remote_block_name = $8,
+          notes = $9,
+          is_active = $10,
+          updated_at = NOW()
+        WHERE id = $11
+        RETURNING *
+        `,
+        [
+          internal_category || null,
+          internal_block || null,
+          remote_event_id || null,
+          remote_event_name || null,
+          remote_category_id || null,
+          remote_category_name || null,
+          remote_block_id || null,
+          remote_block_name || null,
+          notes || null,
+          is_active !== false,
+          existingResult.rows[0].id,
+        ],
+      );
+    } else {
+      result = await pool.query(
+        `
+        INSERT INTO marketplace_mappings (
+          marketplace,
+          mapping_type,
+          internal_event_id,
+          internal_category,
+          internal_block,
+          remote_event_id,
+          remote_event_name,
+          remote_category_id,
+          remote_category_name,
+          remote_block_id,
+          remote_block_name,
+          notes,
+          is_active
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+        RETURNING *
+        `,
+        [
+          marketplace,
+          mapping_type,
+          internal_event_id || null,
+          internal_category || null,
+          internal_block || null,
+          remote_event_id || null,
+          remote_event_name || null,
+          remote_category_id || null,
+          remote_category_name || null,
+          remote_block_id || null,
+          remote_block_name || null,
+          notes || null,
+          is_active !== false,
+        ],
+      );
+    }
 
     await createAuditLog({
       client_id: null,
@@ -259,9 +341,10 @@ router.post("/mappings", async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    console.error("Errore creazione marketplace mapping:", error);
+    console.error("Errore creazione/aggiornamento marketplace mapping:", error);
     res.status(500).json({
-      error: error.message || "Errore creazione marketplace mapping",
+      error:
+        error.message || "Errore creazione/aggiornamento marketplace mapping",
     });
   }
 });
