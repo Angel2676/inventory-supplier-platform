@@ -36,6 +36,18 @@ async function runRepricingJob() {
 
   const listings = listingsResult.rows;
 
+  const GIGSBERG_PROCEEDS_RATE = Number(
+    process.env.GIGSBERG_PROCEEDS_RATE || 0.909,
+  );
+
+  function grossPriceFromProceeds(proceeds) {
+    const value = Number(proceeds || 0);
+
+    if (!value || value <= 0) return value;
+
+    return Number((value / GIGSBERG_PROCEEDS_RATE).toFixed(2));
+  }
+
   for (const listing of listings) {
     try {
       const currentMarketplacePrice = Number(
@@ -108,8 +120,20 @@ async function runRepricingJob() {
           `Updating Gigsberg listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
         );
 
+        const gigsbergGrossPrice = grossPriceFromProceeds(
+          priceCheck.finalPrice,
+        );
+
+        console.log("Gigsberg proceeds to gross price conversion:", {
+          listing_id: listing.id,
+          remote_listing_id: listing.remote_listing_id,
+          desired_proceeds: priceCheck.finalPrice,
+          gross_price_sent_to_gigsberg: gigsbergGrossPrice,
+          proceeds_rate: GIGSBERG_PROCEEDS_RATE,
+        });
+
         await updateGigsbergListing(listing.remote_listing_id, {
-          price: Number(priceCheck.finalPrice),
+          price: gigsbergGrossPrice,
           quantity: Number(listing.available_quantity),
           presented_quantity: Number(listing.available_quantity),
         });
