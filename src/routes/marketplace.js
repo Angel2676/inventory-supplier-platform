@@ -383,9 +383,38 @@ router.get("/logs", async (req, res) => {
 router.get("/orders", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT *
-      FROM marketplace_orders
-      ORDER BY created_at DESC
+      SELECT
+        mo.*,
+
+        COALESCE(
+          t.category,
+          mo.raw_payload->>'category'
+        ) AS category,
+
+        COALESCE(
+          t.block,
+          mo.raw_payload->>'block'
+        ) AS block,
+
+        COALESCE(
+          e.event_date,
+          NULLIF(mo.raw_payload->>'event_date', '')::timestamp
+        ) AS event_date,
+
+        COALESCE(
+          mo.raw_payload->>'notes',
+          ''
+        ) AS notes
+
+      FROM marketplace_orders mo
+
+      LEFT JOIN tickets t
+        ON t.id = mo.ticket_id
+
+      LEFT JOIN events e
+        ON e.id = t.event_id
+
+      ORDER BY mo.created_at DESC
       LIMIT 200
     `);
 

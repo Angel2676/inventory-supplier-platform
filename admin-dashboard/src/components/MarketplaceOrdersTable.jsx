@@ -42,7 +42,8 @@ function MarketplaceOrdersTable() {
       "Currency",
       "Order Status",
       "Fulfillment",
-      "Created"
+      "Notes",
+      "Created",
     ];
 
     const rows = orders.map((order) => [
@@ -58,17 +59,18 @@ function MarketplaceOrdersTable() {
       order.currency || "EUR",
       order.order_status || "",
       order.fulfillment_status || "",
-      order.created_at || ""
+      order.notes || "",
+      order.created_at || "",
     ]);
 
     const csvContent = [headers, ...rows]
       .map((row) =>
-        row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")
+        row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","),
       )
       .join("\n");
 
     const blob = new Blob([csvContent], {
-      type: "text/csv;charset=utf-8;"
+      type: "text/csv;charset=utf-8;",
     });
 
     const url = URL.createObjectURL(blob);
@@ -95,7 +97,7 @@ function MarketplaceOrdersTable() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "16px"
+          marginBottom: "16px",
         }}
       >
         <h2>Marketplace Orders</h2>
@@ -129,6 +131,7 @@ function MarketplaceOrdersTable() {
               <th>Currency</th>
               <th>Order Status</th>
               <th>Fulfillment</th>
+              <th>Notes</th>
               <th>Created</th>
             </tr>
           </thead>
@@ -167,7 +170,7 @@ function MarketplaceOrdersTable() {
                 <td>{order.order_status || "-"}</td>
 
                 <td>{order.fulfillment_status || "-"}</td>
-
+                <td>{order.notes || "-"}</td>
                 <td>
                   {order.created_at
                     ? new Date(order.created_at).toLocaleString()
