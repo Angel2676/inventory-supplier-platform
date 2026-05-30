@@ -11,6 +11,15 @@ function Sidebar({ user, activeSection, setActiveSection, logout }) {
     { key: "events", label: "Events" },
     { key: "inventory-create", label: "Create Inventory" },
     { key: "tickets", label: "Partner Inventory" },
+    { key: "marketplace-settings", label: "Marketplace Settings" },
+
+    { key: "marketplace-mappings", label: "Marketplace Mappings" },
+
+    {
+      key: "marketplace-content-requests",
+
+      label: "Marketplace Content Requests",
+    },
     { key: "marketplace-hub", label: "Marketplace Hub" },
     { key: "inventory-intelligence", label: "Inventory Intelligence" },
     { key: "reservation-create", label: "Create Reservation" },
@@ -19,14 +28,14 @@ function Sidebar({ user, activeSection, setActiveSection, logout }) {
     { key: "timeline", label: "Activity Timeline" },
     { key: "users", label: "Users & Roles" },
     { key: "access", label: "Partner Access" },
-    { key: "audit", label: "Audit Logs" }
+    { key: "audit", label: "Audit Logs" },
   ];
 
   const partnerItems = [
     { key: "notifications", label: t("yourNotifications") },
     { key: "tickets", label: t("availableInventory") },
     { key: "requests", label: t("yourRequests") },
-    { key: "reservations", label: t("yourReservations") }
+    { key: "reservations", label: t("yourReservations") },
   ];
 
   const items = isSuperAdmin ? adminItems : partnerItems;

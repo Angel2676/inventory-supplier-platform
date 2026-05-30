@@ -28,6 +28,9 @@ import Sidebar from "./components/Sidebar";
 import WhatsAppButton from "./components/WhatsAppButton";
 import IntroScreen from "./components/IntroScreen";
 import PartnerHero from "./components/PartnerHero";
+import MarketplaceSettingsTable from "./components/MarketplaceSettingsTable";
+import MarketplaceMappingsTable from "./components/MarketplaceMappingsTable";
+import MarketplaceContentRequestsTable from "./components/MarketplaceContentRequestsTable";
 
 import { useAuth } from "./context/AuthContext";
 
@@ -173,6 +176,14 @@ function App() {
 
       case "tickets":
         return <TicketsTable canEdit={true} />;
+      case "marketplace-settings":
+        return <MarketplaceSettingsTable />;
+
+      case "marketplace-mappings":
+        return <MarketplaceMappingsTable />;
+
+      case "marketplace-content-requests":
+        return <MarketplaceContentRequestsTable />;
       case "marketplace-hub":
         return <MarketplaceHub />;
 
