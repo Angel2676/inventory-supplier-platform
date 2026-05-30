@@ -30,12 +30,12 @@ function MarketplaceHub() {
       <CollapsibleSection
         title="Marketplace Mappings"
         description="Mappa eventi, categorie e blocchi interni verso gli ID dei marketplace."
-        defaultOpen={false}
+        defaultOpen={true}
       >
         <CollapsibleSection
           title="Marketplace Event Search"
           description="Cerca eventi remoti su Ticombo o altri marketplace per creare i mapping."
-          defaultOpen={false}
+          defaultOpen={true}
         >
           <MarketplaceEventSearch />
         </CollapsibleSection>
