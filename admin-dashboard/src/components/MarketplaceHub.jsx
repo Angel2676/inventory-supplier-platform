@@ -6,6 +6,7 @@ import MarketplaceListingsTable from "./MarketplaceListingsTable";
 import MarketplaceLogsTable from "./MarketplaceLogsTable";
 import TicketsTable from "./TicketsTable";
 import MarketplaceContentRequestsTable from "./MarketplaceContentRequestsTable";
+import MarketplaceEventSearch from "./MarketplaceEventSearch";
 
 function MarketplaceHub() {
   return (
@@ -31,6 +32,13 @@ function MarketplaceHub() {
         description="Mappa eventi, categorie e blocchi interni verso gli ID dei marketplace."
         defaultOpen={false}
       >
+        <CollapsibleSection
+          title="Marketplace Event Search"
+          description="Cerca eventi remoti su Ticombo o altri marketplace per creare i mapping."
+          defaultOpen={false}
+        >
+          <MarketplaceEventSearch />
+        </CollapsibleSection>
         <MarketplaceMappingsTable />
         <CollapsibleSection
           title="Marketplace Content Requests"
