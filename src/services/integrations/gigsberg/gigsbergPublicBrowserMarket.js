@@ -312,6 +312,13 @@ async function getVisibleLowestPublicPrice(publicUrl, options = {}) {
     return Math.abs(Number(price) - own) > ownPriceTolerance;
   });
 
+  console.log("GIGSBERG OWN PRICE EXCLUSION:", {
+    ownPrice: own,
+    ownPriceTolerance,
+    allPrices: prices,
+    competitorPrices,
+  });
+
   const finalPrices = competitorPrices.length ? competitorPrices : prices;
 
   return {

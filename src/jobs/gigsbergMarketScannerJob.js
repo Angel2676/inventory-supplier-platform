@@ -81,12 +81,14 @@ async function runGigsbergMarketScannerJob() {
         try {
           const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
+          const ownPublicPrice = Number(listing.marketplace_price || 0);
+
           const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
             headless: true,
 
-            ownPrice: Number(listing.marketplace_price || 0),
+            ownPrice: ownPublicPrice,
 
-            ownPriceTolerance: 2,
+            ownPriceTolerance: 5,
 
             categoryName: listing.category,
           });
