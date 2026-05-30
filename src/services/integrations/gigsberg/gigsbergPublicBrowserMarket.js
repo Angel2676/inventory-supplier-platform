@@ -18,10 +18,116 @@ function parsePrice(value) {
 function normalizeText(value) {
   return String(value || "")
     .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[-_/|]/g, " ")
+    .replace(/[^\w\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
+function getCategoryAliases(categoryName) {
+  const normalized = normalizeText(categoryName);
+
+  const aliases = new Set([normalized]);
+
+  if (
+    normalized.includes("stehplatz") ||
+    normalized.includes("standing") ||
+    normalized.includes("general admission") ||
+    normalized === "ga"
+  ) {
+    aliases.add("standing");
+    aliases.add("stehplatz");
+    aliases.add("general admission");
+    aliases.add("ga");
+  }
+
+  if (
+    normalized.includes("seated") ||
+    normalized.includes("seat") ||
+    normalized.includes("tribuna") ||
+    normalized.includes("tribune")
+  ) {
+    aliases.add("seated");
+    aliases.add("seat");
+    aliases.add("tribuna");
+    aliases.add("tribune");
+  }
+
+  if (
+    normalized.includes("vip") ||
+    normalized.includes("hospitality") ||
+    normalized.includes("premium")
+  ) {
+    aliases.add("vip");
+    aliases.add("hospitality");
+    aliases.add("premium");
+  }
+
+  return Array.from(aliases).filter(Boolean);
+}
+
+function categoryMatches(line, categoryName) {
+  const normalizedLine = normalizeText(line);
+  const aliases = getCategoryAliases(categoryName);
+
+  if (!normalizedLine || aliases.length === 0) return false;
+
+  return aliases.some((alias) => {
+    if (!alias) return false;
+
+    return (
+      normalizedLine === alias ||
+      normalizedLine.includes(alias) ||
+      alias.includes(normalizedLine)
+    );
+  });
+}
+
+function extractCategoryPricesFromText(text, categoryName) {
+  const lines = String(text || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const results = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (!categoryMatches(line, categoryName)) {
+      continue;
+    }
+
+    const blockText = lines.slice(i, i + 25).join("\n");
+
+    const priceMatch = blockText.match(/US\$\s*[0-9]+(?:[.,][0-9]{2})?/);
+
+    if (priceMatch) {
+      const usdPrice = parsePrice(priceMatch[0]);
+
+      if (usdPrice) {
+        const eurPrice = Number((usdPrice * USD_TO_EUR_RATE).toFixed(2));
+
+        results.push({
+          category: line,
+          requestedCategory: categoryName,
+          usdPrice,
+          eurPrice,
+          rawPrice: priceMatch[0],
+        });
+      }
+    }
+  }
+
+  console.log("CATEGORY MATCH RESULTS:", {
+    requestedCategory: categoryName,
+    matchesFound: results.length,
+    matches: results.slice(0, 5),
+  });
+
+  return results;
+}
 function extractCategoryPricesFromText(text, categoryName) {
   const lines = String(text || "")
     .split("\n")
