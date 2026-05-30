@@ -83,6 +83,27 @@ async function runRepricingJob() {
       }
 
       if (listing.marketplace === "gigsberg" && listing.remote_listing_id) {
+        const effectiveMinPrice = Number(
+          listing.min_price ||
+            listing.ticket_min_price ||
+            listing.marketplace_default_min_price ||
+            0,
+        );
+
+        if (
+          effectiveMinPrice > 0 &&
+          Number(priceCheck.finalPrice) < effectiveMinPrice
+        ) {
+          console.error("BLOCKED_REPRICE_BELOW_MIN_PRICE", {
+            listing_id: listing.id,
+            marketplace: listing.marketplace,
+            finalPrice: priceCheck.finalPrice,
+            effectiveMinPrice,
+            priceCheck,
+          });
+
+          continue;
+        }
         console.log(
           `Updating Gigsberg listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
         );

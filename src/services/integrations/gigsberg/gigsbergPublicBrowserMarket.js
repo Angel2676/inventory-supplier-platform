@@ -142,6 +142,17 @@ async function getVisiblePublicPrices(publicUrl, options = {}) {
       prices = categoryPrices.map((item) => item.eurPrice);
     }
 
+    if (!prices.length && categoryName) {
+      console.log(
+        "CATEGORY FILTER EMPTY, NO FALLBACK TO ALL EVENT PRICES FOR SAFETY",
+        {
+          categoryName,
+        },
+      );
+
+      return [];
+    }
+
     if (!prices.length) {
       const rawMatches =
         result.fullText.match(/US\$\s*[0-9]+(?:[.,][0-9]{2})?/g) || [];
@@ -155,7 +166,7 @@ async function getVisiblePublicPrices(publicUrl, options = {}) {
         Number((price * USD_TO_EUR_RATE).toFixed(2)),
       );
 
-      console.log("CATEGORY FILTER EMPTY, FALLBACK TO ALL EVENT PRICES");
+      console.log("NO CATEGORY PROVIDED, FALLBACK TO ALL EVENT PRICES");
     }
 
     const finalPrices = [...new Set(prices)]
