@@ -1,5 +1,7 @@
 const { chromium } = require("playwright");
 
+const USD_TO_EUR_RATE = 0.85722;
+
 function parsePrice(value) {
   if (!value) return null;
 
@@ -13,8 +15,56 @@ function parsePrice(value) {
   return Number.isFinite(price) && price > 0 ? price : null;
 }
 
+function normalizeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractCategoryPricesFromText(text, categoryName) {
+  const lines = String(text || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const normalizedCategory = normalizeText(categoryName);
+
+  const results = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const normalizedLine = normalizeText(line);
+
+    if (!normalizedCategory || normalizedLine !== normalizedCategory) {
+      continue;
+    }
+
+    const blockText = lines.slice(i, i + 20).join("\n");
+
+    const priceMatch = blockText.match(/US\$\s*[0-9]+(?:[.,][0-9]{2})?/);
+
+    if (priceMatch) {
+      const usdPrice = parsePrice(priceMatch[0]);
+
+      if (usdPrice) {
+        const eurPrice = Number((usdPrice * USD_TO_EUR_RATE).toFixed(2));
+
+        results.push({
+          category: line,
+          usdPrice,
+          eurPrice,
+          rawPrice: priceMatch[0],
+        });
+      }
+    }
+  }
+
+  return results;
+}
+
 async function getVisiblePublicPrices(publicUrl, options = {}) {
-  const { headless = true, timeout = 45000 } = options;
+  const { headless = true, timeout = 45000, categoryName = null } = options;
 
   const browser = await chromium.launch({ headless });
 
@@ -56,7 +106,6 @@ async function getVisiblePublicPrices(publicUrl, options = {}) {
 
     await page.waitForTimeout(3000);
 
-    // 1. Chiude popup quantità biglietti
     try {
       const anyButton = page.getByText("Any", { exact: true });
 
@@ -69,68 +118,90 @@ async function getVisiblePublicPrices(publicUrl, options = {}) {
       console.log("Popup quantità non presente o non chiuso:", error.message);
     }
 
-    // 2. Cambia valuta da USD a EUR
-    try {
-      const usdButton = page.getByRole("button", { name: /USD/i }).first();
-
-      if (await usdButton.isVisible({ timeout: 5000 })) {
-        await usdButton.click({ force: true });
-        await page.waitForTimeout(1500);
-
-        const eurOption = page.getByText("EUR", { exact: true }).first();
-
-        if (await eurOption.isVisible({ timeout: 5000 })) {
-          await eurOption.click({ force: true });
-          console.log("Currency changed to EUR");
-          await page.waitForTimeout(6000);
-        } else {
-          console.log("EUR option not visible");
-        }
-      } else {
-        console.log("USD button not visible");
-      }
-    } catch (error) {
-      console.log("Currency change to EUR failed:", error.message);
-    }
-
-    // 3. Legge i prezzi visibili dalla pagina
     await page.waitForTimeout(5000);
 
-    const rawPrices = await page.evaluate(() => {
+    const result = await page.evaluate((categoryNameFromNode) => {
       const text = document.body?.innerText || "";
-
-      const matches = text.match(/US\$\s*[0-9]+(?:[.,][0-9]{2})?/g) || [];
 
       return {
         textPreview: text.slice(0, 2500),
-        matches,
+        fullText: text,
+        categoryName: categoryNameFromNode,
       };
+    }, categoryName);
+
+    let prices = [];
+
+    if (categoryName) {
+      const categoryPrices = extractCategoryPricesFromText(
+        result.fullText,
+        categoryName,
+      );
+
+      console.log("CATEGORY FILTER:", categoryName);
+      prices = categoryPrices.map((item) => item.eurPrice);
+    }
+
+    if (!prices.length) {
+      const rawMatches =
+        result.fullText.match(/US\$\s*[0-9]+(?:[.,][0-9]{2})?/g) || [];
+
+      const parsedPricesUsd = rawMatches
+        .map(parsePrice)
+        .filter((price) => price !== null)
+        .filter((price) => price > 10 && price < 10000);
+
+      prices = parsedPricesUsd.map((price) =>
+        Number((price * USD_TO_EUR_RATE).toFixed(2)),
+      );
+
+      console.log("CATEGORY FILTER EMPTY, FALLBACK TO ALL EVENT PRICES");
+    }
+
+    const finalPrices = [...new Set(prices)]
+
+      .filter((price) => price > 10 && price < 10000)
+
+      .sort((a, b) => a - b);
+
+    console.log("Gigsberg browser market prices:", {
+      categoryName,
+
+      pricesFound: finalPrices.length,
+
+      lowestPrice: finalPrices.length ? finalPrices[0] : null,
     });
 
-    console.log("TEXT PREVIEW:", rawPrices.textPreview);
-    console.log("RAW PRICE MATCHES:", rawPrices.matches);
-
-    const parsedPrices = rawPrices.matches
-      .map(parsePrice)
-      .filter((price) => price !== null)
-      .filter((price) => price > 10 && price < 10000);
-
-    return [...new Set(parsedPrices)].sort((a, b) => a - b);
+    return finalPrices;
   } finally {
     await browser.close();
   }
 }
 
 async function getVisibleLowestPublicPrice(publicUrl, options = {}) {
+  const { ownPrice = null, ownPriceTolerance = 2 } = options;
+
   const prices = await getVisiblePublicPrices(publicUrl, options);
 
   if (!prices.length) {
     return null;
   }
 
+  const own = ownPrice !== null ? Number(ownPrice) : null;
+
+  const competitorPrices = prices.filter((price) => {
+    if (!own || !Number.isFinite(own)) return true;
+
+    return Math.abs(Number(price) - own) > ownPriceTolerance;
+  });
+
+  const finalPrices = competitorPrices.length ? competitorPrices : prices;
+
   return {
-    min_price: prices[0],
-    prices,
+    min_price: finalPrices[0],
+    prices: finalPrices,
+    all_prices: prices,
+    excluded_own_price: own,
   };
 }
 

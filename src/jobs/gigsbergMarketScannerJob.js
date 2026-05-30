@@ -83,6 +83,12 @@ async function runGigsbergMarketScannerJob() {
 
           const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
             headless: true,
+
+            ownPrice: Number(listing.marketplace_price || 0),
+
+            ownPriceTolerance: 2,
+
+            categoryName: listing.category,
           });
 
           if (publicMarket?.min_price) {
