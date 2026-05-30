@@ -93,34 +93,63 @@ async function searchTicomboEvents(query = "") {
 
   const cleanQuery = String(query || "").trim();
 
-  const response = await client.get("/events", {
-    params: {
-      page: 1,
-      limit: 00,
-      status: "Active",
-      name: cleanQuery || undefined,
-    },
-  });
+  const limit = 100;
+  const maxPages = 10;
+  const allEvents = [];
+  let lastMeta = null;
+  let lastStatus = null;
+  let lastDataType = null;
+  let lastKeys = [];
+
+  for (let page = 1; page <= maxPages; page += 1) {
+    const response = await client.get("/events", {
+      params: {
+        page,
+        limit,
+        status: "Active",
+        name: cleanQuery || undefined,
+      },
+    });
+
+    const pageEvents =
+      response.data?.data ||
+      response.data?.events ||
+      response.data?.results ||
+      response.data ||
+      [];
+
+    lastMeta = response.data?.meta || null;
+    lastStatus = response.status;
+    lastDataType = Array.isArray(response.data)
+      ? "array"
+      : typeof response.data;
+    lastKeys =
+      response.data && typeof response.data === "object"
+        ? Object.keys(response.data)
+        : [];
+
+    if (Array.isArray(pageEvents)) {
+      allEvents.push(...pageEvents);
+    }
+
+    if (!Array.isArray(pageEvents) || pageEvents.length < limit) {
+      break;
+    }
+  }
 
   console.log("TICOMBO EVENT SEARCH:", {
     environment: config.environment,
     baseURL: config.baseURL,
     query: cleanQuery,
-    status: response.status,
-    rawMeta: response.data?.meta || null,
-    dataType: Array.isArray(response.data) ? "array" : typeof response.data,
-    keys:
-      response.data && typeof response.data === "object"
-        ? Object.keys(response.data)
-        : [],
+    status: lastStatus,
+    rawMeta: lastMeta,
+    pagesFetched: Math.ceil(allEvents.length / limit),
+    totalFetched: allEvents.length,
+    dataType: lastDataType,
+    keys: lastKeys,
   });
 
-  const events =
-    response.data?.data ||
-    response.data?.events ||
-    response.data?.results ||
-    response.data ||
-    [];
+  const events = allEvents;
 
   const normalized = Array.isArray(events)
     ? events.map(normalizeTicomboEvent)
