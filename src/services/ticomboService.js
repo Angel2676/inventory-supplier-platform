@@ -98,12 +98,7 @@ async function searchTicomboEvents(query = "") {
       page: 1,
       limit: 100,
       status: "Active",
-      category: "music",
-      //name: cleanQuery || undefined,
-      //search: cleanQuery || undefined,
-      //query: cleanQuery || undefined,
-      //keyword: cleanQuery || undefined,
-      //q: cleanQuery || undefined,
+      name: cleanQuery || undefined,
     },
   });
 
