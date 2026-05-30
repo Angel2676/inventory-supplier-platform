@@ -1,12 +1,32 @@
 import { useState } from "react";
 import api from "../api";
 
+function getRemoteEventId(event) {
+  return event.remote_event_id || event.eventId || event.id || "";
+}
+
+function getRemoteEventName(event) {
+  return event.name || event.eventName || "";
+}
+
 function MarketplaceEventSearch() {
   const [marketplace, setMarketplace] = useState("ticombo");
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState([]);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [savingMapping, setSavingMapping] = useState(false);
+  const [activeMappingKey, setActiveMappingKey] = useState(null);
+
+  const [mappingForm, setMappingForm] = useState({
+    internal_event_id: "",
+    internal_category: "",
+    remote_event_id: "",
+    remote_event_name: "",
+    remote_category_name: "",
+    notes: "",
+  });
 
   async function searchEvents(e) {
     if (e) e.preventDefault();
@@ -21,12 +41,8 @@ function MarketplaceEventSearch() {
     try {
       setLoading(true);
       setError("");
+      setSuccess("");
       setResults([]);
-
-      console.log("Searching marketplace events:", {
-        marketplace,
-        keyword: cleanKeyword,
-      });
 
       const response = await api.get("/api/marketplace/search-events", {
         params: {
@@ -34,8 +50,6 @@ function MarketplaceEventSearch() {
           keyword: cleanKeyword,
         },
       });
-
-      console.log("Marketplace event search response:", response.data);
 
       const items = response.data?.results || response.data?.data || [];
 
@@ -54,6 +68,86 @@ function MarketplaceEventSearch() {
     }
   }
 
+  function openFullMapping(event, index) {
+    const remoteEventId = getRemoteEventId(event);
+    const remoteEventName = getRemoteEventName(event);
+
+    setActiveMappingKey(remoteEventId || String(index));
+    setError("");
+    setSuccess("");
+
+    setMappingForm({
+      internal_event_id: "",
+      internal_category: "",
+      remote_event_id: remoteEventId,
+      remote_event_name: remoteEventName,
+      remote_category_name: "",
+      notes: "",
+    });
+  }
+
+  async function createFullMapping() {
+    const internalEventId = Number(mappingForm.internal_event_id);
+
+    if (!internalEventId) {
+      setError("Internal Event ID obbligatorio");
+      return;
+    }
+
+    if (!mappingForm.remote_event_id) {
+      setError("Remote Event ID obbligatorio");
+      return;
+    }
+
+    if (!mappingForm.internal_category.trim()) {
+      setError("Internal Category obbligatoria");
+      return;
+    }
+
+    if (!mappingForm.remote_category_name.trim()) {
+      setError("Remote Category Name obbligatoria");
+      return;
+    }
+
+    try {
+      setSavingMapping(true);
+      setError("");
+      setSuccess("");
+
+      await api.post("/api/marketplace/mappings", {
+        marketplace,
+        mapping_type: "event",
+        internal_event_id: internalEventId,
+        remote_event_id: mappingForm.remote_event_id,
+        remote_event_name: mappingForm.remote_event_name || null,
+        notes: mappingForm.notes || null,
+        is_active: true,
+      });
+
+      await api.post("/api/marketplace/mappings", {
+        marketplace,
+        mapping_type: "category",
+        internal_event_id: internalEventId,
+        internal_category: mappingForm.internal_category.trim(),
+        remote_event_id: mappingForm.remote_event_id,
+        remote_event_name: mappingForm.remote_event_name || null,
+        remote_category_name: mappingForm.remote_category_name.trim(),
+        notes: mappingForm.notes || null,
+        is_active: true,
+      });
+
+      setSuccess("Mapping evento + categoria creati correttamente");
+      setActiveMappingKey(null);
+    } catch (err) {
+      console.error("Create full mapping error:", err);
+      setError(
+        err.response?.data?.error || err.message || "Errore creazione mapping",
+      );
+    } finally {
+      setSavingMapping(false);
+    }
+  }
+
   return (
     <div
       className="section"
@@ -68,7 +162,8 @@ function MarketplaceEventSearch() {
         <h3 style={{ margin: 0 }}>Marketplace Event Search</h3>
         <p style={{ margin: "6px 0 0", color: "#666", fontSize: "14px" }}>
           Cerca eventi remoti su Ticombo per recuperare ID evento, nome, venue e
-          data da usare nei mappings.
+          data. Da qui puoi creare direttamente Event Mapping e Category
+          Mapping.
         </p>
       </div>
 
@@ -147,6 +242,12 @@ function MarketplaceEventSearch() {
         </div>
       )}
 
+      {success && (
+        <div className="success" style={{ marginBottom: "12px" }}>
+          {success}
+        </div>
+      )}
+
       {results.length > 0 ? (
         <div style={{ overflowX: "auto" }}>
           <table className="tickets-table">
@@ -157,33 +258,181 @@ function MarketplaceEventSearch() {
                 <th>Venue</th>
                 <th>City</th>
                 <th>Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
 
             <tbody>
-              {results.map((event, index) => (
-                <tr
-                  key={
-                    event.remote_event_id || event.eventId || event.id || index
-                  }
-                >
-                  <td>
-                    {event.remote_event_id || event.eventId || event.id || "-"}
-                  </td>
+              {results.map((event, index) => {
+                const remoteEventId = getRemoteEventId(event);
+                const remoteEventName = getRemoteEventName(event);
+                const rowKey = remoteEventId || String(index);
 
-                  <td>{event.name || event.eventName || "-"}</td>
+                return (
+                  <>
+                    <tr key={rowKey}>
+                      <td>{remoteEventId || "-"}</td>
 
-                  <td>{event.venue || event.eventVenue || "-"}</td>
+                      <td>{remoteEventName || "-"}</td>
 
-                  <td>{event.city || "-"}</td>
+                      <td>{event.venue || event.eventVenue || "-"}</td>
 
-                  <td>
-                    {event.date
-                      ? new Date(event.date).toLocaleString()
-                      : event.eventDate || "-"}
-                  </td>
-                </tr>
-              ))}
+                      <td>{event.city || "-"}</td>
+
+                      <td>
+                        {event.date
+                          ? new Date(event.date).toLocaleString()
+                          : event.eventDate || "-"}
+                      </td>
+
+                      <td>
+                        <button
+                          className="btn btn-secondary"
+                          type="button"
+                          onClick={() => openFullMapping(event, index)}
+                        >
+                          Create Full Mapping
+                        </button>
+                      </td>
+                    </tr>
+
+                    {activeMappingKey === rowKey && (
+                      <tr key={`${rowKey}-mapping`}>
+                        <td colSpan="6">
+                          <div
+                            className="section"
+                            style={{
+                              background: "#f9fafb",
+                              border: "1px solid #e5e7eb",
+                              borderRadius: "10px",
+                              padding: "14px",
+                            }}
+                          >
+                            <h4 style={{ marginTop: 0 }}>
+                              Create Event + Category Mapping
+                            </h4>
+
+                            <div
+                              style={{
+                                display: "grid",
+                                gridTemplateColumns:
+                                  "repeat(auto-fit, minmax(220px, 1fr))",
+                                gap: "12px",
+                              }}
+                            >
+                              <label>
+                                Internal Event ID
+                                <input
+                                  value={mappingForm.internal_event_id}
+                                  onChange={(e) =>
+                                    setMappingForm({
+                                      ...mappingForm,
+                                      internal_event_id: e.target.value,
+                                    })
+                                  }
+                                  placeholder="Es. 38"
+                                />
+                              </label>
+
+                              <label>
+                                Internal Category
+                                <input
+                                  value={mappingForm.internal_category}
+                                  onChange={(e) =>
+                                    setMappingForm({
+                                      ...mappingForm,
+                                      internal_category: e.target.value,
+                                    })
+                                  }
+                                  placeholder="Es. Los Vecinos"
+                                />
+                              </label>
+
+                              <label>
+                                Remote Event ID
+                                <input
+                                  value={mappingForm.remote_event_id}
+                                  onChange={(e) =>
+                                    setMappingForm({
+                                      ...mappingForm,
+                                      remote_event_id: e.target.value,
+                                    })
+                                  }
+                                />
+                              </label>
+
+                              <label>
+                                Remote Event Name
+                                <input
+                                  value={mappingForm.remote_event_name}
+                                  onChange={(e) =>
+                                    setMappingForm({
+                                      ...mappingForm,
+                                      remote_event_name: e.target.value,
+                                    })
+                                  }
+                                />
+                              </label>
+
+                              <label>
+                                Remote Category Name
+                                <input
+                                  value={mappingForm.remote_category_name}
+                                  onChange={(e) =>
+                                    setMappingForm({
+                                      ...mappingForm,
+                                      remote_category_name: e.target.value,
+                                    })
+                                  }
+                                  placeholder="Es. Los Vecinos"
+                                />
+                              </label>
+
+                              <label>
+                                Notes
+                                <input
+                                  value={mappingForm.notes}
+                                  onChange={(e) =>
+                                    setMappingForm({
+                                      ...mappingForm,
+                                      notes: e.target.value,
+                                    })
+                                  }
+                                />
+                              </label>
+                            </div>
+
+                            <div
+                              style={{
+                                marginTop: "12px",
+                                display: "flex",
+                                gap: "8px",
+                              }}
+                            >
+                              <button
+                                className="btn btn-primary"
+                                type="button"
+                                disabled={savingMapping}
+                                onClick={createFullMapping}
+                              >
+                                {savingMapping ? "Saving..." : "Save Mapping"}
+                              </button>
+
+                              <button
+                                className="btn btn-secondary"
+                                type="button"
+                                onClick={() => setActiveMappingKey(null)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
             </tbody>
           </table>
         </div>
