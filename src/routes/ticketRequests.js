@@ -24,7 +24,7 @@ router.post("/", authJwt, async (req, res) => {
 
     if (!ticket_id || !quantity) {
       return res.status(400).json({
-        error: "ticket_id e quantity sono obbligatori"
+        error: "ticket_id e quantity sono obbligatori",
       });
     }
 
@@ -37,25 +37,19 @@ router.post("/", authJwt, async (req, res) => {
       WHERE id = $1
       FOR UPDATE
       `,
-      [ticket_id]
+      [ticket_id],
     );
 
     if (ticketResult.rows.length === 0) {
       await client.query("ROLLBACK");
-
-      return res.status(404).json({
-        error: "Ticket non trovato"
-      });
+      return res.status(404).json({ error: "Ticket non trovato" });
     }
 
     const ticket = ticketResult.rows[0];
 
     if (ticket.status !== "available") {
       await client.query("ROLLBACK");
-
-      return res.status(400).json({
-        error: "Ticket non disponibile"
-      });
+      return res.status(400).json({ error: "Ticket non disponibile" });
     }
 
     const pendingResult = await client.query(
@@ -65,13 +59,11 @@ router.post("/", authJwt, async (req, res) => {
       WHERE ticket_id = $1
       AND status = 'pending'
       `,
-      [ticket_id]
+      [ticket_id],
     );
 
     const pendingQuantity = pendingResult.rows[0].pending_quantity;
-
-    const effectivelyAvailable =
-      ticket.available_quantity - pendingQuantity;
+    const effectivelyAvailable = ticket.available_quantity - pendingQuantity;
 
     if (effectivelyAvailable < Number(quantity)) {
       await client.query("ROLLBACK");
@@ -80,7 +72,7 @@ router.post("/", authJwt, async (req, res) => {
         error: "Quantità non disponibile considerando richieste pending",
         available_quantity: ticket.available_quantity,
         pending_quantity: pendingQuantity,
-        effectively_available: effectivelyAvailable
+        effectively_available: effectivelyAvailable,
       });
     }
 
@@ -96,12 +88,7 @@ router.post("/", authJwt, async (req, res) => {
       VALUES ($1, $2, $3, 'pending', $4)
       RETURNING *
       `,
-      [
-        req.user.id,
-        Number(ticket_id),
-        Number(quantity),
-        notes || null
-      ]
+      [req.user.id, Number(ticket_id), Number(quantity), notes || null],
     );
 
     await createAuditLog({
@@ -112,8 +99,8 @@ router.post("/", authJwt, async (req, res) => {
       metadata: {
         user_id: req.user.id,
         ticket_id: Number(ticket_id),
-        quantity: Number(quantity)
-      }
+        quantity: Number(quantity),
+      },
     });
 
     await createNotification({
@@ -124,15 +111,15 @@ router.post("/", authJwt, async (req, res) => {
       metadata: {
         user_id: req.user.id,
         ticket_id: Number(ticket_id),
-        quantity: Number(quantity)
-      }
+        quantity: Number(quantity),
+      },
     });
 
     await client.query("COMMIT");
 
     res.status(201).json({
       message: "Richiesta ticket creata correttamente",
-      request: result.rows[0]
+      request: result.rows[0],
     });
   } catch (error) {
     await client.query("ROLLBACK");
@@ -140,7 +127,7 @@ router.post("/", authJwt, async (req, res) => {
     console.error("Errore POST /api/ticket-requests:", error);
 
     res.status(500).json({
-      error: "Errore creazione richiesta ticket"
+      error: "Errore creazione richiesta ticket",
     });
   } finally {
     client.release();
@@ -195,7 +182,6 @@ router.get("/", authJwt, async (req, res) => {
       query += `
         WHERE ticket_requests.user_id = $1
       `;
-
       values.push(req.user.id);
     }
 
@@ -211,7 +197,7 @@ router.get("/", authJwt, async (req, res) => {
     console.error("Errore GET /api/ticket-requests:", error);
 
     res.status(500).json({
-      error: "Errore recupero richieste ticket"
+      error: "Errore recupero richieste ticket",
     });
   }
 });
@@ -238,25 +224,19 @@ router.patch(
         WHERE id = $1
         FOR UPDATE
         `,
-        [requestId]
+        [requestId],
       );
 
       if (requestResult.rows.length === 0) {
         await client.query("ROLLBACK");
-
-        return res.status(404).json({
-          error: "Richiesta non trovata"
-        });
+        return res.status(404).json({ error: "Richiesta non trovata" });
       }
 
       const request = requestResult.rows[0];
 
       if (request.status !== "pending") {
         await client.query("ROLLBACK");
-
-        return res.status(400).json({
-          error: "Richiesta non approvabile"
-        });
+        return res.status(400).json({ error: "Richiesta non approvabile" });
       }
 
       const ticketResult = await client.query(
@@ -266,25 +246,19 @@ router.patch(
         WHERE id = $1
         FOR UPDATE
         `,
-        [request.ticket_id]
+        [request.ticket_id],
       );
 
       if (ticketResult.rows.length === 0) {
         await client.query("ROLLBACK");
-
-        return res.status(404).json({
-          error: "Ticket non trovato"
-        });
+        return res.status(404).json({ error: "Ticket non trovato" });
       }
 
       const ticket = ticketResult.rows[0];
 
       if (ticket.available_quantity < request.quantity) {
         await client.query("ROLLBACK");
-
-        return res.status(400).json({
-          error: "Quantità non disponibile"
-        });
+        return res.status(400).json({ error: "Quantità non disponibile" });
       }
 
       await client.query(
@@ -295,7 +269,7 @@ router.patch(
           updated_at = NOW()
         WHERE id = $2
         `,
-        [request.quantity, request.ticket_id]
+        [request.quantity, request.ticket_id],
       );
 
       const reservationCode = `RES-${uuidv4()}`;
@@ -322,12 +296,7 @@ router.patch(
         )
         RETURNING *
         `,
-        [
-          reservationCode,
-          request.user_id,
-          request.ticket_id,
-          request.quantity
-        ]
+        [reservationCode, request.user_id, request.ticket_id, request.quantity],
       );
 
       const approvedResult = await client.query(
@@ -340,7 +309,7 @@ router.patch(
         WHERE id = $2
         RETURNING *
         `,
-        [req.user.id, requestId]
+        [req.user.id, requestId],
       );
 
       const userResult = await client.query(
@@ -353,7 +322,7 @@ router.patch(
         FROM users
         WHERE id = $1
         `,
-        [request.user_id]
+        [request.user_id],
       );
 
       const requestUser = userResult.rows[0];
@@ -368,6 +337,7 @@ router.patch(
           tickets.seat_from,
           tickets.seat_to,
           tickets.price,
+          tickets.currency,
 
           events.name AS event_name,
           events.event_date,
@@ -384,24 +354,81 @@ router.patch(
 
         WHERE tickets.id = $1
         `,
-        [request.ticket_id]
+        [request.ticket_id],
       );
 
       const details = detailsResult.rows[0];
+
+      await client.query(
+        `
+        INSERT INTO marketplace_orders (
+          marketplace,
+          marketplace_order_id,
+          marketplace_listing_id,
+          ticket_id,
+          event_name,
+          quantity,
+          total_amount,
+          currency,
+          order_status,
+          fulfillment_status,
+          raw_payload,
+          created_at,
+          updated_at
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW(),NOW()
+        )
+        `,
+        [
+          "gigsberg",
+          reservationCode,
+          null,
+          request.ticket_id,
+          details?.event_name || null,
+          Number(request.quantity || 0),
+          Number(details?.price || 0) * Number(request.quantity || 0),
+          details?.currency || "EUR",
+          "confirmed",
+          "manual_request",
+          JSON.stringify({
+            source: "ticket_request_approval",
+            request_id: requestId,
+            reservation_code: reservationCode,
+            reservation_id: reservationResult.rows[0]?.id || null,
+            user_id: request.user_id,
+            company_name: requestUser?.company_name || null,
+            contact_name: requestUser?.contact_name || null,
+            email: requestUser?.email || null,
+            ticket_id: request.ticket_id,
+            quantity: request.quantity,
+            category: details?.category || null,
+            block: details?.block || null,
+            row_name: details?.row_name || null,
+            seat_from: details?.seat_from || null,
+            seat_to: details?.seat_to || null,
+            event_date: details?.event_date || null,
+            venue: details?.venue || null,
+            city: details?.city || null,
+            country: details?.country || null,
+            notes: request.notes || null,
+          }),
+        ],
+      );
 
       const pdfBuffer = await generateReservationPdf({
         request_id: requestId,
         reservation_code: reservationCode,
         approved_at: new Date(),
 
-        company_name: requestUser.company_name,
-        contact_name: requestUser.contact_name,
-        email: requestUser.email,
+        company_name: requestUser?.company_name,
+        contact_name: requestUser?.contact_name,
+        email: requestUser?.email,
 
         quantity: request.quantity,
         notes: request.notes,
 
-        ...details
+        ...details,
       });
 
       await client.query("COMMIT");
@@ -413,8 +440,8 @@ router.patch(
         resource_id: requestId.toString(),
         metadata: {
           approved_by: req.user.id,
-          reservation_code: reservationCode
-        }
+          reservation_code: reservationCode,
+        },
       });
 
       await createNotification({
@@ -424,14 +451,13 @@ router.patch(
         message: `Richiesta ${requestId} approvata`,
         metadata: {
           request_id: requestId,
-          reservation_code: reservationCode
-        }
+          reservation_code: reservationCode,
+        },
       });
 
       if (requestUser?.email) {
         await sendEmail({
           to: requestUser.email,
-
           subject: "Reservation confirmation",
 
           text: `
@@ -474,16 +500,16 @@ ${reservationCode}
           attachments: [
             {
               filename: `reservation-${reservationCode}.pdf`,
-              content: pdfBuffer
-            }
-          ]
+              content: pdfBuffer,
+            },
+          ],
         });
       }
 
       res.json({
         message: "Richiesta approvata correttamente",
         request: approvedResult.rows[0],
-        reservation: reservationResult.rows[0]
+        reservation: reservationResult.rows[0],
       });
     } catch (error) {
       await client.query("ROLLBACK");
@@ -491,12 +517,12 @@ ${reservationCode}
       console.error("Errore approve ticket request:", error);
 
       res.status(500).json({
-        error: "Errore approvazione richiesta"
+        error: "Errore approvazione richiesta",
       });
     } finally {
       client.release();
     }
-  }
+  },
 );
 
 /**
@@ -509,7 +535,6 @@ router.patch(
   async (req, res) => {
     try {
       const requestId = req.params.id;
-
       const { rejection_reason } = req.body;
 
       const result = await pool.query(
@@ -524,31 +549,27 @@ router.patch(
         AND status = 'pending'
         RETURNING *
         `,
-        [
-          req.user.id,
-          rejection_reason || null,
-          requestId
-        ]
+        [req.user.id, rejection_reason || null, requestId],
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({
-          error: "Richiesta non trovata"
+          error: "Richiesta non trovata",
         });
       }
 
       res.json({
         message: "Richiesta rifiutata correttamente",
-        request: result.rows[0]
+        request: result.rows[0],
       });
     } catch (error) {
       console.error("Errore reject ticket request:", error);
 
       res.status(500).json({
-        error: "Errore rifiuto richiesta"
+        error: "Errore rifiuto richiesta",
       });
     }
-  }
+  },
 );
 
 module.exports = router;
