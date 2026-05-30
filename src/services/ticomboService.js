@@ -97,6 +97,8 @@ async function searchTicomboEvents(query = "") {
     params: {
       page: 1,
       limit: 100,
+      status: "Active",
+      category: "music",
       //name: cleanQuery || undefined,
       //search: cleanQuery || undefined,
       //query: cleanQuery || undefined,
