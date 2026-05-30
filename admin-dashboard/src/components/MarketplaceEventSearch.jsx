@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api";
 
 function getRemoteEventId(event) {
@@ -18,6 +18,7 @@ function MarketplaceEventSearch() {
   const [loading, setLoading] = useState(false);
   const [savingMapping, setSavingMapping] = useState(false);
   const [activeMappingKey, setActiveMappingKey] = useState(null);
+  const [internalEvents, setInternalEvents] = useState([]);
 
   const [mappingForm, setMappingForm] = useState({
     internal_event_id: "",
@@ -67,6 +68,20 @@ function MarketplaceEventSearch() {
       setLoading(false);
     }
   }
+
+  async function loadInternalEvents() {
+    try {
+      const response = await api.get("/api/events");
+
+      setInternalEvents(response.data || []);
+    } catch (error) {
+      console.error("Error loading internal events", error);
+    }
+  }
+
+  useEffect(() => {
+    loadInternalEvents();
+  }, []);
 
   function openFullMapping(event, index) {
     const remoteEventId = getRemoteEventId(event);
@@ -321,8 +336,8 @@ function MarketplaceEventSearch() {
                               }}
                             >
                               <label>
-                                Internal Event ID
-                                <input
+                                Internal Event
+                                <select
                                   value={mappingForm.internal_event_id}
                                   onChange={(e) =>
                                     setMappingForm({
@@ -330,8 +345,17 @@ function MarketplaceEventSearch() {
                                       internal_event_id: e.target.value,
                                     })
                                   }
-                                  placeholder="Es. 38"
-                                />
+                                >
+                                  <option value="">
+                                    Select internal event
+                                  </option>
+
+                                  {internalEvents.map((event) => (
+                                    <option key={event.id} value={event.id}>
+                                      #{event.id} - {event.name}
+                                    </option>
+                                  ))}
+                                </select>
                               </label>
 
                               <label>
