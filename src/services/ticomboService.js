@@ -97,11 +97,11 @@ async function searchTicomboEvents(query = "") {
     params: {
       page: 1,
       limit: 100,
-      name: cleanQuery || undefined,
-      search: cleanQuery || undefined,
-      query: cleanQuery || undefined,
-      keyword: cleanQuery || undefined,
-      q: cleanQuery || undefined,
+      //name: cleanQuery || undefined,
+      //search: cleanQuery || undefined,
+      //query: cleanQuery || undefined,
+      //keyword: cleanQuery || undefined,
+      //q: cleanQuery || undefined,
     },
   });
 
