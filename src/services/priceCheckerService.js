@@ -40,10 +40,11 @@ function calculateSafePrice({
 
   if (suggestedPrice < min) {
     return {
-      shouldUpdate: false,
-      reason: "MIN_PRICE_PROTECTION",
+      shouldUpdate: current !== min,
+      reason: "MIN_PRICE_APPLIED",
+      direction: min > current ? "UP_TO_MIN_PRICE" : "DOWN_TO_MIN_PRICE",
       suggestedPrice,
-      finalPrice: current,
+      finalPrice: min,
     };
   }
 
