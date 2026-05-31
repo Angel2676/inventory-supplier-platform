@@ -822,15 +822,14 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
 
           continue;
         }
-      }
 
-      categoryMapping = categoryMappingResult.rows[0];
+        categoryMapping = categoryMappingResult.rows[0];
 
-      blockMapping = null;
+        blockMapping = null;
 
-      if (ticket.block) {
-        const blockMappingResult = await pool.query(
-          `
+        if (ticket.block) {
+          const blockMappingResult = await pool.query(
+            `
             SELECT *
             FROM marketplace_mappings
             WHERE marketplace = $1
@@ -841,15 +840,16 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
               AND is_active = true
             LIMIT 1
             `,
-          [marketplace, ticket.event_id, ticket.category, ticket.block],
-        );
-
-        blockMapping = blockMappingResult.rows[0] || null;
-
-        if (!blockMapping) {
-          warnings.push(
-            `Block mapping opzionale mancante per ${ticket.category} / ${ticket.block}`,
+            [marketplace, ticket.event_id, ticket.category, ticket.block],
           );
+
+          blockMapping = blockMappingResult.rows[0] || null;
+
+          if (!blockMapping) {
+            warnings.push(
+              `Block mapping opzionale mancante per ${ticket.category} / ${ticket.block}`,
+            );
+          }
         }
       }
 
