@@ -739,6 +739,10 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
         errors.push("Categoria interna mancante");
       }
 
+      let categoryMapping = null;
+
+      let blockMapping = null;
+
       if (marketplace === "ticombo" || marketplace === "sportevents365") {
         const eventMappingResult = await pool.query(
           `
@@ -820,9 +824,9 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
         }
       }
 
-      const categoryMapping = categoryMappingResult.rows[0];
+      categoryMapping = categoryMappingResult.rows[0];
 
-      let blockMapping = null;
+      blockMapping = null;
 
       if (ticket.block) {
         const blockMappingResult = await pool.query(
