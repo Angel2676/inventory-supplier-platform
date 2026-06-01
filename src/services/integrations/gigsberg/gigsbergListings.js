@@ -335,7 +335,7 @@ async function createGigsbergListing(ticketId) {
     process.env.GIGSBERG_DEFAULT_TICKET_TYPE_ID || 3,
   );
 
-  form.append("listing_split_type_code", "any");
+  form.append("listing_split_type_code", "pairs");
   form.append("is_seller_connected_to_event", 0);
   form.append("active", 1);
 
