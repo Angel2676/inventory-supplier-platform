@@ -483,7 +483,8 @@ body {
 
 .sidebar {
   width: 280px;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   background: #0f172a;
   color: #ffffff;
   padding: 22px;
@@ -491,6 +492,9 @@ body {
   flex-direction: column;
   position: sticky;
   top: 0;
+  align-self: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-brand {
@@ -616,7 +620,10 @@ body {
   .sidebar {
     width: 100%;
     min-height: auto;
+    height: auto;
+    max-height: none;
     position: relative;
+    overflow: visible;
   }
 
   .sidebar-nav {

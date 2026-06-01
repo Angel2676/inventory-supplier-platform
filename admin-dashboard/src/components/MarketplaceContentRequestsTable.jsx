@@ -18,7 +18,6 @@ function MarketplaceContentRequestsTable() {
     remote_event_id: "",
     remote_event_name: "",
     remote_category_name: "",
-    notes: "",
   });
 
   const [remoteKeyword, setRemoteKeyword] = useState("");
@@ -50,7 +49,6 @@ function MarketplaceContentRequestsTable() {
       remote_event_id: request.remote_event_id || "",
       remote_event_name: request.event_name || "",
       remote_category_name: request.internal_category || "",
-      notes: request.notes || "",
     });
   }
 
@@ -274,19 +272,6 @@ function MarketplaceContentRequestsTable() {
                               })
                             }
                             placeholder="es. Los Vecinos"
-                          />
-                        </label>
-
-                        <label>
-                          Notes
-                          <input
-                            value={form.notes}
-                            onChange={(e) =>
-                              setForm({
-                                ...form,
-                                notes: e.target.value,
-                              })
-                            }
                           />
                         </label>
                       </div>
