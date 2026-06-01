@@ -129,10 +129,12 @@ async function runGigsbergMarketScannerJob() {
         if (activeListings.length === 0) {
           const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
-          const publicMarket = await getVisibleLowestPublicPrice(
-            publicUrl,
-            listing.remote_category_id,
-          );
+          const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
+            headless: true,
+            ownPrice: Number(listing.marketplace_price || 0),
+            ownPriceTolerance: 5,
+            categoryName: listing.category,
+          });
 
           if (publicMarket?.min_price) {
             console.log("Gigsberg public market price found:", publicMarket);
@@ -179,10 +181,15 @@ async function runGigsbergMarketScannerJob() {
           try {
             const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
-            const publicMarket = await getVisibleLowestPublicPrice(
-              publicUrl,
-              listing.remote_category_id,
-            );
+            const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
+              headless: true,
+
+              ownPrice: Number(listing.marketplace_price || 0),
+
+              ownPriceTolerance: 5,
+
+              categoryName: listing.category,
+            });
 
             if (publicMarket?.min_price) {
               console.log("Gigsberg public market price found:", publicMarket);
@@ -217,10 +224,12 @@ async function runGigsbergMarketScannerJob() {
         if (activeListings.length === 0) {
           const publicUrl = `https://www.gigsberg.com/concert-tickets/pop/backstreet-boys-tickets/show-${listing.remote_event_id}`;
 
-          const publicMarket = await getVisibleLowestPublicPrice(
-            publicUrl,
-            listing.remote_category_id,
-          );
+          const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
+            headless: true,
+            ownPrice: Number(listing.marketplace_price || 0),
+            ownPriceTolerance: 5,
+            categoryName: listing.category,
+          });
 
           if (publicMarket?.min_price) {
             console.log("Gigsberg public market price found:", publicMarket);
