@@ -191,16 +191,8 @@ function MarketplaceEventSearch() {
   }
 
   return (
-    <div
-      className="section"
-      style={{
-        padding: "18px",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        background: "#fff",
-      }}
-    >
-      <div style={{ marginBottom: "14px" }}>
+    <div className="marketplace-search-card">
+      <div className="marketplace-search-header">
         <h3 style={{ margin: 0 }}>Marketplace Event Search</h3>
         <p style={{ margin: "6px 0 0", color: "#666", fontSize: "14px" }}>
           Cerca eventi remoti su Ticombo per recuperare ID evento, nome, venue e
@@ -209,16 +201,7 @@ function MarketplaceEventSearch() {
         </p>
       </div>
 
-      <form
-        onSubmit={searchEvents}
-        style={{
-          display: "grid",
-          gridTemplateColumns: "180px 1fr 160px",
-          gap: "12px",
-          alignItems: "end",
-          marginBottom: "16px",
-        }}
-      >
+      <form onSubmit={searchEvents} className="marketplace-search-form">
         <div>
           <label
             style={{ display: "block", fontSize: "13px", marginBottom: 6 }}
@@ -367,27 +350,19 @@ function MarketplaceEventSearch() {
                               </p>
                             </div>
 
-                            <div
-                              style={{
-                                background: "#ffffff",
-                                border: "1px solid #e5e7eb",
-                                borderRadius: 10,
-                                padding: 12,
-                                marginBottom: 12,
-                              }}
-                            >
-                              <h5
-                                style={{ margin: "0 0 10px", color: "#111827" }}
-                              >
+                            <div className="marketplace-mapping-panel">
+                              <h5 className="mapping-section-title">
                                 Internal Inventory
                               </h5>
 
                               <div
                                 style={{
                                   display: "grid",
-                                  gridTemplateColumns:
-                                    "repeat(auto-fit, minmax(220px, 1fr))",
-                                  gap: "12px",
+                                  gridTemplateColumns: "repeat(3, 1fr)",
+
+                                  gap: "24px",
+
+                                  alignItems: "end",
                                 }}
                               >
                                 <label>
@@ -446,17 +421,8 @@ function MarketplaceEventSearch() {
                               </div>
                             </div>
 
-                            <div
-                              style={{
-                                background: "#ffffff",
-                                border: "1px solid #e5e7eb",
-                                borderRadius: 10,
-                                padding: 12,
-                              }}
-                            >
-                              <h5
-                                style={{ margin: "0 0 10px", color: "#111827" }}
-                              >
+                            <div className="marketplace-mapping-panel">
+                              <h5 className="mapping-section-title">
                                 Marketplace Mapping
                               </h5>
 
