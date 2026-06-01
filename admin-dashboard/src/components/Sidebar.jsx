@@ -1,6 +1,14 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function Sidebar({ user, activeSection, setActiveSection, logout }) {
+function Sidebar({
+  user,
+  activeSection,
+  setActiveSection,
+  logout,
+  onMarketplaceHubAnchorClick,
+}) {
+  const [marketplaceHubOpen, setMarketplaceHubOpen] = useState(false);
   const { t } = useTranslation();
 
   const isSuperAdmin = user?.role === "super_admin";
@@ -58,18 +66,71 @@ function Sidebar({ user, activeSection, setActiveSection, logout }) {
 
       <nav className="sidebar-nav">
         {items.map((item) => (
-          <button
-            key={item.key}
-            className={
-              activeSection === item.key
-                ? "sidebar-link active"
-                : "sidebar-link"
-            }
-            type="button"
-            onClick={() => setActiveSection(item.key)}
-          >
-            {item.label}
-          </button>
+          <div key={item.key}>
+            <button
+              className={
+                activeSection === item.key
+                  ? "sidebar-link active"
+                  : "sidebar-link"
+              }
+              type="button"
+              onClick={() => {
+                setActiveSection(item.key);
+
+                if (item.key === "marketplace-hub") {
+                  setMarketplaceHubOpen(!marketplaceHubOpen);
+                }
+              }}
+            >
+              <>
+                {item.label}
+
+                {item.key === "marketplace-hub" && (
+                  <span style={{ float: "right" }}>
+                    {marketplaceHubOpen ? "▼" : "▶"}
+                  </span>
+                )}
+              </>
+            </button>
+
+            {item.key === "marketplace-hub" &&
+              isSuperAdmin &&
+              marketplaceHubOpen && (
+                <div className="sidebar-subnav">
+                  <button
+                    className="sidebar-sublink"
+                    type="button"
+                    onClick={() =>
+                      onMarketplaceHubAnchorClick?.("marketplace-event-search")
+                    }
+                  >
+                    Marketplace Event Search
+                  </button>
+
+                  <button
+                    className="sidebar-sublink"
+                    type="button"
+                    onClick={() =>
+                      onMarketplaceHubAnchorClick?.("marketplace-listings")
+                    }
+                  >
+                    Marketplace Listings
+                  </button>
+
+                  <button
+                    className="sidebar-sublink"
+                    type="button"
+                    onClick={() =>
+                      onMarketplaceHubAnchorClick?.(
+                        "publish-marketplace-listing",
+                      )
+                    }
+                  >
+                    Publish New Marketplace Listing
+                  </button>
+                </div>
+              )}
+          </div>
         ))}
       </nav>
 

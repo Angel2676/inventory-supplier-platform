@@ -572,6 +572,33 @@ body {
   color: #ffffff;
 }
 
+.sidebar-subnav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 6px 0 6px 14px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.sidebar-sublink {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  padding: 7px 10px;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.sidebar-sublink:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
 .sidebar-logout {
   border: none;
   background: #dc2626;

@@ -259,6 +259,16 @@ function App() {
           activeSection={activeSection}
           setActiveSection={setActiveSection}
           logout={logout}
+          onMarketplaceHubAnchorClick={(anchorId) => {
+            setActiveSection("marketplace-hub");
+
+            setTimeout(() => {
+              document.getElementById(anchorId)?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }, 150);
+          }}
         />
 
         <main className="dashboard-main">

@@ -34,13 +34,15 @@ function MarketplaceHub() {
         description="Mappa eventi, categorie e blocchi interni verso gli ID dei marketplace."
         defaultOpen={true}
       >
-        <CollapsibleSection
-          title="Marketplace Event Search"
-          description="Cerca eventi remoti su Ticombo o altri marketplace per creare i mapping."
-          defaultOpen={true}
-        >
-          <MarketplaceEventSearch />
-        </CollapsibleSection>
+        <div id="marketplace-event-search">
+          <CollapsibleSection
+            title="Marketplace Event Search"
+            description="Cerca eventi remoti su Ticombo o altri marketplace per creare i mapping."
+            defaultOpen={true}
+          >
+            <MarketplaceEventSearch />
+          </CollapsibleSection>
+        </div>
         <MarketplaceMappingsTable />
 
         {/*
@@ -62,13 +64,15 @@ function MarketplaceHub() {
         <MarketplaceOrdersTable />
       </CollapsibleSection>
 
-      <CollapsibleSection
-        title="Marketplace Listings"
-        description="Monitora listing pubblicati, prezzi marketplace, status e retry sync."
-        defaultOpen={true}
-      >
-        <MarketplaceListingsTable />
-      </CollapsibleSection>
+      <div id="marketplace-listings">
+        <CollapsibleSection
+          title="Marketplace Listings"
+          description="Monitora listing pubblicati, prezzi marketplace, status e retry sync."
+          defaultOpen={true}
+        >
+          <MarketplaceListingsTable />
+        </CollapsibleSection>
+      </div>
 
       <CollapsibleSection
         title="Marketplace Logs"
@@ -78,13 +82,15 @@ function MarketplaceHub() {
         <MarketplaceLogsTable />
       </CollapsibleSection>
 
-      <CollapsibleSection
-        title="Publish New Marketplace Listing"
-        description="Seleziona un ticket inventory e pubblicalo su Gigsberg, Ticombo o altri marketplace."
-        defaultOpen={true}
-      >
-        <TicketsTable canEdit={true} marketplaceMode={true} />
-      </CollapsibleSection>
+      <div id="publish-marketplace-listing">
+        <CollapsibleSection
+          title="Publish New Marketplace Listing"
+          description="Seleziona un ticket inventory e pubblicalo su Gigsberg, Ticombo o altri marketplace."
+          defaultOpen={true}
+        >
+          <TicketsTable canEdit={true} marketplaceMode={true} />
+        </CollapsibleSection>
+      </div>
     </>
   );
 }
