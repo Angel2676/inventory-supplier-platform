@@ -25,28 +25,71 @@ function normalizeText(value) {
     .trim();
 }
 
-function getCategoryAliases(categoryName) {
-  const normalized = normalizeText(categoryName);
-
-  const aliases = new Set([normalized]);
+function normalizeMarketplaceCategory(value) {
+  const text = normalizeText(value);
 
   if (
-    normalized.includes("stehplatz") ||
-    normalized.includes("standing") ||
-    normalized.includes("general admission") ||
-    normalized === "ga"
+    text.includes("prato") ||
+    text.includes("floor") ||
+    text.includes("pitch") ||
+    text.includes("standing") ||
+    text.includes("general admission") ||
+    text === "ga" ||
+    text.includes("parterre") ||
+    text.includes("innenraum")
   ) {
-    aliases.add("standing");
-    aliases.add("stehplatz");
-    aliases.add("general admission");
-    aliases.add("ga");
+    return "floor";
   }
 
   if (
-    normalized.includes("seated") ||
-    normalized.includes("seat") ||
-    normalized.includes("tribuna") ||
-    normalized.includes("tribune")
+    text.includes("gold circle") ||
+    text.includes("golden circle") ||
+    text.includes("goldcircle")
+  ) {
+    return "gold_circle";
+  }
+
+  if (text.includes("los vecinos")) {
+    return "los_vecinos";
+  }
+
+  return text;
+}
+
+function getCategoryAliases(categoryName) {
+  const normalized = normalizeMarketplaceCategory(categoryName);
+  const raw = normalizeText(categoryName);
+
+  const aliases = new Set([normalized, raw]);
+
+  if (normalized === "floor") {
+    aliases.add("floor");
+    aliases.add("prato");
+    aliases.add("standing");
+    aliases.add("general admission");
+    aliases.add("ga");
+    aliases.add("pitch");
+    aliases.add("parterre");
+    aliases.add("innenraum");
+  }
+
+  if (normalized === "gold_circle") {
+    aliases.add("gold circle");
+    aliases.add("golden circle");
+    aliases.add("goldcircle");
+    aliases.add("cercle d'or");
+    aliases.add("cerchio oro");
+  }
+
+  if (normalized === "los_vecinos") {
+    aliases.add("los vecinos");
+  }
+
+  if (
+    raw.includes("seated") ||
+    raw.includes("seat") ||
+    raw.includes("tribuna") ||
+    raw.includes("tribune")
   ) {
     aliases.add("seated");
     aliases.add("seat");
@@ -55,9 +98,9 @@ function getCategoryAliases(categoryName) {
   }
 
   if (
-    normalized.includes("vip") ||
-    normalized.includes("hospitality") ||
-    normalized.includes("premium")
+    raw.includes("vip") ||
+    raw.includes("hospitality") ||
+    raw.includes("premium")
   ) {
     aliases.add("vip");
     aliases.add("hospitality");
@@ -68,7 +111,7 @@ function getCategoryAliases(categoryName) {
 }
 
 function categoryMatches(line, categoryName) {
-  const normalizedLine = normalizeText(line);
+  const normalizedLine = normalizeMarketplaceCategory(line);
   const aliases = getCategoryAliases(categoryName);
 
   if (!normalizedLine || aliases.length === 0) return false;
@@ -134,7 +177,7 @@ function extractCategoryPricesFromText(text, categoryName) {
     .map((line) => line.trim())
     .filter(Boolean);
 
-  const normalizedCategory = normalizeText(categoryName);
+  const normalizedCategory = normalizeMarketplaceCategory(categoryName);
 
   const results = [];
 
