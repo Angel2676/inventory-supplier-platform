@@ -53,6 +53,62 @@ function normalizeMarketplaceCategory(value) {
     return "los_vecinos";
   }
 
+  if (text.includes("long lower") || text.includes("category 1 gold")) {
+    return "long_lower";
+  }
+
+  if (
+    text.includes("long side middle central red") ||
+    text.includes("long side middle central orange") ||
+    text.includes("category 1 platinum") ||
+    text.includes("secondo arancio centrale") ||
+    text.includes("secondo rosso centrale")
+  ) {
+    return "long_middle_central";
+  }
+
+  if (text.includes("long side middle") || text.includes("category 1 silver")) {
+    return "long_middle";
+  }
+  if (
+    text.includes("long upper") ||
+    text.includes("terzo anello rosso") ||
+    text.includes("category 1")
+  ) {
+    return "long_upper";
+  }
+
+  if (
+    text.includes("short side upper green") ||
+    text.includes("short side upper blue") ||
+    text.includes("terzo anello verde") ||
+    text.includes("terzo anello blu") ||
+    text.includes("category 4")
+  ) {
+    return "short_upper";
+  }
+
+  if (
+    text.includes("short side middle green") ||
+    text.includes("short side middle blue") ||
+    text.includes("secondo anello verde") ||
+    text.includes("secondo anello blu") ||
+    text.includes("category 3")
+  ) {
+    return "short_middle";
+  }
+
+  if (
+    text.includes("short side lower green") ||
+    text.includes("short side lower blue") ||
+    text.includes("short side lower blu") ||
+    text.includes("primo anello verde") ||
+    text.includes("primo anello blu") ||
+    text.includes("category 2")
+  ) {
+    return "short_lower";
+  }
+
   return text;
 }
 
@@ -83,6 +139,54 @@ function getCategoryAliases(categoryName) {
 
   if (normalized === "los_vecinos") {
     aliases.add("los vecinos");
+  }
+  if (normalized === "long_upper") {
+    aliases.add("long upper");
+    aliases.add("terzo anello rosso");
+    aliases.add("category 1");
+  }
+
+  if (normalized === "long_lower") {
+    aliases.add("long lower");
+    aliases.add("category 1 gold");
+  }
+
+  if (normalized === "long_middle_central") {
+    aliases.add("long side middle central red");
+    aliases.add("long side middle central orange");
+    aliases.add("category 1 platinum");
+    aliases.add("secondo arancio centrale");
+    aliases.add("secondo rosso centrale");
+  }
+
+  if (normalized === "long_middle") {
+    aliases.add("long side middle");
+    aliases.add("category 1 silver");
+  }
+
+  if (normalized === "short_upper") {
+    aliases.add("short side upper green");
+    aliases.add("short side upper blue");
+    aliases.add("terzo anello verde");
+    aliases.add("terzo anello blu");
+    aliases.add("category 4");
+  }
+
+  if (normalized === "short_middle") {
+    aliases.add("short side middle green");
+    aliases.add("short side middle blue");
+    aliases.add("secondo anello verde");
+    aliases.add("secondo anello blu");
+    aliases.add("category 3");
+  }
+
+  if (normalized === "short_lower") {
+    aliases.add("short side lower green");
+    aliases.add("short side lower blue");
+    aliases.add("short side lower blu");
+    aliases.add("primo anello verde");
+    aliases.add("primo anello blu");
+    aliases.add("category 2");
   }
 
   if (
