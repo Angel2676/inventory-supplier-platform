@@ -123,7 +123,7 @@ async function publishTicomboTicket(ticketId) {
     allowProposals: false,
     refId: `inventory-${ticket.id}`,
     sellingOptions: {
-      splitType: "none",
+      splitType: 0,
       maxDisplayQuantity: quantity,
     },
   };
