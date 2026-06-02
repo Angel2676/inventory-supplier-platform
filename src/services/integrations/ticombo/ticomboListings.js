@@ -56,7 +56,7 @@ async function updateTicomboListing(listingId, updates) {
     refId: current.refId,
 
     sellingOptions: {
-      splitType: current.sellingOptions?.splitType ?? 0,
+      splitType: current.sellingOptions?.splitType || "any",
       maxDisplayQuantity: quantity,
       customQuantities: current.sellingOptions?.customQuantities || [],
     },
