@@ -357,6 +357,7 @@ async function createGigsbergListing(ticketId) {
         Authorization: `Bearer ${jwt}`,
       },
     });
+
     console.log(
       "GIGSBERG CREATE LISTING RESPONSE:",
       JSON.stringify(response.data, null, 2),

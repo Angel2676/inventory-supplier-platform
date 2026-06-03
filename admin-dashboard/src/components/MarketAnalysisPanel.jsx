@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api";
 
 export default function MarketAnalysisPanel() {
@@ -9,6 +9,41 @@ export default function MarketAnalysisPanel() {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [events, setEvents] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    async function loadEvents() {
+      try {
+        const response = await api.get("/api/market-analysis/events");
+        setEvents(response.data.events || []);
+      } catch (err) {
+        console.error("Errore caricamento eventi", err);
+      }
+    }
+
+    loadEvents();
+  }, []);
+
+  useEffect(() => {
+    async function loadCategories() {
+      if (!eventId) {
+        setCategories([]);
+        return;
+      }
+
+      try {
+        const response = await api.get(
+          `/api/market-analysis/events/${eventId}/categories`,
+        );
+        setCategories(response.data.categories || []);
+      } catch (err) {
+        console.error("Errore caricamento categorie", err);
+      }
+    }
+
+    loadCategories();
+  }, [eventId]);
 
   const toggleMarketplace = (marketplace) => {
     setMarketplaces((current) =>
@@ -44,19 +79,46 @@ export default function MarketAnalysisPanel() {
       <h2>Market Analysis</h2>
 
       <div className="market-analysis-form">
-        <input
-          type="number"
-          placeholder="Event ID"
+        <select
           value={eventId}
-          onChange={(e) => setEventId(e.target.value)}
-        />
+          onChange={(e) => {
+            setEventId(e.target.value);
+            setCategory("");
+            setBlock("");
+          }}
+        >
+          <option value="">Seleziona evento</option>
+          {events.map((event) => (
+            <option key={event.id} value={event.id}>
+              {event.name} - {event.city} -{" "}
+              {new Date(event.event_date).toLocaleDateString("it-IT")}
+            </option>
+          ))}
+        </select>
 
-        <input
-          type="text"
-          placeholder="Settore / Categoria"
+        <select
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
+          onChange={(e) => {
+            const selected = categories.find(
+              (item) => item.category === e.target.value,
+            );
+
+            setCategory(e.target.value);
+            setBlock(selected?.block || "");
+          }}
+          disabled={!eventId}
+        >
+          <option value="">Tutti i settori</option>
+          {categories.map((item) => (
+            <option
+              key={`${item.category}-${item.block}`}
+              value={item.category}
+            >
+              {item.category}
+              {item.block ? ` - Blocco ${item.block}` : ""}
+            </option>
+          ))}
+        </select>
 
         <input
           type="text"
