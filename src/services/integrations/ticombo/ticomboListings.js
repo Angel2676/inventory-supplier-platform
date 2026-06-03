@@ -75,9 +75,30 @@ async function deleteTicomboListing(listingId) {
   return response.data;
 }
 
+async function searchTicomboListings({
+  eventId,
+  category,
+  page = 1,
+  limit = 50,
+} = {}) {
+  const client = getTicomboClient();
+
+  const response = await client.get("/listings", {
+    params: {
+      page,
+      limit,
+      eventId,
+      category,
+    },
+  });
+
+  return response.data;
+}
+
 module.exports = {
   createTicomboListing,
   getTicomboListing,
   updateTicomboListing,
   deleteTicomboListing,
+  searchTicomboListings,
 };
