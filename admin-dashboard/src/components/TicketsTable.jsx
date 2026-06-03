@@ -134,7 +134,17 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
   function formatDate(value) {
     if (!value) return "-";
-    return new Date(value).toLocaleString();
+
+    const text = String(value);
+
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
+
+    if (match) {
+      const [, year, month, day, hour, minute] = match;
+      return `${day}/${month}/${year}, ${hour}:${minute}`;
+    }
+
+    return text;
   }
 
   function getEventTime(eventId) {
