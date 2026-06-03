@@ -10,21 +10,27 @@ const sendEmail = require("../services/emailService");
 function normalizeAndValidateEventDate(eventDate) {
   if (!eventDate) return null;
 
-  const date = new Date(eventDate);
+  const value = String(eventDate).trim();
 
-  if (Number.isNaN(date.getTime())) {
+  const localDateTimeMatch = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/,
+  );
+
+  if (!localDateTimeMatch) {
     throw new Error("Data evento non valida");
   }
 
-  const year = date.getFullYear();
+  const [, year, month, day, hour, minute, second = "00"] = localDateTimeMatch;
 
-  if (year < 2025 || year > 2035) {
+  const numericYear = Number(year);
+
+  if (numericYear < 2025 || numericYear > 2035) {
     throw new Error(
       "Anno evento non valido. Controllare la data inserita prima di salvare.",
     );
   }
 
-  return eventDate;
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
 function formatDate(value) {
