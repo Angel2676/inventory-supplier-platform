@@ -96,8 +96,38 @@ function getGigsbergEventDate(event) {
     null
   );
 }
+async function getGigsbergEventMapping(ticket) {
+  const result = await pool.query(
+    `
+    SELECT
+      remote_event_id,
+      remote_event_name
+    FROM marketplace_mappings
+    WHERE marketplace = 'gigsberg'
+      AND mapping_type = 'event'
+      AND internal_event_id = $1
+      AND is_active = true
+      AND remote_event_id IS NOT NULL
+    ORDER BY updated_at DESC
+    LIMIT 1
+    `,
+    [ticket.event_id],
+  );
+
+  return result.rows[0] || null;
+}
 
 async function findBestGigsbergEvent(ticket) {
+  const mappedEvent = await getGigsbergEventMapping(ticket);
+
+  if (mappedEvent?.remote_event_id) {
+    return {
+      id: mappedEvent.remote_event_id,
+      name: mappedEvent.remote_event_name || ticket.event_name,
+      mapped: true,
+    };
+  }
+
   let searchResult = await searchEvents({
     keyword: ticket.event_name,
     future_events_only: true,
