@@ -2844,3 +2844,44 @@ body.dark-mode .theme-toggle-btn {
   border-radius: 10px;
   margin-bottom: 16px;
 }
+.live-market-card {
+  background: linear-gradient(135deg, #ecfeff 0%, #f0f9ff 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 16px;
+  padding: 18px;
+  margin: 18px 0 22px;
+  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.1);
+}
+
+.live-market-card h4 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  color: #075985;
+}
+
+.live-market-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 14px;
+}
+
+.live-market-grid div {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid #e0f2fe;
+}
+
+.live-market-grid strong {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.live-market-grid p {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+}

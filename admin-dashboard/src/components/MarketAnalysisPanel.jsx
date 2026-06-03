@@ -199,6 +199,46 @@ export default function MarketAnalysisPanel() {
           {analysis.results.map((result) =>
             result.rawData?.length ? (
               <div key={`${result.marketplace}-details`}>
+                {result.liveMarket && (
+                  <div className="live-market-card">
+                    <h4>📡 Live Market ({result.liveMarket.source})</h4>
+
+                    <div className="live-market-grid">
+                      <div>
+                        <strong>Lowest</strong>
+                        <p>
+                          {result.liveMarket.lowestPrice !== null
+                            ? `€ ${result.liveMarket.lowestPrice}`
+                            : "-"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong>Average</strong>
+                        <p>
+                          {result.liveMarket.averagePrice !== null
+                            ? `€ ${result.liveMarket.averagePrice}`
+                            : "-"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong>Highest</strong>
+                        <p>
+                          {result.liveMarket.highestPrice !== null
+                            ? `€ ${result.liveMarket.highestPrice}`
+                            : "-"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong>Listings</strong>
+                        <p>{result.liveMarket.listingsCount ?? "-"}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <h4>{result.marketplace} dettagli</h4>
                 <table>
                   <thead>
@@ -213,8 +253,10 @@ export default function MarketAnalysisPanel() {
                       <th>Suggested</th>
                       <th>Min Price</th>
                       <th>Your Price</th>
-                      <th>Market Ref.</th>
-                      <th>Diff.</th>
+                      <th>DB Market Ref.</th>
+                      <th>DB Diff.</th>
+                      <th>Live Market</th>
+                      <th>Live Diff.</th>
                       <th>Position</th>
                     </tr>
                   </thead>
@@ -237,6 +279,16 @@ export default function MarketAnalysisPanel() {
                         <td>{row.your_price ?? "-"}</td>
                         <td>{row.market_reference_price ?? "-"}</td>
                         <td>{row.market_difference ?? "-"}</td>
+                        <td>{result.liveMarket?.lowestPrice ?? "-"}</td>
+                        <td>
+                          {result.liveMarket?.lowestPrice && row.your_price
+                            ? Number(
+                                (
+                                  row.your_price - result.liveMarket.lowestPrice
+                                ).toFixed(2),
+                              )
+                            : "-"}
+                        </td>
                         <td>
                           {row.market_position === "over_market" &&
                             "🔴 OVER MARKET"}
