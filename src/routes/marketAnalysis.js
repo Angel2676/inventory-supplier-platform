@@ -16,7 +16,7 @@ router.post("/run", async (req, res) => {
       });
     }
 
-    const results = await runMarketAnalysis({
+    const analysis = await runMarketAnalysis({
       eventId,
       category,
       block,
@@ -25,11 +25,7 @@ router.post("/run", async (req, res) => {
 
     return res.json({
       success: true,
-      eventId,
-      category: category || null,
-      block: block || null,
-      marketplaces: marketplaces || [],
-      results,
+      analysis,
     });
   } catch (error) {
     console.error("Market analysis error:", error);

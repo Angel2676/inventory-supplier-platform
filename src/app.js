@@ -22,6 +22,7 @@ const { startMarketplaceSyncJob } = require("./jobs/marketplaceSyncJob");
 const cleanupExpiredReservations = require("./services/reservationCleanup");
 const webhooksRoutes = require("./routes/webhooks");
 const PORT = process.env.PORT || 3000;
+const marketAnalysisRoutes = require("./routes/marketAnalysis");
 const marketplaceContentRequestsRoutes = require("./routes/marketplaceContentRequests");
 const {
   runGigsbergMarketScannerJob,
@@ -63,6 +64,7 @@ app.use("/api/inventory-status", inventoryStatusRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/marketplace", marketplaceRoutes);
+app.use("/api/market-analysis", marketAnalysisRoutes);
 app.use("/api/webhooks", webhooksRoutes);
 
 setInterval(() => {

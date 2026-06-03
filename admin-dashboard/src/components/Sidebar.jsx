@@ -29,6 +29,7 @@ function Sidebar({
       label: "Marketplace Content Requests",
     },
     { key: "marketplace-hub", label: "Marketplace Hub" },
+    { key: "market-analysis", label: "Market Analysis" },
     { key: "inventory-intelligence", label: "Inventory Intelligence" },
     { key: "reservation-create", label: "Create Reservation" },
     { key: "requests", label: "Ticket Requests" },
