@@ -15,19 +15,19 @@ const EVENT_TYPES = [
       "Europa League",
       "Conference League",
       "Nazionali",
-      "Altro calcio"
-    ]
+      "Altro calcio",
+    ],
   },
   {
     value: "concert",
     label: "Concerti",
-    subcategories: ["Concerti italiani", "Concerti internazionali"]
+    subcategories: ["Concerti italiani", "Concerti internazionali"],
   },
   {
     value: "formula_1",
     label: "Formula 1",
-    subcategories: ["Grand Prix"]
-  }
+    subcategories: ["Grand Prix"],
+  },
 ];
 
 function EventManagement() {
@@ -54,7 +54,7 @@ function EventManagement() {
     logo_url: "",
     status: "active",
     visibility: "public",
-    notes: ""
+    notes: "",
   };
 
   const [form, setForm] = useState(emptyForm);
@@ -74,7 +74,31 @@ function EventManagement() {
 
   function formatDate(value) {
     if (!value) return "-";
-    return new Date(value).toLocaleString();
+
+    const text = String(value);
+
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
+
+    if (match) {
+      const [, year, month, day, hour, minute] = match;
+      return `${day}/${month}/${year}, ${hour}:${minute}`;
+    }
+
+    return text;
+  }
+  function toDatetimeLocalValue(value) {
+    if (!value) return "";
+
+    const text = String(value);
+
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
+
+    if (match) {
+      const [, year, month, day, hour, minute] = match;
+      return `${year}-${month}-${day}T${hour}:${minute}`;
+    }
+
+    return "";
   }
 
   function EventPreview({ event }) {
@@ -85,7 +109,7 @@ function EventManagement() {
           style={{
             backgroundImage: event.image_url
               ? `url(${event.image_url})`
-              : "linear-gradient(135deg, #0f172a, #2563eb)"
+              : "linear-gradient(135deg, #0f172a, #2563eb)",
           }}
         >
           {event.logo_url && (
@@ -109,8 +133,7 @@ function EventManagement() {
           <strong>{event.name || "Evento"}</strong>
 
           <span>
-            {getTypeLabel(event.event_type)} ·{" "}
-            {event.event_subcategory || "-"}
+            {getTypeLabel(event.event_type)} · {event.event_subcategory || "-"}
           </span>
 
           <small>
@@ -149,7 +172,7 @@ function EventManagement() {
         event_type: value,
         event_subcategory: firstSubcategory,
         team_name: value === "football" ? form.team_name : "",
-        team_logo_url: value === "football" ? form.team_logo_url : ""
+        team_logo_url: value === "football" ? form.team_logo_url : "",
       });
 
       return;
@@ -167,7 +190,7 @@ function EventManagement() {
         event_type: value,
         event_subcategory: firstSubcategory,
         team_name: value === "football" ? editForm.team_name : "",
-        team_logo_url: value === "football" ? editForm.team_logo_url : ""
+        team_logo_url: value === "football" ? editForm.team_logo_url : "",
       });
 
       return;
@@ -191,7 +214,7 @@ function EventManagement() {
         team_name: form.team_name || null,
         team_logo_url: form.team_logo_url || null,
         image_url: form.image_url || null,
-        logo_url: form.logo_url || null
+        logo_url: form.logo_url || null,
       });
 
       setMessage("Evento creato correttamente");
@@ -212,7 +235,7 @@ function EventManagement() {
 
     setEditForm({
       name: event.name || "",
-      event_date: event.event_date ? event.event_date.slice(0, 16) : "",
+      event_date: toDatetimeLocalValue(event.event_date),
       venue: event.venue || "",
       city: event.city || "",
       country: event.country || "",
@@ -224,7 +247,7 @@ function EventManagement() {
       logo_url: event.logo_url || "",
       status: event.status || "active",
       visibility: event.visibility || "public",
-      notes: event.notes || ""
+      notes: event.notes || "",
     });
   }
 
@@ -245,7 +268,7 @@ function EventManagement() {
         team_name: editForm.team_name || null,
         team_logo_url: editForm.team_logo_url || null,
         image_url: editForm.image_url || null,
-        logo_url: editForm.logo_url || null
+        logo_url: editForm.logo_url || null,
       });
 
       setEditingId(null);
@@ -292,8 +315,8 @@ function EventManagement() {
 
           return matchesType && matchesSubcategory && event.team_name;
         })
-        .map((event) => event.team_name)
-    )
+        .map((event) => event.team_name),
+    ),
   ).sort();
 
   const filteredEvents = events.filter((event) => {
@@ -330,8 +353,8 @@ function EventManagement() {
       <h2>Event Management</h2>
 
       <p style={{ marginBottom: "18px", color: "#64748b" }}>
-        Gestisci macro aree, competizioni, squadre, immagini, loghi, venue,
-        date e visibilità degli eventi.
+        Gestisci macro aree, competizioni, squadre, immagini, loghi, venue, date
+        e visibilità degli eventi.
       </p>
 
       {message && <div className="success">{message}</div>}
@@ -453,10 +476,9 @@ function EventManagement() {
         </button>
       </form>
 
-      {(form.image_url ||
-        form.logo_url ||
-        form.team_logo_url ||
-        form.name) && <EventPreview event={form} />}
+      {(form.image_url || form.logo_url || form.team_logo_url || form.name) && (
+        <EventPreview event={form} />
+      )}
 
       <div className="filters-bar">
         <select
@@ -578,7 +600,7 @@ function EventManagement() {
                         <option key={subcategory} value={subcategory}>
                           {subcategory}
                         </option>
-                      )
+                      ),
                     )}
                   </select>
                 ) : (
@@ -688,9 +710,7 @@ function EventManagement() {
                     className="table-input"
                     type="url"
                     value={editForm.logo_url}
-                    onChange={(e) =>
-                      updateEditForm("logo_url", e.target.value)
-                    }
+                    onChange={(e) => updateEditForm("logo_url", e.target.value)}
                   />
                 ) : event.logo_url ? (
                   <a href={event.logo_url} target="_blank" rel="noreferrer">
@@ -728,9 +748,7 @@ function EventManagement() {
                 {editingId === event.id ? (
                   <select
                     value={editForm.status}
-                    onChange={(e) =>
-                      updateEditForm("status", e.target.value)
-                    }
+                    onChange={(e) => updateEditForm("status", e.target.value)}
                   >
                     <option value="active">active</option>
                     <option value="sold_out">sold_out</option>
@@ -769,10 +787,7 @@ function EventManagement() {
                       Salva
                     </button>
 
-                    <button
-                      className="btn btn-secondary"
-                      onClick={cancelEdit}
-                    >
+                    <button className="btn btn-secondary" onClick={cancelEdit}>
                       Annulla
                     </button>
                   </>
