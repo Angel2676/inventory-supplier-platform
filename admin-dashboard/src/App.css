@@ -2885,3 +2885,32 @@ body.dark-mode .theme-toggle-btn {
   font-weight: 800;
   color: #0f172a;
 }
+.detail-filters {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 18px 0;
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.detail-filters label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.detail-filters select {
+  height: 38px;
+  min-width: 160px;
+  border: 1px solid #94a3b8;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: #ffffff;
+  color: #0f172a;
+}

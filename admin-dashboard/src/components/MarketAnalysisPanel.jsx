@@ -11,6 +11,7 @@ export default function MarketAnalysisPanel() {
   const [error, setError] = useState("");
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [detailStatusFilter, setDetailStatusFilter] = useState("all");
 
   useEffect(() => {
     async function loadEvents() {
@@ -196,6 +197,21 @@ export default function MarketAnalysisPanel() {
             </tbody>
           </table>
 
+          <div className="detail-filters">
+            <label>
+              Status dettagli
+              <select
+                value={detailStatusFilter}
+                onChange={(e) => setDetailStatusFilter(e.target.value)}
+              >
+                <option value="all">Tutti</option>
+                <option value="active">Active</option>
+                <option value="removed">Removed</option>
+                <option value="expired">Expired</option>
+                <option value="non_active">Non Active</option>
+              </select>
+            </label>
+          </div>
           {analysis.results.map((result) =>
             result.rawData?.length ? (
               <div key={`${result.marketplace}-details`}>
@@ -245,6 +261,7 @@ export default function MarketAnalysisPanel() {
                     <tr>
                       <th>Listing ID</th>
                       <th>Remote ID</th>
+                      <th>Status</th>
                       <th>Ticket ID</th>
                       <th>Settore</th>
                       <th>Blocco</th>
@@ -261,45 +278,61 @@ export default function MarketAnalysisPanel() {
                     </tr>
                   </thead>
                   <tbody>
-                    {result.rawData.map((row) => (
-                      <tr key={`${result.marketplace}-${row.listing_id}`}>
-                        <td>{row.listing_id}</td>
-                        <td>{row.remote_listing_id}</td>
-                        <td>{row.ticket_id}</td>
-                        <td>{row.category || "-"}</td>
-                        <td>{row.block || "-"}</td>
-                        <td>{row.marketplace_price || "-"}</td>
-                        <td>
-                          {row.listing_last_market_price ||
-                            row.ticket_last_market_price ||
-                            "-"}
-                        </td>
-                        <td>{row.last_suggested_price || "-"}</td>
-                        <td>{row.min_price || "-"}</td>
-                        <td>{row.your_price ?? "-"}</td>
-                        <td>{row.market_reference_price ?? "-"}</td>
-                        <td>{row.market_difference ?? "-"}</td>
-                        <td>{result.liveMarket?.lowestPrice ?? "-"}</td>
-                        <td>
-                          {result.liveMarket?.lowestPrice && row.your_price
-                            ? Number(
-                                (
-                                  row.your_price - result.liveMarket.lowestPrice
-                                ).toFixed(2),
-                              )
-                            : "-"}
-                        </td>
-                        <td>
-                          {row.market_position === "over_market" &&
-                            "🔴 OVER MARKET"}
-                          {row.market_position === "under_market" &&
-                            "🟢 UNDER MARKET"}
-                          {row.market_position === "at_market" &&
-                            "🟡 AT MARKET"}
-                          {row.market_position === "unknown" && "-"}
-                        </td>
-                      </tr>
-                    ))}
+                    {result.rawData
+                      .filter((row) => {
+                        const status = String(
+                          row.status || row.listing_status || "",
+                        ).toLowerCase();
+
+                        if (detailStatusFilter === "all") return true;
+
+                        if (detailStatusFilter === "non_active") {
+                          return status && status !== "active";
+                        }
+
+                        return status === detailStatusFilter;
+                      })
+                      .map((row) => (
+                        <tr key={`${result.marketplace}-${row.listing_id}`}>
+                          <td>{row.listing_id}</td>
+                          <td>{row.remote_listing_id}</td>
+                          <td>{row.status || row.listing_status || "-"}</td>
+                          <td>{row.ticket_id}</td>
+                          <td>{row.category || "-"}</td>
+                          <td>{row.block || "-"}</td>
+                          <td>{row.marketplace_price || "-"}</td>
+                          <td>
+                            {row.listing_last_market_price ||
+                              row.ticket_last_market_price ||
+                              "-"}
+                          </td>
+                          <td>{row.last_suggested_price || "-"}</td>
+                          <td>{row.min_price || "-"}</td>
+                          <td>{row.your_price ?? "-"}</td>
+                          <td>{row.market_reference_price ?? "-"}</td>
+                          <td>{row.market_difference ?? "-"}</td>
+                          <td>{result.liveMarket?.lowestPrice ?? "-"}</td>
+                          <td>
+                            {result.liveMarket?.lowestPrice && row.your_price
+                              ? Number(
+                                  (
+                                    row.your_price -
+                                    result.liveMarket.lowestPrice
+                                  ).toFixed(2),
+                                )
+                              : "-"}
+                          </td>
+                          <td>
+                            {row.market_position === "over_market" &&
+                              "🔴 OVER MARKET"}
+                            {row.market_position === "under_market" &&
+                              "🟢 UNDER MARKET"}
+                            {row.market_position === "at_market" &&
+                              "🟡 AT MARKET"}
+                            {row.market_position === "unknown" && "-"}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>

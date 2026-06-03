@@ -107,6 +107,7 @@ async function analyzeTicomboMarket({ eventId, category, block }) {
   const firstRowWithRemoteEvent = rows.find((row) => row.remote_event_id);
 
   let liveMarket = null;
+  let liveListings = [];
 
   if (firstRowWithRemoteEvent?.remote_event_id) {
     try {
@@ -117,6 +118,7 @@ async function analyzeTicomboMarket({ eventId, category, block }) {
       });
 
       const listings = Array.isArray(response?.data) ? response.data : [];
+      liveListings = listings;
       const extracted = extractPrices(listings, category);
       const livePrices = extracted.prices;
       const liveStats = calculateStats(livePrices);
@@ -197,8 +199,13 @@ async function analyzeTicomboMarket({ eventId, category, block }) {
       if (difference === 0) position = "at_market";
     }
 
+    const liveListing = liveListings.find(
+      (listing) => listing.listingId === row.remote_listing_id,
+    );
+
     return {
       ...row,
+      listing_status: liveListing?.status || null,
       your_price: yourPrice || null,
       market_reference_price: dbMarketPrice || null,
       market_difference: difference,
