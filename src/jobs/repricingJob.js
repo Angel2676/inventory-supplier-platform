@@ -186,16 +186,16 @@ async function runRepricingJob() {
         [priceCheck.finalPrice, priceCheck.suggestedPrice, listing.id],
       );
 
-      await pool.query(
-        `
-        UPDATE tickets
-        SET
-          marketplace_price = $1,
-          updated_at = NOW()
-        WHERE id = $2
-        `,
-        [priceCheck.finalPrice, listing.ticket_id],
-      );
+      // await pool.query(
+      //`
+      // UPDATE tickets
+      //SET
+      // marketplace_price = $1,
+      // updated_at = NOW()
+      //WHERE id = $2
+      //`,
+      // [priceCheck.finalPrice, listing.ticket_id],
+      //);
 
       console.log(
         `Marketplace listing ${listing.id} (${listing.marketplace}): price updated from ${currentMarketplacePrice} to ${priceCheck.finalPrice}`,

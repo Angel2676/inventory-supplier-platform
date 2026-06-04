@@ -244,29 +244,29 @@ async function runGigsbergMarketScannerJob() {
           } else {
             console.log("No competitor listings found");
 
-            await pool.query(
-              `
-      UPDATE marketplace_listings
-      SET
-        last_market_price = NULL,
-        last_suggested_price = NULL,
-        updated_at = NOW()
-      WHERE id = $1
-      `,
-              [listing.marketplace_listing_id],
-            );
+            //await pool.query(
+            // `
+            // UPDATE marketplace_listings
+            // SET
+            //last_market_price = NULL,
+            // last_suggested_price = NULL,
+            // updated_at = NOW()
+            // WHERE id = $1
+            // `,
+            // [listing.marketplace_listing_id],
+            // );
 
-            await pool.query(
-              `
-      UPDATE tickets
-      SET
-        last_market_price = NULL,
-        suggested_marketplace_price = NULL,
-        updated_at = NOW()
-      WHERE id = $1
-      `,
-              [listing.ticket_id],
-            );
+            // await pool.query(
+            // `
+            //UPDATE tickets
+            // SET
+            //last_market_price = NULL,
+            // suggested_marketplace_price = NULL,
+            // updated_at = NOW()
+            // WHERE id = $1
+            // `,
+            // [listing.ticket_id],
+            // );
 
             continue;
           }
