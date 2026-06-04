@@ -646,27 +646,29 @@ async function syncMarketplaceQuantities() {
           [resultingSyncStatus, currentQuantity, listing.id, currentPrice],
         );
 
-        await pool.query(
-          `
-          INSERT INTO marketplace_sync_logs (
-            marketplace_listing_id,
-            ticket_id,
-            marketplace,
-            action,
-            status,
-            response_payload
-          )
-          VALUES ($1,$2,$3,$4,$5,$6)
-          `,
-          [
-            listing.id,
-            listing.ticket_id,
-            listing.marketplace,
-            action,
-            "success",
-            responsePayload ? JSON.stringify(responsePayload) : null,
-          ],
-        );
+        if (action !== "quantity_price_sync") {
+          await pool.query(
+            `
+            INSERT INTO marketplace_sync_logs (
+              marketplace_listing_id,
+              ticket_id,
+              marketplace,
+              action,
+              status,
+              response_payload
+            )
+            VALUES ($1,$2,$3,$4,$5,$6)
+            `,
+            [
+              listing.id,
+              listing.ticket_id,
+              listing.marketplace,
+              action,
+              "success",
+              responsePayload ? JSON.stringify(responsePayload) : null,
+            ],
+          );
+        }
       } catch (listingError) {
         const detailedError = normalizeMarketplaceError(listingError);
 
