@@ -78,6 +78,7 @@ async function runRepricingJob() {
           listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
         ),
       });
+
       const effectiveMinPrice = Number(
         listing.min_price ||
           listing.ticket_min_price ||
@@ -90,12 +91,23 @@ async function runRepricingJob() {
           `
           UPDATE marketplace_listings
           SET
-            last_suggested_price = $1,
-            last_reprice_at = NOW()
-          WHERE id = $2
+            marketplace_price = $1,
+            last_market_price = $2,
+            last_suggested_price = $3,
+            last_reprice_at = NOW(),
+            updated_at = NOW()
+          WHERE id = $4
           `,
-          [priceCheck.suggestedPrice, listing.id],
+          [
+            priceCheck.finalPrice,
+            marketLowestPrice || null,
+            priceCheck.suggestedPrice,
+            listing.id,
+          ],
         );
+        console.log("GIGSBERG SCANNER TICKET UPDATED", {
+          ticket_id: listing.ticket_id,
+        });
 
         console.log(
           `Marketplace listing ${listing.id} (${listing.marketplace}): no update - ${priceCheck.reason}`,
@@ -177,13 +189,26 @@ async function runRepricingJob() {
       await pool.query(
         `
         UPDATE marketplace_listings
+        console.log("GIGSBERG SCANNER DB UPDATE START", {
+  listing_id: listing.marketplace_listing_id,
+  ticket_id: listing.ticket_id,
+  lowestPrice,
+  suggestedPrice: priceCheck.suggestedPrice,
+});
         SET
           marketplace_price = $1,
-          last_suggested_price = $2,
-          last_reprice_at = NOW()
-        WHERE id = $3
+          last_market_price = $2,
+          last_suggested_price = $3,
+          last_reprice_at = NOW(),
+          updated_at = NOW()
+        WHERE id = $4
         `,
-        [priceCheck.finalPrice, priceCheck.suggestedPrice, listing.id],
+        [
+          priceCheck.finalPrice,
+          priceCheck.marketLowestPrice || listing.last_market_price || null,
+          priceCheck.suggestedPrice,
+          listing.id,
+        ],
       );
 
       // await pool.query(

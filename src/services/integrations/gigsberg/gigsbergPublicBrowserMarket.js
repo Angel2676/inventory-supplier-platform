@@ -237,50 +237,6 @@ function extractCategoryPricesFromText(text, categoryName) {
     .map((line) => line.trim())
     .filter(Boolean);
 
-  const results = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    if (!categoryMatches(line, categoryName)) {
-      continue;
-    }
-
-    const blockText = lines.slice(i, i + 25).join("\n");
-
-    const priceMatch = blockText.match(/US\$\s*[0-9]+(?:[.,][0-9]{2})?/);
-
-    if (priceMatch) {
-      const usdPrice = parsePrice(priceMatch[0]);
-
-      if (usdPrice) {
-        const eurPrice = Number((usdPrice * USD_TO_EUR_RATE).toFixed(2));
-
-        results.push({
-          category: line,
-          requestedCategory: categoryName,
-          usdPrice,
-          eurPrice,
-          rawPrice: priceMatch[0],
-        });
-      }
-    }
-  }
-
-  console.log("CATEGORY MATCH RESULTS:", {
-    requestedCategory: categoryName,
-    matchesFound: results.length,
-    matches: results.slice(0, 5),
-  });
-
-  return results;
-}
-function extractCategoryPricesFromText(text, categoryName) {
-  const lines = String(text || "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-
   const normalizedCategory = normalizeMarketplaceCategory(categoryName);
 
   const results = [];
@@ -396,29 +352,59 @@ async function getVisiblePublicPrices(publicUrl, options = {}) {
     }
 
     if (!prices.length && categoryName) {
-      console.log(
-        "CATEGORY FILTER EMPTY, NO FALLBACK TO ALL EVENT PRICES FOR SAFETY",
-        {
-          categoryName,
-        },
-      );
+      const normalizedCategory = normalizeMarketplaceCategory(categoryName);
 
-      return [];
+      const isSafeGenericCategory = [
+        "floor",
+        "prato",
+        "standing",
+        "general",
+        "general admission",
+        "ga",
+        "pitch",
+        "parterre",
+        "prato gold",
+        "gold_circle",
+        "los_vecinos",
+      ].includes(normalizedCategory);
+
+      if (!isSafeGenericCategory) {
+        console.log(
+          "CATEGORY FILTER EMPTY, NO FALLBACK TO ALL EVENT PRICES FOR SAFETY",
+          {
+            categoryName,
+            normalizedCategory,
+          },
+        );
+
+        return [];
+      }
+
+      console.log("CATEGORY FILTER EMPTY, SAFE GENERIC FALLBACK ENABLED", {
+        categoryName,
+        normalizedCategory,
+      });
     }
 
     if (!prices.length) {
-      const rawMatches =
+      const usdMatches =
         result.fullText.match(/US\$\s*[0-9]+(?:[.,][0-9]{2})?/g) || [];
 
-      const parsedPricesUsd = rawMatches
+      const numericMatches =
+        result.fullText.match(/\b[0-9]{2,4}(?:[.,][0-9]{2})\b/g) || [];
+
+      const parsedUsdPrices = usdMatches
+        .map(parsePrice)
+        .filter((price) => price !== null)
+        .filter((price) => price > 10 && price < 10000)
+        .map((price) => Number((price * USD_TO_EUR_RATE).toFixed(2)));
+
+      const parsedNumericPrices = numericMatches
         .map(parsePrice)
         .filter((price) => price !== null)
         .filter((price) => price > 10 && price < 10000);
 
-      prices = parsedPricesUsd.map((price) =>
-        Number((price * USD_TO_EUR_RATE).toFixed(2)),
-      );
-
+      prices = [...parsedUsdPrices, ...parsedNumericPrices];
       console.log("NO CATEGORY PROVIDED, FALLBACK TO ALL EVENT PRICES");
     }
 
@@ -475,8 +461,52 @@ async function getVisibleLowestPublicPrice(publicUrl, options = {}) {
     excluded_own_price: own,
   };
 }
+async function findGigsbergPublicEventUrl({
+  eventName,
+  remoteEventId,
+  headless = true,
+}) {
+  if (!remoteEventId) return null;
+
+  const browser = await chromium.launch({ headless });
+
+  try {
+    const page = await browser.newPage();
+
+    const searchUrl = `https://www.gigsberg.com/search?q=${encodeURIComponent(
+      eventName || remoteEventId,
+    )}`;
+
+    await page.goto(searchUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: 45000,
+    });
+
+    await page.waitForTimeout(3000);
+
+    const links = await page.$$eval("a[href]", (anchors) =>
+      anchors.map((a) => a.href).filter(Boolean),
+    );
+
+    const match = links.find((href) => href.includes(`show-${remoteEventId}`));
+    console.log("GIGSBERG PUBLIC EVENT URL LOOKUP:", {
+      searchUrl,
+      remoteEventId,
+      eventName,
+      linksFound: links.length,
+      match,
+    });
+
+    return match || null;
+  } catch (error) {
+    return null;
+  } finally {
+    await browser.close();
+  }
+}
 
 module.exports = {
   getVisiblePublicPrices,
   getVisibleLowestPublicPrice,
+  findGigsbergPublicEventUrl,
 };

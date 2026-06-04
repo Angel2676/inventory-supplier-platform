@@ -10,6 +10,10 @@ const {
 } = require("../services/integrations/gigsberg/gigsbergApi");
 
 const {
+  findGigsbergPublicEventUrl,
+} = require("../services/integrations/gigsberg/gigsbergPublicBrowserMarket");
+
+const {
   searchSportEvents365Events,
   createSupplierTickets,
 } = require("../services/integrations/sportevents365/sportevents365Api");
@@ -977,6 +981,24 @@ router.post("/publish", async (req, res) => {
           gigsbergResult?.response?.content?.id ||
           gigsbergResult?.response?.id ||
           null;
+        let publicUrl =
+          gigsbergResult?.response?.content?.public_url ||
+          gigsbergResult?.response?.content?.publicUrl ||
+          gigsbergResult?.response?.content?.url ||
+          gigsbergResult?.response?.public_url ||
+          gigsbergResult?.response?.publicUrl ||
+          gigsbergResult?.response?.url ||
+          gigsbergResult?.public_url ||
+          gigsbergResult?.publicUrl ||
+          gigsbergResult?.url ||
+          null;
+
+        if (!publicUrl) {
+          publicUrl = await findGigsbergPublicEventUrl({
+            eventName: gigsbergResult?.gigsberg_event?.name,
+            remoteEventId: gigsbergResult?.gigsberg_event_id,
+          });
+        }
 
         const listingResult = await pool.query(
           `
@@ -989,6 +1011,7 @@ router.post("/publish", async (req, res) => {
             remote_category_id,
             remote_listing_id,
             external_listing_id,
+            public_url,
             sync_status,
             sync_direction,
             last_sync_at,
@@ -1002,10 +1025,10 @@ router.post("/publish", async (req, res) => {
             undercut_amount
           )
           VALUES (
-            $1,$2,$3,$4,$5,$6,$7,$7,$8,$9,
+            $1,$2,$3,$4,$5,$6,$7,$7,$8,$9,$10,
             NOW(),
-            $10,$11,NOW(),$12,
-            $13,$14,$15,$16
+            $11,$12,NOW(),$13,
+            $14,$15,$16,$17
           )
           RETURNING *
           `,
@@ -1017,6 +1040,7 @@ router.post("/publish", async (req, res) => {
             gigsbergResult.gigsberg_event_id,
             gigsbergResult.gigsberg_category_id,
             remoteListingId,
+            publicUrl,
             "synced",
             "inventory_to_marketplace",
             gigsbergResult.price_check?.finalPrice || null,
@@ -2144,6 +2168,24 @@ router.post("/gigsberg/publish-all", async (req, res) => {
           gigsbergResult?.response?.content?.id ||
           gigsbergResult?.response?.id ||
           null;
+        let publicUrl =
+          gigsbergResult?.response?.content?.public_url ||
+          gigsbergResult?.response?.content?.publicUrl ||
+          gigsbergResult?.response?.content?.url ||
+          gigsbergResult?.response?.public_url ||
+          gigsbergResult?.response?.publicUrl ||
+          gigsbergResult?.response?.url ||
+          gigsbergResult?.public_url ||
+          gigsbergResult?.publicUrl ||
+          gigsbergResult?.url ||
+          null;
+
+        if (!publicUrl) {
+          publicUrl = await findGigsbergPublicEventUrl({
+            eventName: gigsbergResult?.gigsberg_event?.name,
+            remoteEventId: gigsbergResult?.gigsberg_event_id,
+          });
+        }
 
         const ticketSettingsResult = await pool.query(
           `
@@ -2171,6 +2213,7 @@ router.post("/gigsberg/publish-all", async (req, res) => {
               remote_category_id,
               remote_listing_id,
               external_listing_id,
+              public_url,
               sync_status,
               sync_direction,
               last_sync_at,
@@ -2184,10 +2227,10 @@ router.post("/gigsberg/publish-all", async (req, res) => {
               undercut_amount
             )
             VALUES (
-              $1,$2,$3,$4,$5,$6,$7,$7,$8,$9,
+              $1,$2,$3,$4,$5,$6,$7,$7,$8,$9,$10,
               NOW(),
-              $10,$11,NOW(),$12,
-              $13,$14,$15,$16
+              $11,$12,NOW(),$13,
+              $14,$15,$16,$17
             )
             RETURNING *
             `,
@@ -2199,6 +2242,7 @@ router.post("/gigsberg/publish-all", async (req, res) => {
             gigsbergResult.gigsberg_event_id,
             gigsbergResult.gigsberg_category_id,
             remoteListingId,
+            publicUrl,
             "synced",
             "inventory_to_marketplace",
             gigsbergResult.price_check?.finalPrice || null,
