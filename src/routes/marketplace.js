@@ -2037,4 +2037,240 @@ router.delete("/listings/:id", async (req, res) => {
   }
 });
 
+router.post("/gigsberg/publish-all", async (req, res) => {
+  const { eventId, dryRun = true, limit = 25 } = req.body;
+
+  if (!eventId) {
+    return res.status(400).json({
+      error: "eventId obbligatorio per Publish All Gigsberg",
+    });
+  }
+
+  try {
+    const ticketsResult = await pool.query(
+      `
+        SELECT
+          t.id,
+          t.category,
+          t.block,
+          t.quantity,
+          t.available_quantity,
+          t.status,
+          t.price,
+          e.name AS event_name
+        FROM tickets t
+        JOIN events e ON e.id = t.event_id
+        WHERE t.event_id = $1
+          AND COALESCE(t.quantity, 0) > 0
+          AND COALESCE(t.status, 'available') = 'available'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM marketplace_listings ml
+            WHERE ml.ticket_id = t.id
+              AND ml.marketplace = 'gigsberg'
+              AND ml.sync_status = 'synced'
+              AND ml.remote_listing_id IS NOT NULL
+          )
+        ORDER BY t.id ASC
+        LIMIT $2
+        `,
+      [eventId, Number(limit) || 25],
+    );
+
+    const tickets = ticketsResult.rows;
+
+    const report = {
+      marketplace: "gigsberg",
+      eventId,
+      dryRun: Boolean(dryRun),
+      totalCandidates: tickets.length,
+      successCount: 0,
+      skippedCount: 0,
+      errorCount: 0,
+      results: [],
+    };
+
+    for (const ticket of tickets) {
+      if (dryRun) {
+        report.skippedCount += 1;
+        report.results.push({
+          ticketId: ticket.id,
+          eventName: ticket.event_name,
+          category: ticket.category,
+          block: ticket.block,
+          quantity: ticket.quantity,
+          availableQuantity: ticket.available_quantity,
+          status: ticket.status,
+          price: ticket.price,
+          success: false,
+          skipped: true,
+          reason: "dry_run",
+          message: "Ticket pronto per verifica Publish All Gigsberg",
+        });
+
+        continue;
+      }
+
+      try {
+        const existingResult = await pool.query(
+          `
+            SELECT id
+            FROM marketplace_listings
+            WHERE ticket_id = $1
+              AND marketplace = 'gigsberg'
+              AND sync_status = 'synced'
+              AND remote_listing_id IS NOT NULL
+            LIMIT 1
+            `,
+          [ticket.id],
+        );
+
+        if (existingResult.rows.length > 0) {
+          report.skippedCount += 1;
+          report.results.push({
+            ticketId: ticket.id,
+            success: false,
+            skipped: true,
+            reason: "already_published",
+            message: "Ticket già pubblicato su Gigsberg",
+          });
+
+          continue;
+        }
+
+        const gigsbergResult = await createGigsbergListing(ticket.id);
+
+        const remoteListingId =
+          gigsbergResult?.response?.content?.id ||
+          gigsbergResult?.response?.id ||
+          null;
+
+        const ticketSettingsResult = await pool.query(
+          `
+            SELECT
+              auto_reprice_enabled,
+              min_price,
+              last_market_price,
+              undercut_amount
+            FROM tickets
+            WHERE id = $1
+            `,
+          [ticket.id],
+        );
+
+        const ticketSettings = ticketSettingsResult.rows[0] || {};
+
+        const listingResult = await pool.query(
+          `
+            INSERT INTO marketplace_listings (
+              ticket_id,
+              marketplace,
+              external_event_id,
+              external_category_id,
+              remote_event_id,
+              remote_category_id,
+              remote_listing_id,
+              external_listing_id,
+              sync_status,
+              sync_direction,
+              last_sync_at,
+              marketplace_price,
+              last_quantity_synced,
+              last_quantity_sync_at,
+              last_error,
+              auto_reprice_enabled,
+              min_price,
+              last_market_price,
+              undercut_amount
+            )
+            VALUES (
+              $1,$2,$3,$4,$5,$6,$7,$7,$8,$9,
+              NOW(),
+              $10,$11,NOW(),$12,
+              $13,$14,$15,$16
+            )
+            RETURNING *
+            `,
+          [
+            ticket.id,
+            "gigsberg",
+            gigsbergResult.gigsberg_event_id,
+            gigsbergResult.gigsberg_category_id,
+            gigsbergResult.gigsberg_event_id,
+            gigsbergResult.gigsberg_category_id,
+            remoteListingId,
+            "synced",
+            "inventory_to_marketplace",
+            gigsbergResult.price_check?.finalPrice || null,
+            null,
+            null,
+            ticketSettings.auto_reprice_enabled || false,
+            ticketSettings.min_price || null,
+            ticketSettings.last_market_price || null,
+            ticketSettings.undercut_amount || 0.01,
+          ],
+        );
+
+        await pool.query(
+          `
+            INSERT INTO marketplace_sync_logs (
+              marketplace_listing_id,
+              ticket_id,
+              marketplace,
+              action,
+              status,
+              response_payload,
+              error_message
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7)
+            `,
+          [
+            listingResult.rows[0].id,
+            ticket.id,
+            "gigsberg",
+            "publish_all",
+            "synced",
+            JSON.stringify(gigsbergResult),
+            null,
+          ],
+        );
+
+        report.successCount += 1;
+        report.results.push({
+          ticketId: ticket.id,
+          success: true,
+          listing: listingResult.rows[0],
+          result: gigsbergResult,
+        });
+      } catch (error) {
+        const details = error.response?.data || error.message;
+
+        report.errorCount += 1;
+        report.results.push({
+          ticketId: ticket.id,
+          success: false,
+          error: details,
+        });
+
+        console.error("Publish All Gigsberg ticket error:", {
+          ticketId: ticket.id,
+          details,
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      report,
+    });
+  } catch (error) {
+    console.error("Errore Publish All Gigsberg:", error);
+
+    return res.status(500).json({
+      error: "Errore Publish All Gigsberg",
+      details: error.message,
+    });
+  }
+});
+
 module.exports = router;
