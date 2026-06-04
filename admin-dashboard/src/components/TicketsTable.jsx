@@ -60,7 +60,8 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   const [publishingTicketId, setPublishingTicketId] = useState(null);
   const [readinessByTicketId, setReadinessByTicketId] = useState({});
   const [error, setError] = useState("");
-
+  const [publishAllLoading, setPublishAllLoading] = useState(false);
+  const [publishAllReport, setPublishAllReport] = useState(null);
   const [editForm, setEditForm] = useState({
     price: "",
     marketplace_price: "",
@@ -110,6 +111,16 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   function getEventName(eventId) {
     const event = getEvent(eventId);
     return event ? event.name : `Evento ID ${eventId}`;
+  }
+
+  function getSelectedEventLabel() {
+    if (!eventFilter) return "Nessun evento selezionato";
+
+    const event = getEvent(eventFilter);
+
+    if (!event) return `Evento ID ${eventFilter}`;
+
+    return `${event.name} - ${event.city || "-"} - ${formatDate(event.event_date)}`;
   }
 
   function getEventDate(eventId) {
@@ -260,6 +271,35 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       setError(err.response?.data?.error || "Errore publish Gigsberg");
     } finally {
       setPublishingTicketId(null);
+    }
+  }
+  async function publishAllGigsbergDryRun() {
+    if (!eventFilter) {
+      setError("Seleziona prima un evento per usare Publish All Gigsberg");
+      return;
+    }
+
+    try {
+      setPublishAllLoading(true);
+      setPublishAllReport(null);
+      setError("");
+
+      const response = await api.post("/api/marketplace/gigsberg/publish-all", {
+        eventId: Number(eventFilter),
+        dryRun: true,
+        limit: 50,
+      });
+
+      setPublishAllReport(response.data.report);
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.details ||
+          "Errore Publish All Gigsberg dry run",
+      );
+    } finally {
+      setPublishAllLoading(false);
     }
   }
 
@@ -631,6 +671,19 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                 </option>
               ))}
           </select>
+          <select
+            value={eventFilter}
+            onChange={(e) => setEventFilter(e.target.value)}
+          >
+            <option value="">Tutti gli eventi</option>
+
+            {filteredEventsForCards.map((event) => (
+              <option key={event.id} value={event.id}>
+                {event.name} - {event.city || "-"} -{" "}
+                {formatDate(event.event_date)}
+              </option>
+            ))}
+          </select>
 
           <select
             value={sortDirection}
@@ -662,6 +715,72 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
           title="No tickets available"
           message="No tickets match your current filters. Try changing team, artist, event or contact SportManiaTravel."
         />
+      )}
+      {marketplaceMode && canEdit && (
+        <div className="bulk-actions-bar">
+          <div className="bulk-actions-info">
+            <span className="bulk-actions-label">Evento selezionato</span>
+            <strong>{getSelectedEventLabel()}</strong>
+          </div>
+
+          <button
+            className="btn btn-secondary"
+            onClick={publishAllGigsbergDryRun}
+            disabled={publishAllLoading || !eventFilter}
+          >
+            {publishAllLoading ? "Checking Publish All..." : "🚀 Publish All"}
+          </button>
+        </div>
+      )}
+
+      {publishAllReport && (
+        <div className="publish-all-report">
+          <h4>Publish All Gigsberg - Dry Run Report</h4>
+
+          <p>
+            Candidati: <strong>{publishAllReport.totalCandidates}</strong> ·
+            Successi: <strong>{publishAllReport.successCount}</strong> ·
+            Saltati: <strong>{publishAllReport.skippedCount}</strong> · Errori:{" "}
+            <strong>{publishAllReport.errorCount}</strong>
+          </p>
+          {publishAllReport.totalCandidates === 0 && (
+            <div className="publish-all-empty">
+              Nessun ticket disponibile per il Publish All. I ticket dell'evento
+              risultano già pubblicati, non disponibili oppure esclusi dai
+              criteri di sicurezza.
+            </div>
+          )}
+
+          {publishAllReport.results?.length > 0 && (
+            <table>
+              <thead>
+                <tr>
+                  <th>Ticket ID</th>
+                  <th>Evento</th>
+                  <th>Categoria</th>
+                  <th>Blocco</th>
+                  <th>Quantità</th>
+                  <th>Prezzo</th>
+                  <th>Esito</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {publishAllReport.results.map((item) => (
+                  <tr key={item.ticketId}>
+                    <td>{item.ticketId}</td>
+                    <td>{item.eventName || "-"}</td>
+                    <td>{item.category || "-"}</td>
+                    <td>{item.block || "-"}</td>
+                    <td>{item.quantity ?? "-"}</td>
+                    <td>{item.price ?? "-"}</td>
+                    <td>{item.message || item.reason || "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       )}
 
       {(canEdit || teamFilter) && filteredTickets.length > 0 && (

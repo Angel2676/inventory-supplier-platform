@@ -2914,3 +2914,100 @@ body.dark-mode .theme-toggle-btn {
   background: #ffffff;
   color: #0f172a;
 }
+.bulk-actions-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 18px 0;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.bulk-actions-bar::before {
+  content: "Bulk Publish";
+  margin-right: auto;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+.bulk-actions-bar .btn {
+  min-width: 210px;
+  height: 42px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.publish-all-report {
+  margin: 14px 0 22px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+}
+
+.publish-all-report h4 {
+  margin: 0 0 10px;
+  color: #0f172a;
+}
+
+.publish-all-report p {
+  color: #334155;
+}
+
+.publish-all-report table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.publish-all-report th,
+.publish-all-report td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  font-size: 13px;
+}
+
+.publish-all-report th {
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 800;
+}
+.publish-all-empty {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px dashed #94a3b8;
+  border-radius: 12px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+}
+.bulk-actions-info {
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bulk-actions-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.bulk-actions-info strong {
+  color: #0f172a;
+  font-size: 14px;
+}
