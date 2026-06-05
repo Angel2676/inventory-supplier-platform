@@ -81,6 +81,35 @@ function MarketplaceMappingsTable() {
       setPublicUrlImportLoading(false);
     }
   }
+  async function exportGigsbergPublicUrls() {
+    try {
+      setError("");
+
+      const response = await api.get(
+        "/api/marketplace/mappings/export-public-urls",
+        {
+          responseType: "blob",
+        },
+      );
+
+      const blob = new Blob([response.data], {
+        type: "text/csv;charset=utf-8;",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.setAttribute("download", "gigsberg_public_urls.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      setError("Errore export public URL Gigsberg");
+    }
+  }
 
   async function loadEvents() {
     try {
@@ -290,6 +319,13 @@ function MarketplaceMappingsTable() {
           {publicUrlImportLoading
             ? "Importing..."
             : "Import Gigsberg Public URLs CSV"}
+        </button>
+        <button
+          className="btn btn-secondary"
+          type="button"
+          onClick={exportGigsbergPublicUrls}
+        >
+          Export Gigsberg Public URLs CSV
         </button>
       </div>
 

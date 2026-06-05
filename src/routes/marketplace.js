@@ -314,6 +314,58 @@ router.post(
     }
   },
 );
+router.get("/mappings/export-public-urls", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        remote_event_id,
+        COALESCE(remote_event_name, '') AS remote_event_name,
+        COALESCE(public_url, '') AS public_url
+      FROM marketplace_mappings
+      WHERE marketplace = 'gigsberg'
+        AND mapping_type = 'event'
+        AND is_active = true
+        AND remote_event_id IS NOT NULL
+      ORDER BY remote_event_name, remote_event_id
+    `);
+
+    const escapeCsv = (value) => {
+      const text = String(value ?? "");
+      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+        return `"${text.replace(/"/g, '""')}"`;
+      }
+      return text;
+    };
+
+    const csvRows = [
+      ["remote_event_id", "remote_event_name", "public_url"],
+      ...result.rows.map((row) => [
+        row.remote_event_id,
+        row.remote_event_name,
+        row.public_url,
+      ]),
+    ];
+
+    const csvContent = csvRows
+      .map((row) => row.map(escapeCsv).join(","))
+      .join("\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="gigsberg_public_urls.csv"',
+    );
+
+    return res.send(csvContent);
+  } catch (error) {
+    console.error("Errore export public URL Gigsberg:", error);
+
+    return res.status(500).json({
+      error: "Errore export public URL Gigsberg",
+      details: error.message,
+    });
+  }
+});
 
 router.post("/mappings", async (req, res) => {
   try {
