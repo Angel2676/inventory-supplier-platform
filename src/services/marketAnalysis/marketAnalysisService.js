@@ -1,7 +1,14 @@
 const { analyzeGigsbergMarket } = require("./providers/gigsbergProvider");
 const { analyzeTicomboMarket } = require("./providers/ticomboProvider");
 
-const SUPPORTED_MARKETPLACES = ["gigsberg", "ticombo"];
+const SUPPORTED_MARKETPLACES = [
+  "gigsberg",
+  "ticombo",
+  "footballticketnet",
+  "seatpin",
+  "viagogo",
+  "sportevents365",
+];
 
 async function runMarketAnalysis({
   eventId,
@@ -51,6 +58,25 @@ async function runMarketAnalysis({
           block,
         }),
       );
+    }
+    if (
+      ["footballticketnet", "seatpin", "viagogo", "sportevents365"].includes(
+        marketplace,
+      )
+    ) {
+      results.push({
+        marketplace,
+        eventId,
+        category: category || null,
+        block: block || null,
+        lowestPrice: null,
+        highestPrice: null,
+        averagePrice: null,
+        listingsCount: 0,
+        currency: "EUR",
+        rows: [],
+        status: "not_implemented_yet",
+      });
     }
   }
 

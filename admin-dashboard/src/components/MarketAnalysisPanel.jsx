@@ -129,7 +129,14 @@ export default function MarketAnalysisPanel() {
         />
 
         <div className="marketplace-checkboxes">
-          {["gigsberg", "ticombo"].map((marketplace) => (
+          {[
+            "gigsberg",
+            "ticombo",
+            "footballticketnet",
+            "seatpin",
+            "viagogo",
+            "sportevents365",
+          ].map((marketplace) => (
             <label key={marketplace}>
               <input
                 type="checkbox"
