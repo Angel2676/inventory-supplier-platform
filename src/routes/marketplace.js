@@ -209,6 +209,7 @@ router.post("/mappings", async (req, res) => {
       remote_category_name,
       remote_block_id,
       remote_block_name,
+      public_url,
       notes,
       is_active,
     } = req.body;
@@ -273,10 +274,11 @@ router.post("/mappings", async (req, res) => {
           remote_category_name = $6,
           remote_block_id = $7,
           remote_block_name = $8,
-          notes = $9,
-          is_active = $10,
+          public_url = $9,
+          notes = $10,
+          is_active = $11,
           updated_at = NOW()
-        WHERE id = $11
+        WHERE id = $12
         RETURNING *
         `,
         [
@@ -288,6 +290,7 @@ router.post("/mappings", async (req, res) => {
           remote_category_name || null,
           remote_block_id || null,
           remote_block_name || null,
+          public_url || null,
           notes || null,
           is_active !== false,
           existingResult.rows[0].id,
@@ -308,10 +311,11 @@ router.post("/mappings", async (req, res) => {
           remote_category_name,
           remote_block_id,
           remote_block_name,
+          public_url,
           notes,
           is_active
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
         RETURNING *
         `,
         [
@@ -326,6 +330,7 @@ router.post("/mappings", async (req, res) => {
           remote_category_name || null,
           remote_block_id || null,
           remote_block_name || null,
+          public_url || null,
           notes || null,
           is_active !== false,
         ],
@@ -369,6 +374,7 @@ router.patch("/mappings/:id", async (req, res) => {
       remote_category_name,
       remote_block_id,
       remote_block_name,
+      public_url,
       notes,
       is_active,
     } = req.body;
@@ -388,10 +394,11 @@ router.patch("/mappings/:id", async (req, res) => {
         remote_category_name = $9,
         remote_block_id = $10,
         remote_block_name = $11,
-        notes = $12,
-        is_active = $13,
+        public_url = $12,
+        notes = $13,
+        is_active = $14,
         updated_at = NOW()
-      WHERE id = $14
+      WHERE id = $15
       RETURNING *
       `,
       [
@@ -406,6 +413,7 @@ router.patch("/mappings/:id", async (req, res) => {
         remote_category_name || null,
         remote_block_id || null,
         remote_block_name || null,
+        public_url || null,
         notes || null,
         is_active !== false,
         id,

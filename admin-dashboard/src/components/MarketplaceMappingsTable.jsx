@@ -22,6 +22,7 @@ function MarketplaceMappingsTable() {
     remote_category_name: "",
     remote_block_id: "",
     remote_block_name: "",
+    public_url: "",
     notes: "",
     is_active: true,
   });
@@ -99,6 +100,7 @@ function MarketplaceMappingsTable() {
       remote_category_name: "",
       remote_block_id: "",
       remote_block_name: "",
+      public_url: "",
       notes: "",
       is_active: true,
     });
@@ -120,6 +122,7 @@ function MarketplaceMappingsTable() {
       remote_category_name: mapping.remote_category_name || "",
       remote_block_id: mapping.remote_block_id || "",
       remote_block_name: mapping.remote_block_name || "",
+      public_url: mapping.public_url || "",
       notes: mapping.notes || "",
       is_active: Boolean(mapping.is_active),
     });
@@ -141,6 +144,7 @@ function MarketplaceMappingsTable() {
         remote_category_name: form.remote_category_name || null,
         remote_block_id: form.remote_block_id || null,
         remote_block_name: form.remote_block_name || null,
+        public_url: form.public_url || null,
         notes: form.notes || null,
         is_active: Boolean(form.is_active),
       };
@@ -433,6 +437,29 @@ function MarketplaceMappingsTable() {
                   })
                 }
               />
+
+              <input
+                type="text"
+                placeholder="Public URL"
+                value={form.public_url}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    public_url: e.target.value,
+                  })
+                }
+              />
+
+              {form.public_url && (
+                <a
+                  href={form.public_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-secondary"
+                >
+                  Open Public URL
+                </a>
+              )}
 
               <input
                 type="text"
