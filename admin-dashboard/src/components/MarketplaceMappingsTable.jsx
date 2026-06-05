@@ -261,6 +261,23 @@ function MarketplaceMappingsTable() {
   function getRemoteEventId(event) {
     return event.id || event.eventId || event.remote_event_id || "-";
   }
+  function getRemotePublicUrl(event) {
+    const url =
+      event.public_url ||
+      event.publicUrl ||
+      event.url ||
+      event.event_url ||
+      event.eventUrl ||
+      event.link ||
+      event.href ||
+      "";
+
+    if (url && url.startsWith("/")) {
+      return `https://www.gigsberg.com${url}`;
+    }
+
+    return url;
+  }
 
   function getRemoteEventName(event) {
     return event.name || event.title || event.remote_event_name || "-";
@@ -624,6 +641,8 @@ function MarketplaceMappingsTable() {
                             ...form,
                             remote_event_id: remoteEventId,
                             remote_event_name: remoteEventName,
+                            public_url:
+                              getRemotePublicUrl(event) || form.public_url,
                           });
 
                           setRemoteSearchResults([]);

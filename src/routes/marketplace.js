@@ -10,8 +10,8 @@ const {
 
 const {
   deleteListing: deleteGigsbergListing,
+  searchEvents: searchGigsbergEvents,
 } = require("../services/integrations/gigsberg/gigsbergApi");
-
 const {
   findGigsbergPublicEventUrl,
 } = require("../services/integrations/gigsberg/gigsbergPublicBrowserMarket");
@@ -124,7 +124,19 @@ router.get("/search-events", async (req, res) => {
     } else if (marketplace === "ticombo") {
       results = await searchTicomboEvents(keyword);
     } else if (marketplace === "gigsberg") {
-      results = [];
+      const gigsbergResults = await searchGigsbergEvents({
+        keyword,
+        future_events_only: true,
+        per_page: 50,
+      });
+
+      results = Array.isArray(gigsbergResults?.items)
+        ? gigsbergResults.items
+        : Array.isArray(gigsbergResults?.data)
+          ? gigsbergResults.data
+          : Array.isArray(gigsbergResults)
+            ? gigsbergResults
+            : [];
     } else {
       return res.status(400).json({
         error: `Marketplace non supportato: ${marketplace}`,
