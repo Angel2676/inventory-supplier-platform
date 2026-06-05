@@ -1,4 +1,7 @@
 const express = require("express");
+const multer = require("multer");
+const csv = require("csv-parser");
+const fs = require("fs");
 const pool = require("../db");
 
 const {
@@ -29,6 +32,7 @@ const {
 } = require("../services/integrations/ticombo/ticomboListings");
 
 const router = express.Router();
+const upload = multer({ dest: "uploads/" });
 
 const createAuditLog = require("../services/auditLogService");
 const { calculateSafePrice } = require("../services/priceCheckerService");
@@ -194,6 +198,122 @@ router.get("/mappings", async (req, res) => {
     res.status(500).json({ error: "Errore caricamento marketplace mappings" });
   }
 });
+router.post(
+  "/mappings/import-public-urls",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          error: "File CSV mancante",
+        });
+      }
+
+      const rows = [];
+
+      fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on("data", (row) => {
+          rows.push(row);
+        })
+        .on("end", async () => {
+          let updated = 0;
+          let skipped = 0;
+          let failed = 0;
+          const details = [];
+
+          for (const row of rows) {
+            const remoteEventId = row.remote_event_id;
+            const publicUrl = row.public_url;
+
+            if (!remoteEventId || !publicUrl) {
+              skipped += 1;
+              details.push({
+                status: "skipped",
+                reason: "missing_remote_event_id_or_public_url",
+                row,
+              });
+              continue;
+            }
+
+            if (!publicUrl.startsWith("https://www.gigsberg.com/")) {
+              skipped += 1;
+              details.push({
+                status: "skipped",
+                reason: "invalid_gigsberg_url",
+                remote_event_id: remoteEventId,
+                public_url: publicUrl,
+              });
+              continue;
+            }
+
+            try {
+              const result = await pool.query(
+                `
+              UPDATE marketplace_mappings
+              SET public_url = $1,
+                  updated_at = NOW()
+              WHERE marketplace = 'gigsberg'
+                AND mapping_type = 'event'
+                AND remote_event_id = $2
+              RETURNING id, internal_event_id, remote_event_id, remote_event_name, public_url
+              `,
+                [publicUrl, remoteEventId],
+              );
+
+              if (result.rowCount === 0) {
+                skipped += 1;
+                details.push({
+                  status: "skipped",
+                  reason: "mapping_not_found",
+                  remote_event_id: remoteEventId,
+                  public_url: publicUrl,
+                });
+              } else {
+                updated += result.rowCount;
+                details.push({
+                  status: "updated",
+                  rows: result.rows,
+                });
+              }
+            } catch (error) {
+              failed += 1;
+              details.push({
+                status: "failed",
+                remote_event_id: remoteEventId,
+                public_url: publicUrl,
+                error: error.message,
+              });
+            }
+          }
+
+          fs.unlink(req.file.path, () => {});
+
+          return res.json({
+            updated,
+            skipped,
+            failed,
+            details,
+          });
+        })
+        .on("error", (error) => {
+          fs.unlink(req.file.path, () => {});
+
+          return res.status(500).json({
+            error: "Errore lettura CSV",
+            details: error.message,
+          });
+        });
+    } catch (error) {
+      console.error("Errore import public URL Gigsberg:", error);
+
+      return res.status(500).json({
+        error: "Errore import public URL Gigsberg",
+        details: error.message,
+      });
+    }
+  },
+);
 
 router.post("/mappings", async (req, res) => {
   try {

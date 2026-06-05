@@ -9,6 +9,8 @@ function MarketplaceMappingsTable() {
 
   const [remoteSearchResults, setRemoteSearchResults] = useState([]);
   const [remoteSearchLoading, setRemoteSearchLoading] = useState(false);
+  const [publicUrlCsvFile, setPublicUrlCsvFile] = useState(null);
+  const [publicUrlImportLoading, setPublicUrlImportLoading] = useState(false);
 
   const [form, setForm] = useState({
     marketplace: "ticombo",
@@ -35,6 +37,48 @@ function MarketplaceMappingsTable() {
     } catch (err) {
       console.error(err);
       setError("Errore caricamento marketplace mappings");
+    }
+  }
+  async function importGigsbergPublicUrls() {
+    if (!publicUrlCsvFile) {
+      setError("Seleziona un file CSV da importare");
+      return;
+    }
+
+    try {
+      setPublicUrlImportLoading(true);
+      setError("");
+
+      const formData = new FormData();
+      formData.append("file", publicUrlCsvFile);
+
+      const response = await api.post(
+        "/api/marketplace/mappings/import-public-urls",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      const { updated = 0, skipped = 0, failed = 0 } = response.data || {};
+
+      alert(
+        `Import completato\nAggiornati: ${updated}\nSaltati: ${skipped}\nFalliti: ${failed}`,
+      );
+
+      setPublicUrlCsvFile(null);
+      await loadMappings();
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.details ||
+          "Errore import public URL Gigsberg",
+      );
+    } finally {
+      setPublicUrlImportLoading(false);
     }
   }
 
@@ -229,6 +273,25 @@ function MarketplaceMappingsTable() {
         Mappa eventi, categorie e blocchi interni verso i corrispondenti ID e
         nomi dei singoli marketplace.
       </p>
+
+      <div className="mapping-actions" style={{ marginBottom: "16px" }}>
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          onChange={(e) => setPublicUrlCsvFile(e.target.files?.[0] || null)}
+        />
+
+        <button
+          className="btn btn-secondary"
+          type="button"
+          onClick={importGigsbergPublicUrls}
+          disabled={!publicUrlCsvFile || publicUrlImportLoading}
+        >
+          {publicUrlImportLoading
+            ? "Importing..."
+            : "Import Gigsberg Public URLs CSV"}
+        </button>
+      </div>
 
       {error && <div className="error">{error}</div>}
 
