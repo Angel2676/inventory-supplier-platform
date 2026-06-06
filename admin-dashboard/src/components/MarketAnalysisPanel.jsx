@@ -174,9 +174,46 @@ export default function MarketAnalysisPanel() {
                 <th>Highest</th>
                 <th>Listings</th>
                 <th>Status</th>
+                <th>Public URL</th>
               </tr>
             </thead>
             <tbody>
+              {analysis.results.map((result) =>
+                result.marketplace === "footballticketnet" &&
+                result.rows?.length ? (
+                  <div key={`${result.marketplace}-rows`}>
+                    <h4>FootballTicketNet dettagli live</h4>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Ticket ID</th>
+                          <th>Remote Category</th>
+                          <th>Settore</th>
+                          <th>Blocco</th>
+                          <th>Prezzo</th>
+                          <th>Max Qty</th>
+                          <th>Qty List</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {result.rows.map((row, index) => (
+                          <tr key={`${row.ticketId || "ftn"}-${index}`}>
+                            <td>{row.ticketId || "-"}</td>
+                            <td>{row.remoteCategoryId || "-"}</td>
+                            <td>{row.category || "-"}</td>
+                            <td>{row.block || "-"}</td>
+                            <td>
+                              {row.price ? `${row.price} ${row.currency}` : "-"}
+                            </td>
+                            <td>{row.maxQty || "-"}</td>
+                            <td>{row.qtyList || "-"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null,
+              )}
               {analysis.results.map((result) => (
                 <tr key={result.marketplace}>
                   <td>{result.marketplace}</td>
@@ -199,6 +236,19 @@ export default function MarketAnalysisPanel() {
                   </td>
                   <td>{result.listingsCount}</td>
                   <td>{result.status}</td>
+                  <td>
+                    {result.publicUrl ? (
+                      <a
+                        href={result.publicUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Apri
+                      </a>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
