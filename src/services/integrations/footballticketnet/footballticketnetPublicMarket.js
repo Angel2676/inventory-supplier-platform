@@ -3,12 +3,23 @@ const { chromium } = require("playwright");
 function parsePrice(value) {
   if (!value) return null;
 
-  const cleaned = String(value)
-    .replace(/[^\d.,]/g, "")
-    .replace(/\./g, "")
-    .replace(",", ".");
+  const raw = String(value).trim();
+
+  let cleaned = raw.replace(/[^\d.,]/g, "");
+
+  if (!cleaned) return null;
+
+  const hasComma = cleaned.includes(",");
+  const hasDot = cleaned.includes(".");
+
+  if (hasComma && hasDot) {
+    cleaned = cleaned.replace(/\./g, "").replace(",", ".");
+  } else if (hasComma) {
+    cleaned = cleaned.replace(",", ".");
+  }
 
   const price = Number(cleaned);
+
   return Number.isFinite(price) && price > 0 ? price : null;
 }
 
@@ -56,9 +67,7 @@ function extractFootballTicketNetRowsFromText(fullText, { category, block }) {
     const lowerLine = normalizeText(line);
 
     const priceMatches =
-      line.match(/(?:€|EUR|US\$|\$|£)\s*[0-9]{2,5}(?:[.,][0-9]{2})?/gi) ||
-      line.match(/\b[0-9]{2,5}(?:[.,][0-9]{2})\b/g) ||
-      [];
+      line.match(/(?:€|EUR|US\$|\$|£)\s*[0-9]{2,5}(?:[.,][0-9]{2})?/gi) || [];
 
     for (const rawPrice of priceMatches) {
       const price = parsePrice(rawPrice);
@@ -115,52 +124,99 @@ async function getVisibleFootballTicketNetPrices(publicUrl, options = {}) {
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/126 Safari/537.36",
     });
 
-    await page.route("**/*", async (route) => {
-      const request = route.request();
-      const url = request.url().toLowerCase();
-      const type = request.resourceType();
-
-      if (
-        type === "image" ||
-        type === "media" ||
-        type === "font" ||
-        url.includes("googletagmanager") ||
-        url.includes("google-analytics") ||
-        url.includes("facebook") ||
-        url.includes("hotjar") ||
-        url.includes("doubleclick") ||
-        url.includes("newsletter") ||
-        url.includes("popup")
-      ) {
-        return route.abort();
-      }
-
-      return route.continue();
-    });
-
     await page.goto(publicUrl, {
       waitUntil: "domcontentloaded",
       timeout,
     });
 
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(3000);
 
-    const fullText = await page.evaluate(() => document.body?.innerText || "");
+    const rows = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll(".inner_price[data-price]"))
+        .map((el) => {
+          const rawPrice =
+            el.getAttribute("data-price") ||
+            el.getAttribute("data-price_for_filter");
 
-    const rows = extractFootballTicketNetRowsFromText(fullText, {
-      category,
-      block,
+          const categoryName =
+            el.querySelector(".category_name")?.innerText?.trim() ||
+            el.querySelector(".extra_information_icon")?.innerText?.trim() ||
+            "";
+
+          const infoText = el.innerText || "";
+
+          return {
+            rawPrice,
+            price: Number(rawPrice),
+            category: categoryName,
+            block: el.getAttribute("data-block") || "",
+            ticketId: el.getAttribute("data-ticket") || "",
+            remoteCategoryId: el.getAttribute("data-category") || "",
+            maxQty: el.getAttribute("data-max-qty") || "",
+            qtyList: el.getAttribute("data-qty-list") || "",
+            ticketType: el.getAttribute("data-ticket-type") || "",
+            exchange: el.getAttribute("data-exchange") || "",
+            rawText: infoText.replace(/\s+/g, " ").trim(),
+          };
+        })
+        .filter((row) => Number.isFinite(row.price) && row.price > 10);
     });
+
+    const categoryFilter = normalizeText(category);
+    const blockFilter = normalizeText(block);
+
+    const filteredRows = rows.filter((row) => {
+      const rowCategory = normalizeText(row.category);
+      const rowBlock = normalizeText(row.block);
+      const rowText = normalizeText(row.rawText);
+
+      const matchesCategory =
+        !categoryFilter ||
+        rowCategory === categoryFilter ||
+        rowCategory.includes(categoryFilter) ||
+        categoryFilter.includes(rowCategory) ||
+        rowText.includes(categoryFilter);
+
+      const matchesBlock =
+        !blockFilter ||
+        rowBlock === blockFilter ||
+        rowBlock.includes(blockFilter) ||
+        rowText.includes(blockFilter);
+
+      return matchesCategory && matchesBlock;
+    });
+
+    const finalRows = filteredRows.map((row) => ({
+      marketplace: "footballticketnet",
+      category: row.category || category || null,
+      block: row.block || block || null,
+      normalizedCategory: normalizeFootballTicketNetCategory(
+        row.category || category,
+        row.block || block,
+      ),
+      price: Number(row.price),
+      currency: "EUR",
+      rawPrice: row.rawPrice,
+      ticketId: row.ticketId,
+      remoteCategoryId: row.remoteCategoryId,
+      maxQty: row.maxQty,
+      qtyList: row.qtyList,
+      ticketType: row.ticketType,
+      exchange: row.exchange,
+      rawText: row.rawText,
+    }));
 
     console.log("FootballTicketNet public market:", {
       publicUrl,
       category,
       block,
-      rowsFound: rows.length,
-      lowestPrice: rows.length ? Math.min(...rows.map((row) => row.price)) : null,
+      rowsFound: finalRows.length,
+      lowestPrice: finalRows.length
+        ? Math.min(...finalRows.map((row) => row.price))
+        : null,
     });
 
-    return rows;
+    return finalRows.sort((a, b) => a.price - b.price);
   } finally {
     await browser.close();
   }

@@ -52,6 +52,11 @@ async function getMappingPublicUrl({ eventId }) {
 }
 
 async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
+  const normalizedCategory = normalizeFootballTicketNetCategory(
+    category,
+    block,
+  );
+
   const result = await pool.query(
     `
     SELECT
@@ -61,13 +66,9 @@ async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
       ml.remote_category_id,
       ml.public_url,
       ml.marketplace_price,
-      ml.last_market_price AS listing_last_market_price,
-      ml.last_suggested_price,
       t.id AS ticket_id,
       t.category,
       t.block,
-      t.last_market_price AS ticket_last_market_price,
-      t.min_price,
       e.name AS event_name
     FROM marketplace_listings ml
     JOIN tickets t ON t.id = ml.ticket_id
@@ -76,16 +77,13 @@ async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
       AND t.event_id = $1
       AND ($2::text IS NULL OR LOWER(t.category) = LOWER($2))
       AND ($3::text IS NULL OR LOWER(COALESCE(t.block, '')) = LOWER($3))
-    ORDER BY ml.marketplace_price ASC NULLS LAST
     `,
     [eventId, category || null, block || null],
   );
 
-  const dbRows = result.rows;
-
   const mappingPublicUrl = await getMappingPublicUrl({ eventId });
   const listingPublicUrl =
-    dbRows.find((row) => row.public_url)?.public_url || null;
+    result.rows.find((row) => row.public_url)?.public_url || null;
   const publicUrl = mappingPublicUrl || listingPublicUrl;
 
   if (!publicUrl) {
@@ -107,14 +105,13 @@ async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
   }
 
   try {
-    const liveRows = await getVisibleFootballTicketNetPrices(publicUrl, {
+    const rows = await getVisibleFootballTicketNetPrices(publicUrl, {
       category,
       block,
-      headless: true,
+      headless: false,
     });
 
-    const prices = liveRows.map((row) => row.price);
-    const stats = calculateStats(prices);
+    const stats = calculateStats(rows.map((row) => row.price));
 
     return {
       marketplace: "footballticketnet",
@@ -125,8 +122,8 @@ async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
       publicUrl,
       ...stats,
       currency: "EUR",
-      rows: liveRows,
-      status: liveRows.length ? "ok" : "no_live_prices",
+      rows,
+      status: rows.length ? "ok" : "no_live_prices",
     };
   } catch (error) {
     return {
