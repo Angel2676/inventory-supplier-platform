@@ -5,13 +5,19 @@ export default function MarketAnalysisPanel() {
   const [eventId, setEventId] = useState("");
   const [category, setCategory] = useState("");
   const [block, setBlock] = useState("");
-  const [marketplaces, setMarketplaces] = useState(["gigsberg", "ticombo"]);
+  const [marketplaces, setMarketplaces] = useState([
+    "gigsberg",
+    "ticombo",
+    "footballticketnet",
+  ]);
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const [detailStatusFilter, setDetailStatusFilter] = useState("all");
+  const [publicUrlInputs, setPublicUrlInputs] = useState({});
+  const [savingPublicUrl, setSavingPublicUrl] = useState("");
 
   useEffect(() => {
     async function loadEvents() {
@@ -72,6 +78,45 @@ export default function MarketAnalysisPanel() {
       setError(err.message || "Errore analisi mercato");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveMarketplacePublicUrl = async (marketplace) => {
+    if (!eventId || !marketplace) return;
+
+    const publicUrl = publicUrlInputs[marketplace];
+
+    if (!publicUrl) {
+      alert("Inserisci un Public URL valido.");
+      return;
+    }
+
+    try {
+      setSavingPublicUrl(marketplace);
+
+      await api.post("/api/marketplace/mappings", {
+        marketplace,
+        mapping_type: "event",
+        internal_event_id: Number(eventId),
+        remote_event_id: publicUrl
+          .replace(/^https?:\/\/(www\.)?/, "")
+          .replace(/\/$/, ""),
+        remote_event_name: null,
+        public_url: publicUrl,
+        is_active: true,
+      });
+
+      alert("Public URL salvato correttamente.");
+
+      await runAnalysis();
+    } catch (err) {
+      alert(
+        err.response?.data?.error ||
+          err.message ||
+          "Errore salvataggio Public URL",
+      );
+    } finally {
+      setSavingPublicUrl("");
     }
   };
 
@@ -175,67 +220,38 @@ export default function MarketAnalysisPanel() {
                 <th>Listings</th>
                 <th>Status</th>
                 <th>Public URL</th>
+                <th>Actions</th>
               </tr>
             </thead>
+
             <tbody>
-              {analysis.results.map((result) =>
-                result.marketplace === "footballticketnet" &&
-                result.rows?.length ? (
-                  <div key={`${result.marketplace}-rows`}>
-                    <h4>FootballTicketNet dettagli live</h4>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Ticket ID</th>
-                          <th>Remote Category</th>
-                          <th>Settore</th>
-                          <th>Blocco</th>
-                          <th>Prezzo</th>
-                          <th>Max Qty</th>
-                          <th>Qty List</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {result.rows.map((row, index) => (
-                          <tr key={`${row.ticketId || "ftn"}-${index}`}>
-                            <td>{row.ticketId || "-"}</td>
-                            <td>{row.remoteCategoryId || "-"}</td>
-                            <td>{row.category || "-"}</td>
-                            <td>{row.block || "-"}</td>
-                            <td>
-                              {row.price ? `${row.price} ${row.currency}` : "-"}
-                            </td>
-                            <td>{row.maxQty || "-"}</td>
-                            <td>{row.qtyList || "-"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : null,
-              )}
               {analysis.results.map((result) => (
                 <tr key={result.marketplace}>
                   <td>{result.marketplace}</td>
                   <td>{result.category || "-"}</td>
                   <td>{result.block || "-"}</td>
+
                   <td>
                     {result.lowestPrice !== null
                       ? `${result.lowestPrice} ${result.currency}`
                       : "-"}
                   </td>
+
                   <td>
                     {result.averagePrice !== null
                       ? `${result.averagePrice} ${result.currency}`
                       : "-"}
                   </td>
+
                   <td>
                     {result.highestPrice !== null
                       ? `${result.highestPrice} ${result.currency}`
                       : "-"}
                   </td>
+
                   <td>{result.listingsCount}</td>
                   <td>{result.status}</td>
+
                   <td>
                     {result.publicUrl ? (
                       <a
@@ -243,8 +259,39 @@ export default function MarketAnalysisPanel() {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        Apri
+                        Open
                       </a>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  <td>
+                    {result.status === "missing_public_url" ? (
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        <input
+                          type="text"
+                          placeholder={`Public URL ${result.marketplace}`}
+                          value={publicUrlInputs[result.marketplace] || ""}
+                          onChange={(e) =>
+                            setPublicUrlInputs((current) => ({
+                              ...current,
+                              [result.marketplace]: e.target.value,
+                            }))
+                          }
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            saveMarketplacePublicUrl(result.marketplace)
+                          }
+                          disabled={savingPublicUrl === result.marketplace}
+                        >
+                          {savingPublicUrl === result.marketplace
+                            ? "Saving..."
+                            : "Save URL"}
+                        </button>
+                      </div>
                     ) : (
                       "-"
                     )}
@@ -269,6 +316,46 @@ export default function MarketAnalysisPanel() {
               </select>
             </label>
           </div>
+
+          {analysis.results.map((result) =>
+            result.marketplace === "footballticketnet" &&
+            result.rows?.length ? (
+              <div key={`${result.marketplace}-rows`}>
+                <h4>FootballTicketNet dettagli live</h4>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ticket ID</th>
+                      <th>Remote Category</th>
+                      <th>Settore</th>
+                      <th>Blocco</th>
+                      <th>Prezzo</th>
+                      <th>Max Qty</th>
+                      <th>Qty List</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {result.rows.map((row, index) => (
+                      <tr key={`${row.ticketId || "ftn"}-${index}`}>
+                        <td>{row.ticketId || "-"}</td>
+                        <td>{row.remoteCategoryId || "-"}</td>
+                        <td>{row.category || "-"}</td>
+                        <td>{row.block || "-"}</td>
+                        <td>
+                          {row.price ? `${row.price} ${row.currency}` : "-"}
+                        </td>
+                        <td>{row.maxQty || "-"}</td>
+                        <td>{row.qtyList || "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null,
+          )}
+
           {analysis.results.map((result) =>
             result.rawData?.length ? (
               <div key={`${result.marketplace}-details`}>
@@ -313,6 +400,7 @@ export default function MarketAnalysisPanel() {
                 )}
 
                 <h4>{result.marketplace} dettagli</h4>
+
                 <table>
                   <thead>
                     <tr>
@@ -334,6 +422,7 @@ export default function MarketAnalysisPanel() {
                       <th>Position</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {result.rawData
                       .filter((row) => {
