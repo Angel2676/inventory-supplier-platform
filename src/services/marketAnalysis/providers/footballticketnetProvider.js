@@ -50,6 +50,69 @@ async function getMappingPublicUrl({ eventId }) {
 
   return result.rows[0]?.public_url || null;
 }
+function normalizeFootballTicketNetTeamName(teamName) {
+  const text = String(teamName || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const teamMap = {
+    inter: "inter-milan",
+    "inter milan": "inter-milan",
+    milan: "ac-milan",
+    "ac milan": "ac-milan",
+    monza: "ac-monza",
+    "ac monza": "ac-monza",
+    juventus: "juventus",
+    roma: "as-roma",
+    "as roma": "as-roma",
+    napoli: "ssc-napoli",
+    "ssc napoli": "ssc-napoli",
+    lazio: "lazio",
+    torino: "torino",
+    atalanta: "atalanta",
+    fiorentina: "fiorentina",
+    bologna: "bologna",
+    genoa: "genoa",
+    lecce: "lecce",
+    parma: "parma",
+    udinese: "udinese",
+    verona: "hellas-verona",
+    "hellas verona": "hellas-verona",
+    cagliari: "cagliari",
+    sassuolo: "sassuolo",
+    como: "como",
+    pisa: "pisa",
+    cremonese: "cremonese",
+  };
+
+  return (
+    teamMap[text] ||
+    text.replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")
+  );
+}
+
+function buildFootballTicketNetPublicUrl(eventName) {
+  const name = String(eventName || "").trim();
+
+  if (!name) return null;
+
+  const parts = name
+    .split(/\s+vs\s+|\s+v\s+|\s+-\s+/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length < 2) return null;
+
+  const homeTeam = normalizeFootballTicketNetTeamName(parts[0]);
+  const awayTeam = normalizeFootballTicketNetTeamName(parts[1]);
+
+  if (!homeTeam || !awayTeam) return null;
+
+  return `https://www.footballticketnet.com/italian-serie-a/${homeTeam}-vs-${awayTeam}`;
+}
 
 async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
   const normalizedCategory = normalizeFootballTicketNetCategory(
@@ -84,7 +147,9 @@ async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
   const mappingPublicUrl = await getMappingPublicUrl({ eventId });
   const listingPublicUrl =
     result.rows.find((row) => row.public_url)?.public_url || null;
-  const publicUrl = mappingPublicUrl || listingPublicUrl;
+  const eventName = result.rows[0]?.event_name || null;
+  const generatedPublicUrl = buildFootballTicketNetPublicUrl(eventName);
+  const publicUrl = mappingPublicUrl || listingPublicUrl || generatedPublicUrl;
 
   if (!publicUrl) {
     return {
@@ -148,4 +213,5 @@ async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
 module.exports = {
   analyzeFootballTicketNetMarket,
   normalizeFootballTicketNetCategory,
+  buildFootballTicketNetPublicUrl,
 };
