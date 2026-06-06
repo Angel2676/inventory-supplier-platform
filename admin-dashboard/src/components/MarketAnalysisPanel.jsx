@@ -18,6 +18,7 @@ export default function MarketAnalysisPanel() {
   const [detailStatusFilter, setDetailStatusFilter] = useState("all");
   const [publicUrlInputs, setPublicUrlInputs] = useState({});
   const [savingPublicUrl, setSavingPublicUrl] = useState("");
+  const [usingPriceTicketId, setUsingPriceTicketId] = useState("");
 
   useEffect(() => {
     async function loadEvents() {
@@ -117,6 +118,35 @@ export default function MarketAnalysisPanel() {
       );
     } finally {
       setSavingPublicUrl("");
+    }
+  };
+  const useThisPriceForTicket = async (ticketId, marketLowestPrice) => {
+    if (!ticketId || !marketLowestPrice) return;
+
+    const confirmed = window.confirm(
+      `Usare il prezzo di mercato €${marketLowestPrice} per calcolare il prezzo suggerito del ticket ${ticketId}?`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setUsingPriceTicketId(String(ticketId));
+
+      await api.post(`/api/tickets/${ticketId}/price-check`, {
+        marketLowestPrice,
+      });
+
+      alert("Prezzo suggerito aggiornato correttamente.");
+
+      await runAnalysis();
+    } catch (err) {
+      alert(
+        err.response?.data?.error ||
+          err.message ||
+          "Errore aggiornamento prezzo suggerito",
+      );
+    } finally {
+      setUsingPriceTicketId("");
     }
   };
 
@@ -420,6 +450,7 @@ export default function MarketAnalysisPanel() {
                       <th>Live Market</th>
                       <th>Live Diff.</th>
                       <th>Position</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
 
@@ -476,6 +507,28 @@ export default function MarketAnalysisPanel() {
                             {row.market_position === "at_market" &&
                               "🟡 AT MARKET"}
                             {row.market_position === "unknown" && "-"}
+                          </td>
+                          <td>
+                            {result.liveMarket?.lowestPrice ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  useThisPriceForTicket(
+                                    row.ticket_id,
+                                    result.liveMarket.lowestPrice,
+                                  )
+                                }
+                                disabled={
+                                  usingPriceTicketId === String(row.ticket_id)
+                                }
+                              >
+                                {usingPriceTicketId === String(row.ticket_id)
+                                  ? "Updating..."
+                                  : "Use This Price"}
+                              </button>
+                            ) : (
+                              "-"
+                            )}
                           </td>
                         </tr>
                       ))}

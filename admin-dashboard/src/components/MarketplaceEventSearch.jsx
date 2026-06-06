@@ -19,6 +19,9 @@ function MarketplaceEventSearch() {
   const [savingMapping, setSavingMapping] = useState(false);
   const [activeMappingKey, setActiveMappingKey] = useState(null);
   const [internalEvents, setInternalEvents] = useState([]);
+  const [ticomboCategories, setTicomboCategories] = useState([]);
+  const [ticomboCategoriesLoading, setTicomboCategoriesLoading] =
+    useState(false);
 
   const [mappingForm, setMappingForm] = useState({
     internal_event_id: "",
@@ -79,11 +82,41 @@ function MarketplaceEventSearch() {
       console.error("Error loading internal events", error);
     }
   }
+  async function loadTicomboCategories(remoteEventId) {
+    if (!remoteEventId || marketplace !== "ticombo") {
+      setTicomboCategories([]);
+      return;
+    }
+
+    try {
+      setTicomboCategoriesLoading(true);
+
+      const response = await api.get(
+        `/api/marketplace/ticombo/events/${remoteEventId}`,
+      );
+
+      const eventData = response.data?.data?.data || response.data?.data || {};
+      const categories = eventData.ticketCategories || [];
+
+      setTicomboCategories(categories);
+    } catch (err) {
+      console.error("Errore caricamento categorie Ticombo", err);
+      setTicomboCategories([]);
+    } finally {
+      setTicomboCategoriesLoading(false);
+    }
+  }
 
   useEffect(() => {
     loadInternalEvents();
   }, []);
-
+  useEffect(() => {
+    if (marketplace === "ticombo" && mappingForm.remote_event_id) {
+      loadTicomboCategories(mappingForm.remote_event_id);
+    } else {
+      setTicomboCategories([]);
+    }
+  }, [marketplace, mappingForm.remote_event_id]);
   function openFullMapping(event, index) {
     const remoteEventId = getRemoteEventId(event);
     const remoteEventName = getRemoteEventName(event);
@@ -460,7 +493,7 @@ function MarketplaceEventSearch() {
 
                                 <label>
                                   Remote Category Name
-                                  <input
+                                  <select
                                     value={mappingForm.remote_category_name}
                                     onChange={(e) =>
                                       setMappingForm({
@@ -468,8 +501,22 @@ function MarketplaceEventSearch() {
                                         remote_category_name: e.target.value,
                                       })
                                     }
-                                    placeholder="Es. Third Red Ring"
-                                  />
+                                  >
+                                    <option value="">
+                                      {ticomboCategoriesLoading
+                                        ? "Caricamento categorie Ticombo..."
+                                        : "Seleziona categoria Ticombo"}
+                                    </option>
+
+                                    {ticomboCategories.map((category) => (
+                                      <option
+                                        key={category.name}
+                                        value={category.name}
+                                      >
+                                        {category.name}
+                                      </option>
+                                    ))}
+                                  </select>
                                 </label>
 
                                 <label>
