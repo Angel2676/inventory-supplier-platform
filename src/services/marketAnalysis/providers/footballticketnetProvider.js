@@ -191,6 +191,11 @@ async function analyzeFootballTicketNetMarket({ eventId, category, block }) {
       status: rows.length ? "ok" : "no_live_prices",
     };
   } catch (error) {
+    console.error("FootballTicketNet live error:", {
+      publicUrl,
+      message: error.message,
+      stack: error.stack,
+    });
     return {
       marketplace: "footballticketnet",
       eventId,
