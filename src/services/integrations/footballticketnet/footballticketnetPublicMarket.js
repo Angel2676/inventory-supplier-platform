@@ -115,7 +115,15 @@ async function getVisibleFootballTicketNetPrices(publicUrl, options = {}) {
     block = null,
   } = options;
 
-  const browser = await chromium.launch({ headless });
+  const browser = await chromium.launch({
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+    ],
+  });
 
   try {
     const page = await browser.newPage({
