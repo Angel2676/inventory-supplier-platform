@@ -3011,3 +3011,141 @@ body.dark-mode .theme-toggle-btn {
   color: #0f172a;
   font-size: 14px;
 }
+.ticombo-catalog-card {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+}
+
+.ticombo-catalog-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.ticombo-catalog-header h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.ticombo-catalog-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.ticombo-catalog-badge {
+  background: #0f172a;
+  color: white;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ticombo-catalog-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.ticombo-upload-box,
+.ticombo-search-box {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.ticombo-upload-box label,
+.ticombo-search-box label {
+  display: block;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.ticombo-search-row {
+  display: flex;
+  gap: 10px;
+}
+
+.ticombo-search-row input {
+  flex: 1;
+}
+
+.ticombo-mini-stats {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  color: #475569;
+  font-weight: 700;
+}
+
+.ticombo-success {
+  margin-top: 12px;
+  color: #15803d;
+  font-weight: 800;
+}
+
+.ticombo-error {
+  margin-top: 12px;
+  color: #b91c1c;
+  font-weight: 800;
+}
+
+.ticombo-catalog-results {
+  display: grid;
+  gap: 10px;
+}
+
+.ticombo-catalog-result {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.ticombo-catalog-result p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.ticombo-result-meta {
+  text-align: right;
+  font-size: 12px;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 360px;
+  word-break: break-all;
+}
+
+.ticombo-empty {
+  color: #64748b;
+  font-weight: 700;
+}
+
+body.dark-mode .ticombo-catalog-card,
+body.dark-mode .ticombo-upload-box,
+body.dark-mode .ticombo-search-box,
+body.dark-mode .ticombo-catalog-result {
+  background: #111827 !important;
+  color: #f9fafb !important;
+  border-color: #374151 !important;
+}
+
+body.dark-mode .ticombo-catalog-header p,
+body.dark-mode .ticombo-catalog-result p,
+body.dark-mode .ticombo-result-meta,
+body.dark-mode .ticombo-mini-stats,
+body.dark-mode .ticombo-empty {
+  color: #cbd5e1 !important;
+}

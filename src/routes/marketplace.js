@@ -2625,4 +2625,68 @@ router.post(
   },
 );
 
+router.get(
+  "/ticombo/catalog",
+  authJwt,
+  requireRole("super_admin"),
+  async (req, res) => {
+    try {
+      const { q = "" } = req.query;
+
+      const statsResult = await pool.query(`
+        SELECT
+          COUNT(*)::int AS total_records,
+          COUNT(DISTINCT remote_event_id)::int AS unique_events,
+          COUNT(DISTINCT category)::int AS unique_categories
+        FROM ticombo_event_catalog
+      `);
+
+      const values = [];
+      let whereClause = "";
+
+      if (q) {
+        values.push(`%${q}%`);
+
+        whereClause = `
+          WHERE event_name ILIKE $1
+             OR slug ILIKE $1
+             OR category ILIKE $1
+             OR section ILIKE $1
+        `;
+      }
+
+      const itemsResult = await pool.query(
+        `
+        SELECT
+          id,
+          slug,
+          remote_event_id,
+          event_name,
+          event_date,
+          city,
+          venue,
+          category,
+          section
+        FROM ticombo_event_catalog
+        ${whereClause}
+        ORDER BY event_date ASC NULLS LAST, event_name ASC, category ASC
+        LIMIT 30
+        `,
+        values,
+      );
+
+      res.json({
+        stats: statsResult.rows[0],
+        items: itemsResult.rows,
+      });
+    } catch (error) {
+      console.error("Errore catalogo Ticombo:", error);
+
+      res.status(500).json({
+        error: "Errore lettura catalogo Ticombo",
+      });
+    }
+  },
+);
+
 module.exports = router;
