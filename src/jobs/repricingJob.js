@@ -189,12 +189,6 @@ async function runRepricingJob() {
       await pool.query(
         `
         UPDATE marketplace_listings
-        console.log("GIGSBERG SCANNER DB UPDATE START", {
-  listing_id: listing.marketplace_listing_id,
-  ticket_id: listing.ticket_id,
-  lowestPrice,
-  suggestedPrice: priceCheck.suggestedPrice,
-});
         SET
           marketplace_price = $1,
           last_market_price = $2,
