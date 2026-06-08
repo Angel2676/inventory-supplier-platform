@@ -9,6 +9,9 @@ const {
 const {
   updateTicomboListing,
 } = require("../services/integrations/ticombo/ticomboListings");
+const {
+  getTicomboLowestMarketPrice,
+} = require("../services/integrations/ticombo/ticomboMarketScanner");
 
 async function runRepricingJob() {
   console.log("Marketplace repricing job started");
@@ -18,6 +21,8 @@ async function runRepricingJob() {
       ml.*,
       t.status AS ticket_status,
       t.available_quantity,
+      t.category AS ticket_category,
+      t.block AS ticket_block,
       t.price AS base_price,
       t.partner_price,
       t.marketplace_price AS ticket_marketplace_price,
@@ -61,9 +66,33 @@ async function runRepricingJob() {
           0,
       );
 
-      const marketLowestPrice = Number(
+      let marketLowestPrice = Number(
         listing.last_market_price || listing.ticket_last_market_price || 0,
       );
+
+      if (listing.marketplace === "ticombo") {
+        const ticomboMarket = await getTicomboLowestMarketPrice({
+          remoteEventId: listing.remote_event_id,
+          category: listing.ticket_category,
+          block: listing.ticket_block,
+          quantity: Number(listing.available_quantity || 1),
+          excludeListingId: listing.remote_listing_id,
+        });
+
+        if (ticomboMarket.lowestPrice) {
+          marketLowestPrice = Number(ticomboMarket.lowestPrice);
+
+          console.log("Ticombo market price detected:", {
+            listing_id: listing.id,
+            remote_event_id: listing.remote_event_id,
+            category: listing.ticket_category,
+            block: listing.ticket_block,
+            lowestPrice: ticomboMarket.lowestPrice,
+            competitorListingId: ticomboMarket.competitorListingId,
+            matchedCount: ticomboMarket.matchedCount,
+          });
+        }
+      }
 
       const priceCheck = calculateSafePrice({
         currentPrice: currentMarketplacePrice,
