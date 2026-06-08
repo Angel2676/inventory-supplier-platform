@@ -326,6 +326,32 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       setPublishingTicketId(null);
     }
   }
+  async function autoMatchTicomboTicket(ticket) {
+    if (!ticket?.id) return;
+
+    try {
+      setError("");
+
+      const response = await api.post(
+        `/api/marketplace/ticombo/catalog/auto-match-ticket/${ticket.id}`,
+      );
+
+      alert(
+        `Auto-Match Categoria Ticombo completato\n\nCategoria: ${
+          response.data.mapping?.remote_category_name || "-"
+        }\nBlock: ${
+          response.data.mapping?.remote_block_name || "-"
+        }\nTipo: ${response.data.mapping?.mapping_type || "-"}`,
+      );
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.details ||
+          "Errore Auto-Match Categoria Ticombo",
+      );
+    }
+  }
 
   async function publishToSportEvents365(ticket) {
     try {
@@ -1075,6 +1101,14 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                             </button>
                           )}
 
+                          {marketplaceMode && (
+                            <button
+                              className="btn btn-secondary"
+                              onClick={() => autoMatchTicomboTicket(ticket)}
+                            >
+                              Auto-Match Category
+                            </button>
+                          )}
                           {marketplaceMode && (
                             <button
                               className="btn btn-secondary"
