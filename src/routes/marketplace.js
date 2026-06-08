@@ -2785,5 +2785,152 @@ router.post(
     }
   },
 );
+router.post(
+  "/ticombo/catalog/auto-match-ticket/:ticketId",
+  authJwt,
+  requireRole("super_admin"),
+  async (req, res) => {
+    try {
+      const { ticketId } = req.params;
+
+      const ticketResult = await pool.query(
+        `
+        SELECT
+          t.*,
+          e.name AS event_name,
+          e.event_date
+        FROM tickets t
+        JOIN events e ON e.id = t.event_id
+        WHERE t.id = $1
+        LIMIT 1
+        `,
+        [ticketId],
+      );
+
+      if (ticketResult.rows.length === 0) {
+        return res.status(404).json({
+          error: "Ticket Inventory non trovato",
+        });
+      }
+
+      const ticket = ticketResult.rows[0];
+
+      const eventMappingResult = await pool.query(
+        `
+        SELECT *
+        FROM marketplace_mappings
+        WHERE marketplace = 'ticombo'
+          AND mapping_type = 'event'
+          AND internal_event_id = $1
+          AND is_active = true
+        ORDER BY id DESC
+        LIMIT 1
+        `,
+        [ticket.event_id],
+      );
+
+      if (eventMappingResult.rows.length === 0) {
+        return res.status(400).json({
+          error: "Evento non ancora mappato su Ticombo",
+          details: "Esegui prima Auto-Match Ticombo sull'evento",
+        });
+      }
+
+      const eventMapping = eventMappingResult.rows[0];
+
+      const hasBlock = Boolean(ticket.block && String(ticket.block).trim());
+
+      const catalogResult = await pool.query(
+        `
+        SELECT *
+        FROM ticombo_event_catalog
+        WHERE remote_event_id = $1
+          AND LOWER(category) = LOWER($2)
+          AND (
+            $3::text IS NULL
+            OR section ILIKE '%' || $3 || '%'
+          )
+        ORDER BY
+          CASE
+            WHEN $3::text IS NOT NULL AND section ILIKE '%' || $3 || '%' THEN 0
+            ELSE 1
+          END,
+          category ASC
+        LIMIT 1
+        `,
+        [
+          eventMapping.remote_event_id,
+          ticket.category,
+          hasBlock ? String(ticket.block).trim() : null,
+        ],
+      );
+
+      if (catalogResult.rows.length === 0) {
+        return res.status(404).json({
+          error: "Nessuna categoria Ticombo compatibile trovata",
+          ticket: {
+            id: ticket.id,
+            event_id: ticket.event_id,
+            category: ticket.category,
+            block: ticket.block,
+          },
+        });
+      }
+
+      const match = catalogResult.rows[0];
+
+      const mappingType = hasBlock ? "category_block" : "category";
+
+      const mappingResult = await pool.query(
+        `
+        INSERT INTO marketplace_mappings (
+          marketplace,
+          mapping_type,
+          internal_event_id,
+          internal_category,
+          internal_block,
+          remote_event_id,
+          remote_event_name,
+          remote_category_name,
+          remote_block_name,
+          notes,
+          is_active
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true)
+        RETURNING *
+        `,
+        [
+          "ticombo",
+          mappingType,
+          ticket.event_id,
+          ticket.category || null,
+          hasBlock ? ticket.block : null,
+          eventMapping.remote_event_id,
+          match.event_name,
+          match.category,
+          hasBlock ? ticket.block : null,
+          `Auto-match Ticombo catalog category: ${match.category}${
+            hasBlock ? ` / block: ${ticket.block}` : ""
+          } / slug: ${match.slug}`,
+        ],
+      );
+
+      return res.json({
+        success: true,
+        ticket,
+        eventMapping,
+        match,
+        mapping: mappingResult.rows[0],
+      });
+    } catch (error) {
+      console.error("Errore auto-match ticket Ticombo:", error);
+
+      return res.status(500).json({
+        error: "Errore auto-match categoria/block Ticombo",
+        details: error.message,
+      });
+    }
+  },
+);
 
 module.exports = router;
