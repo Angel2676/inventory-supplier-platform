@@ -2744,29 +2744,48 @@ router.post(
 
       const bestMatch = matchResult.rows[0];
 
-      const mappingResult = await pool.query(
+      const existingMappingResult = await pool.query(
         `
-        INSERT INTO marketplace_mappings (
-          marketplace,
-          mapping_type,
-          internal_event_id,
-          remote_event_id,
-          remote_event_name,
-          notes,
-          is_active
-        )
-        VALUES ($1,$2,$3,$4,$5,$6,true)
-        RETURNING *
-        `,
-        [
-          "ticombo",
-          "event",
-          event.id,
-          bestMatch.remote_event_id,
-          bestMatch.event_name,
-          `Auto-match Ticombo catalog slug: ${bestMatch.slug}`,
-        ],
+  SELECT *
+  FROM marketplace_mappings
+  WHERE marketplace = $1
+    AND mapping_type = $2
+    AND internal_event_id = $3
+    AND remote_event_id = $4
+  LIMIT 1
+  `,
+        ["ticombo", "event", event.id, bestMatch.remote_event_id],
       );
+
+      let mappingResult;
+
+      if (existingMappingResult.rows.length > 0) {
+        mappingResult = existingMappingResult;
+      } else {
+        mappingResult = await pool.query(
+          `
+          INSERT INTO marketplace_mappings (
+            marketplace,
+            mapping_type,
+            internal_event_id,
+            remote_event_id,
+            remote_event_name,
+            notes,
+            is_active
+          )
+          VALUES ($1,$2,$3,$4,$5,$6,true)
+          RETURNING *
+          `,
+          [
+            "ticombo",
+            "event",
+            event.id,
+            bestMatch.remote_event_id,
+            bestMatch.event_name,
+            `Auto-match Ticombo catalog slug: ${bestMatch.slug}`,
+          ],
+        );
+      }
 
       return res.json({
         success: true,
