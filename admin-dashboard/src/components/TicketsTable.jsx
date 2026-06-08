@@ -447,7 +447,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       ? event.event_subcategory === subcategoryFilter
       : true;
 
-    const matchesTeam = teamFilter ? event.team_name === teamFilter : false;
+    const matchesTeam = teamFilter ? event.team_name === teamFilter : true;
 
     const matchesEvent = eventFilter
       ? Number(event.id) === Number(eventFilter)
