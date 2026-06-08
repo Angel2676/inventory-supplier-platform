@@ -3,6 +3,8 @@ const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
 const pool = require("../db");
+const authJwt = require("../middleware/authJwt");
+const requireRole = require("../middleware/requireRole");
 
 const {
   createGigsbergListing,
