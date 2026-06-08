@@ -7,7 +7,7 @@ import MarketplaceLogsTable from "./MarketplaceLogsTable";
 import TicketsTable from "./TicketsTable";
 // import MarketplaceContentRequestsTable from "./MarketplaceContentRequestsTable";
 import MarketplaceEventSearch from "./MarketplaceEventSearch";
-
+import TicomboCatalogUpload from "./TicomboCatalogUpload";
 function MarketplaceHub() {
   return (
     <>
@@ -18,6 +18,13 @@ function MarketplaceHub() {
           repricing, sync status e pubblicazione multi-marketplace.
         </p>
       </div>
+      <CollapsibleSection
+        title="Ticombo Catalog"
+        description="Importa il catalogo eventi Ticombo da CSV per usare Event ID, slug, categorie e sezioni nel mapping e repricing."
+        defaultOpen={false}
+      >
+        <TicomboCatalogUpload />
+      </CollapsibleSection>
 
       {/*
       <CollapsibleSection
