@@ -18,7 +18,13 @@ function normalizeText(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
 }
+function extractGigsbergEventIdFromPublicUrl(publicUrl) {
+  if (!publicUrl) return null;
 
+  const match = String(publicUrl).match(/show-(\d+)/i);
+
+  return match ? match[1] : null;
+}
 function getCurrencyId(currency = "EUR") {
   const map = {
     GBP: 1,
@@ -101,13 +107,17 @@ async function getGigsbergEventMapping(ticket) {
     `
     SELECT
       remote_event_id,
-      remote_event_name
+      remote_event_name,
+      public_url
     FROM marketplace_mappings
     WHERE marketplace = 'gigsberg'
       AND mapping_type = 'event'
       AND internal_event_id = $1
       AND is_active = true
-      AND remote_event_id IS NOT NULL
+      AND (
+        remote_event_id IS NOT NULL
+        OR public_url IS NOT NULL
+      )
     ORDER BY updated_at DESC
     LIMIT 1
     `,
@@ -120,10 +130,15 @@ async function getGigsbergEventMapping(ticket) {
 async function findBestGigsbergEvent(ticket) {
   const mappedEvent = await getGigsbergEventMapping(ticket);
 
-  if (mappedEvent?.remote_event_id) {
+  const mappedEventId =
+    mappedEvent?.remote_event_id ||
+    extractGigsbergEventIdFromPublicUrl(mappedEvent?.public_url);
+
+  if (mappedEventId) {
     return {
-      id: mappedEvent.remote_event_id,
+      id: mappedEventId,
       name: mappedEvent.remote_event_name || ticket.event_name,
+      public_url: mappedEvent.public_url || null,
       mapped: true,
     };
   }
