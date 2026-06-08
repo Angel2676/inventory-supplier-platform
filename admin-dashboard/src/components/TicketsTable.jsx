@@ -711,7 +711,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
           >
             <option value="">Tutti gli eventi</option>
 
-            {filteredEventsForCards.map((event) => (
+            {filteredEventsForTeams.map((event) => (
               <option key={event.id} value={event.id}>
                 {event.name} - {event.city || "-"} -{" "}
                 {formatDate(event.event_date)}
