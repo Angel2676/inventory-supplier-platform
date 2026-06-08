@@ -193,7 +193,7 @@ async function runRepricingJob() {
         `,
         [
           priceCheck.finalPrice,
-          priceCheck.marketLowestPrice || listing.last_market_price || null,
+          marketLowestPrice || listing.last_market_price || null,
           priceCheck.suggestedPrice,
           listing.id,
         ],
