@@ -75,7 +75,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   const pageSize = 50;
   async function loadTickets() {
     try {
-      const response = await api.get("/api/tickets");
+      const response = await api.get("/api/tickets?limit=1000");
       setTickets(response.data.tickets || []);
       setError("");
     } catch (err) {
