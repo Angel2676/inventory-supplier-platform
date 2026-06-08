@@ -401,10 +401,58 @@ function MarketplaceMappingsTable() {
 
     return matchesMarketplace && matchesType && matchesActive && matchesSearch;
   });
+  const unmappedTicomboEvents = events.filter((event) => {
+    return !mappings.some(
+      (mapping) =>
+        mapping.marketplace === "ticombo" &&
+        mapping.mapping_type === "event" &&
+        Number(mapping.internal_event_id) === Number(event.id),
+    );
+  });
 
   return (
     <div className="section">
       <h2>Marketplace Mappings</h2>
+      <div className="section-card">
+        <h3>Eventi senza mapping Ticombo</h3>
+
+        {unmappedTicomboEvents.length === 0 ? (
+          <p>Tutti gli eventi hanno già un mapping Ticombo.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Evento</th>
+                <th>Data</th>
+                <th>Azione</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {unmappedTicomboEvents.map((event) => (
+                <tr key={event.id}>
+                  <td>{event.id}</td>
+                  <td>{event.name}</td>
+                  <td>
+                    {event.event_date
+                      ? new Date(event.event_date).toLocaleString()
+                      : "-"}
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => handleAutoMatchTicombo(event.id)}
+                    >
+                      Auto-Match Ticombo Event
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
       <div className="filters-bar">
         <select
           value={marketplaceFilter}
