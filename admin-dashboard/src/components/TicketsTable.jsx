@@ -809,7 +809,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
         </div>
       )}
 
-      {(canEdit || teamFilter) && filteredTickets.length > 0 && (
+      {filteredTickets.length > 0 && (
         <table className="tickets-table">
           <thead>
             <tr>
