@@ -179,7 +179,21 @@ async function runRepricingJob() {
           `Ticombo listing ${listing.remote_listing_id} updated successfully`,
         );
       }
+      console.log("REPRICING DB UPDATE INPUT", {
 
+  listing_id: listing.id,
+
+  marketplace: listing.marketplace,
+
+  marketplace_price: priceCheck.finalPrice,
+
+  last_market_price:
+
+    marketLowestPrice || listing.last_market_price || null,
+
+  last_suggested_price: priceCheck.suggestedPrice,
+
+});
       await pool.query(
         `
         UPDATE marketplace_listings
@@ -213,18 +227,21 @@ async function runRepricingJob() {
       console.log(
         `Marketplace listing ${listing.id} (${listing.marketplace}): price updated from ${currentMarketplacePrice} to ${priceCheck.finalPrice}`,
       );
-    } catch (error) {
-      console.error(
-        `Marketplace listing ${listing.id} (${listing.marketplace}): repricing error`,
-      );
-
-      console.error("MESSAGE:", error.message);
-      console.error("STATUS:", error.response?.status);
-      console.error("API_DATA:", JSON.stringify(error.response?.data, null, 2));
-      console.error("DETAIL:", error.detail);
-      console.error("POSITION:", error.position);
-      console.error("STACK:", error.stack);
-    }
+    } catch (error) {} catch (error) {
+  console.error("REPRICING FULL ERROR", {
+    listing_id: listing.id,
+    marketplace: listing.marketplace,
+    message: error.message,
+    code: error.code,
+    detail: error.detail,
+    hint: error.hint,
+    position: error.position,
+    where: error.where,
+    routine: error.routine,
+    stack: error.stack,
+    response: error.response?.data,
+  });
+}
   }
 
   console.log("Marketplace repricing job completed");
