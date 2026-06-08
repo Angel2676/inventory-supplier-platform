@@ -91,19 +91,13 @@ async function runRepricingJob() {
           `
           UPDATE marketplace_listings
           SET
-            marketplace_price = $1,
-            last_market_price = $2,
-            last_suggested_price = $3,
+            last_market_price = $1,
+            last_suggested_price = $2,
             last_reprice_at = NOW(),
             updated_at = NOW()
-          WHERE id = $4
+          WHERE id = $3
           `,
-          [
-            priceCheck.finalPrice,
-            marketLowestPrice || null,
-            priceCheck.suggestedPrice,
-            listing.id,
-          ],
+          [marketLowestPrice || null, priceCheck.suggestedPrice, listing.id],
         );
         console.log("GIGSBERG SCANNER TICKET UPDATED", {
           ticket_id: listing.ticket_id,
