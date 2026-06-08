@@ -2688,5 +2688,102 @@ router.get(
     }
   },
 );
+router.post(
+  "/ticombo/catalog/auto-match-event/:eventId",
+  authJwt,
+  requireRole("super_admin"),
+  async (req, res) => {
+    try {
+      const { eventId } = req.params;
+
+      const eventResult = await pool.query(
+        `
+        SELECT *
+        FROM events
+        WHERE id = $1
+        LIMIT 1
+        `,
+        [eventId],
+      );
+
+      if (eventResult.rows.length === 0) {
+        return res.status(404).json({
+          error: "Evento Inventory non trovato",
+        });
+      }
+
+      const event = eventResult.rows[0];
+
+      const matchResult = await pool.query(
+        `
+        SELECT
+          remote_event_id,
+          slug,
+          event_name,
+          event_date,
+          city,
+          venue,
+          COUNT(*)::int AS rows_count
+        FROM ticombo_event_catalog
+        WHERE event_name ILIKE '%' || $1 || '%'
+           OR $1 ILIKE '%' || event_name || '%'
+        GROUP BY remote_event_id, slug, event_name, event_date, city, venue
+        ORDER BY
+          ABS(EXTRACT(EPOCH FROM (event_date - $2::timestamp))) ASC NULLS LAST
+        LIMIT 5
+        `,
+        [event.name, event.event_date],
+      );
+
+      if (matchResult.rows.length === 0) {
+        return res.status(404).json({
+          error: "Nessun match Ticombo trovato nel catalogo",
+          event,
+        });
+      }
+
+      const bestMatch = matchResult.rows[0];
+
+      const mappingResult = await pool.query(
+        `
+        INSERT INTO marketplace_mappings (
+          marketplace,
+          mapping_type,
+          internal_event_id,
+          remote_event_id,
+          remote_event_name,
+          notes,
+          is_active
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,true)
+        RETURNING *
+        `,
+        [
+          "ticombo",
+          "event",
+          event.id,
+          bestMatch.remote_event_id,
+          bestMatch.event_name,
+          `Auto-match Ticombo catalog slug: ${bestMatch.slug}`,
+        ],
+      );
+
+      return res.json({
+        success: true,
+        event,
+        bestMatch,
+        alternatives: matchResult.rows,
+        mapping: mappingResult.rows[0],
+      });
+    } catch (error) {
+      console.error("Errore auto-match Ticombo:", error);
+
+      return res.status(500).json({
+        error: "Errore auto-match Ticombo",
+        details: error.message,
+      });
+    }
+  },
+);
 
 module.exports = router;
