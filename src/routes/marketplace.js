@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
+const upload = multer({ dest: "uploads/" });
 const pool = require("../db");
 
 const {
@@ -2511,5 +2512,106 @@ router.post("/gigsberg/publish-all", async (req, res) => {
     });
   }
 });
+router.post(
+  "/ticombo/catalog/upload",
+  authJwt,
+  requireRole("super_admin"),
+  upload.single("file"),
+  async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          error: "File CSV mancante",
+        });
+      }
+
+      const rows = [];
+
+      fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on("data", (row) => rows.push(row))
+        .on("end", async () => {
+          try {
+            await client.query("BEGIN");
+
+            let imported = 0;
+
+            for (const row of rows) {
+              await client.query(
+                `
+                INSERT INTO ticombo_event_catalog (
+                  slug,
+                  remote_event_id,
+                  event_name,
+                  event_type,
+                  event_date,
+                  city,
+                  venue,
+                  new_category_allowed,
+                  new_section_allowed,
+                  category,
+                  section,
+                  spectator_stand,
+                  fan_section,
+                  tickets_in_hand_restrictions,
+                  updated_at
+                )
+                VALUES (
+                  $1,$2,$3,$4,$5,$6,$7,
+                  $8,$9,$10,$11,$12,$13,$14,
+                  NOW()
+                )
+                `,
+                [
+                  row["Slug"] || null,
+                  row["Event ID"] || null,
+                  row["Event Name (Today)"] || null,
+                  row["Event Type"] || null,
+                  row["Event Date"] || null,
+                  row["City"] || null,
+                  row["Venue"] || null,
+                  row["New Category Allowed"] === "TRUE",
+                  row["New Section Allowed"] === "TRUE",
+                  row["Category"] || null,
+                  row["Section"] || null,
+                  row["Spectator Stand"] || null,
+                  row["Fan Section"] || null,
+                  row["Tickets In Hand Restrictions"] || null,
+                ],
+              );
+
+              imported++;
+            }
+
+            await client.query("COMMIT");
+
+            fs.unlinkSync(req.file.path);
+
+            return res.json({
+              success: true,
+              imported,
+            });
+          } catch (error) {
+            await client.query("ROLLBACK");
+            console.error(error);
+
+            return res.status(500).json({
+              error: error.message,
+            });
+          } finally {
+            client.release();
+          }
+        });
+    } catch (error) {
+      client.release();
+
+      return res.status(500).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
 module.exports = router;
