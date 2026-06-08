@@ -2531,7 +2531,7 @@ router.post(
       const rows = [];
 
       fs.createReadStream(req.file.path)
-        .pipe(csv())
+        .pipe(csv({ separator: ";" }))
         .on("data", (row) => rows.push(row))
         .on("end", async () => {
           try {
