@@ -6,6 +6,10 @@ function MarketplaceMappingsTable() {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [marketplaceFilter, setMarketplaceFilter] = useState("");
+  const [mappingTypeFilter, setMappingTypeFilter] = useState("");
+  const [activeFilter, setActiveFilter] = useState("");
+  const [search, setSearch] = useState("");
 
   const [remoteSearchResults, setRemoteSearchResults] = useState([]);
   const [remoteSearchLoading, setRemoteSearchLoading] = useState(false);
@@ -365,10 +369,92 @@ function MarketplaceMappingsTable() {
       return String(rawDate);
     }
   }
+  const filteredMappings = mappings.filter((mapping) => {
+    const matchesMarketplace = marketplaceFilter
+      ? mapping.marketplace === marketplaceFilter
+      : true;
+
+    const matchesType = mappingTypeFilter
+      ? mapping.mapping_type === mappingTypeFilter
+      : true;
+
+    const matchesActive =
+      activeFilter === ""
+        ? true
+        : activeFilter === "active"
+          ? mapping.is_active
+          : !mapping.is_active;
+
+    const text = `
+    ${mapping.marketplace || ""}
+    ${mapping.mapping_type || ""}
+    ${mapping.remote_event_name || ""}
+    ${mapping.remote_category_name || ""}
+    ${mapping.remote_block_name || ""}
+    ${mapping.internal_category || ""}
+    ${mapping.internal_block || ""}
+    ${mapping.notes || ""}
+    ${mapping.public_url || ""}
+  `.toLowerCase();
+
+    const matchesSearch = text.includes(search.toLowerCase());
+
+    return matchesMarketplace && matchesType && matchesActive && matchesSearch;
+  });
 
   return (
     <div className="section">
       <h2>Marketplace Mappings</h2>
+      <div className="filters-bar">
+        <select
+          value={marketplaceFilter}
+          onChange={(e) => setMarketplaceFilter(e.target.value)}
+        >
+          <option value="">Tutti i marketplace</option>
+          <option value="ticombo">Ticombo</option>
+          <option value="gigsberg">Gigsberg</option>
+          <option value="sportevents365">Sportevents365</option>
+        </select>
+
+        <select
+          value={mappingTypeFilter}
+          onChange={(e) => setMappingTypeFilter(e.target.value)}
+        >
+          <option value="">Tutti i tipi</option>
+          <option value="event">Event</option>
+          <option value="category">Category</option>
+          <option value="ticket_category">Ticket Category</option>
+          <option value="block">Block</option>
+        </select>
+
+        <select
+          value={activeFilter}
+          onChange={(e) => setActiveFilter(e.target.value)}
+        >
+          <option value="">Tutti gli stati</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+
+        <input
+          type="text"
+          placeholder="Cerca evento, categoria, note, public URL..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <button
+          type="button"
+          onClick={() => {
+            setMarketplaceFilter("");
+            setMappingTypeFilter("");
+            setActiveFilter("");
+            setSearch("");
+          }}
+        >
+          Reset filtri
+        </button>
+      </div>
 
       <p>
         Mappa eventi, categorie e blocchi interni verso i corrispondenti ID e
@@ -736,7 +822,7 @@ function MarketplaceMappingsTable() {
           </thead>
 
           <tbody>
-            {mappings.map((mapping) => (
+            {filteredMappings.map((mapping) => (
               <tr key={mapping.id}>
                 <td>{mapping.id}</td>
 
