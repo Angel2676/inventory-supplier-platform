@@ -2,7 +2,6 @@ const express = require("express");
 const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
-const upload = multer({ dest: "uploads/" });
 const pool = require("../db");
 
 const {
