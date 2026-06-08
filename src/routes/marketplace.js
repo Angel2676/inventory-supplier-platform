@@ -2540,6 +2540,12 @@ router.post(
             let imported = 0;
 
             for (const row of rows) {
+              const cleanRow = Object.fromEntries(
+                Object.entries(row).map(([key, value]) => [
+                  key.replace(/^\uFEFF/, "").trim(),
+                  typeof value === "string" ? value.trim() : value,
+                ]),
+              );
               await client.query(
                 `
                 INSERT INTO ticombo_event_catalog (
@@ -2566,20 +2572,24 @@ router.post(
                 )
                 `,
                 [
-                  row["Slug"] || null,
-                  row["Event ID"] || null,
-                  row["Event Name (Today)"] || null,
-                  row["Event Type"] || null,
-                  row["Event Date"] || null,
-                  row["City"] || null,
-                  row["Venue"] || null,
-                  row["New Category Allowed"] === "TRUE",
-                  row["New Section Allowed"] === "TRUE",
-                  row["Category"] || null,
-                  row["Section"] || null,
-                  row["Spectator Stand"] || null,
-                  row["Fan Section"] || null,
-                  row["Tickets In Hand Restrictions"] || null,
+                  cleanRow["Slug"] || null,
+                  cleanRow["Event ID"] || null,
+                  cleanRow["Event Name (Today)"] || null,
+                  cleanRow["Event Type"] || null,
+                  cleanRow["Event Date"] || null,
+                  cleanRow["City"] || null,
+                  cleanRow["Venue"] || null,
+                  String(cleanRow["New Category Allowed"] || "")
+                    .toUpperCase()
+                    .trim() === "YES",
+                  String(cleanRow["New Section Allowed"] || "")
+                    .toUpperCase()
+                    .trim() === "YES",
+                  cleanRow["Category"] || null,
+                  cleanRow["Section"] || null,
+                  cleanRow["Spectator Stand"] || null,
+                  cleanRow["Fan Section"] || null,
+                  cleanRow["Tickets In Hand Restrictions"] || null,
                 ],
               );
 
