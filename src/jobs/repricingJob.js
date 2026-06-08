@@ -219,6 +219,8 @@ async function runRepricingJob() {
       );
 
       console.error("MESSAGE:", error.message);
+      console.error("STATUS:", error.response?.status);
+      console.error("API_DATA:", JSON.stringify(error.response?.data, null, 2));
       console.error("DETAIL:", error.detail);
       console.error("POSITION:", error.position);
       console.error("STACK:", error.stack);
