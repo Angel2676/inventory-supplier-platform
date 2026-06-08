@@ -251,6 +251,34 @@ function MarketplaceMappingsTable() {
       );
     }
   }
+  async function handleAutoMatchTicombo(eventId) {
+    if (!eventId) {
+      setError("Questo mapping non ha un evento interno associato");
+      return;
+    }
+
+    try {
+      setError("");
+
+      const response = await api.post(
+        `/api/marketplace/ticombo/catalog/auto-match-event/${eventId}`,
+      );
+
+      alert(
+        `Auto-match Ticombo completato\n\nEvento: ${response.data.bestMatch?.event_name}\nEvent ID: ${response.data.bestMatch?.remote_event_id}\nSlug: ${response.data.bestMatch?.slug}`,
+      );
+
+      await loadMappings();
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.details ||
+          "Errore auto-match Ticombo",
+      );
+    }
+  }
 
   function getActiveBadgeClass(isActive) {
     return isActive
@@ -743,7 +771,17 @@ function MarketplaceMappingsTable() {
                   >
                     Modifica
                   </button>
-
+                  {mapping.internal_event_id && (
+                    <button
+                      className="btn-secondary"
+                      type="button"
+                      onClick={() =>
+                        handleAutoMatchTicombo(mapping.internal_event_id)
+                      }
+                    >
+                      Auto-Match Ticombo
+                    </button>
+                  )}
                   <button
                     className="btn btn-delete"
                     onClick={() => deleteMapping(mapping.id)}
