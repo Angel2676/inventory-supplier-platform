@@ -216,8 +216,12 @@ async function runRepricingJob() {
     } catch (error) {
       console.error(
         `Marketplace listing ${listing.id} (${listing.marketplace}): repricing error`,
-        error.response?.data || error.message,
       );
+
+      console.error("MESSAGE:", error.message);
+      console.error("DETAIL:", error.detail);
+      console.error("POSITION:", error.position);
+      console.error("STACK:", error.stack);
     }
   }
 
