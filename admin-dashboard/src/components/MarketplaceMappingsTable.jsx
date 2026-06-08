@@ -279,6 +279,33 @@ function MarketplaceMappingsTable() {
       );
     }
   }
+  async function handleAutoMatchTicomboTicket(ticketId) {
+    if (!ticketId) {
+      setError("Ticket non valido per Auto-Match categoria Ticombo");
+      return;
+    }
+
+    try {
+      setError("");
+
+      const response = await api.post(
+        `/api/marketplace/ticombo/catalog/auto-match-ticket/${ticketId}`,
+      );
+
+      alert(
+        `Auto-Match Categoria Ticombo completato\n\nCategoria: ${response.data.mapping?.remote_category_name}\nBlock: ${response.data.mapping?.remote_block_name || "-"}\nTipo: ${response.data.mapping?.mapping_type}`,
+      );
+
+      await loadMappings();
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.details ||
+          "Errore auto-match categoria Ticombo",
+      );
+    }
+  }
 
   function getActiveBadgeClass(isActive) {
     return isActive
