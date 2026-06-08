@@ -18,6 +18,29 @@ function normalizeText(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
 }
+function getPreferredGigsbergCategoryName(ticketCategory) {
+  const category = normalizeText(ticketCategory);
+
+  if (category === normalizeText("Distinti Superiori")) {
+    return "Category 1";
+  }
+
+  if (category === normalizeText("Distinti Inferiori")) {
+    return "Category 1 Platinum";
+  }
+
+  if (
+    category === normalizeText("Curva A Inferiore") ||
+    category === normalizeText("Curva A Superiore") ||
+    category === normalizeText("Curva B Inferiore") ||
+    category === normalizeText("Curva B Superiore")
+  ) {
+    return "Category 2";
+  }
+
+  return null;
+}
+
 function extractGigsbergEventIdFromPublicUrl(publicUrl) {
   if (!publicUrl) return null;
 
@@ -264,6 +287,24 @@ async function findBestGigsbergCategory(gigsbergEventId, ticket) {
   }
 
   const localCategory = normalizeText(ticket.category);
+  const preferredCategoryName = getPreferredGigsbergCategoryName(
+    ticket.category,
+  );
+
+  if (preferredCategoryName) {
+    const preferredMatch = list.find(
+      (category) =>
+        normalizeText(category.name) === normalizeText(preferredCategoryName),
+    );
+
+    if (preferredMatch) {
+      return preferredMatch;
+    }
+
+    throw new Error(
+      `Categoria Gigsberg obbligatoria non trovata: ${preferredCategoryName} per categoria locale ${ticket.category}`,
+    );
+  }
 
   const exactMatch = list.find(
     (category) => normalizeText(category.name) === localCategory,
