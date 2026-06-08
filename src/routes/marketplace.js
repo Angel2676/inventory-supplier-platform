@@ -1470,6 +1470,9 @@ router.post("/publish", async (req, res) => {
         eventId: eventMapping.remote_event_id,
         type: "e-tickets",
         category: categoryMapping.remote_category_name,
+        concession: {
+          fanSection: "No Fan Restrictions",
+        },
         quantity,
         isInPossession: false,
         listWithoutTicketUpload: false,
