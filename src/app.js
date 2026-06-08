@@ -66,6 +66,7 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/marketplace", marketplaceRoutes);
 app.use("/api/market-analysis", marketAnalysisRoutes);
 app.use("/api/webhooks", webhooksRoutes);
+app.use("/api/marketplace-content-requests", marketplaceContentRequestsRoutes);
 
 setInterval(() => {
   cleanupExpiredReservations();
@@ -79,4 +80,3 @@ app.listen(PORT, () => {
   startAutoPublishJob();
   runGigsbergMarketScannerJob();
 });
-app.use("/api/marketplace-content-requests", marketplaceContentRequestsRoutes);
