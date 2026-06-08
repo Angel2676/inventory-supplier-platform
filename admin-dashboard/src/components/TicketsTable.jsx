@@ -71,7 +71,8 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     undercut_amount: "0.01",
     auto_reprice_enabled: false,
   });
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 50;
   async function loadTickets() {
     try {
       const response = await api.get("/api/tickets");
@@ -514,6 +515,13 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
       return dateB - dateA;
     });
+  const totalPages = Math.ceil(filteredTickets.length / pageSize) || 1;
+
+  const paginatedTickets = filteredTickets.slice(
+    (currentPage - 1) * pageSize,
+
+    currentPage * pageSize,
+  );
 
   async function loadPublishReadiness(ticketId) {
     try {
@@ -810,348 +818,383 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       )}
 
       {filteredTickets.length > 0 && (
-        <table className="tickets-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Team / Artist</th>
-              <th>Evento</th>
-              <th>Data evento</th>
-              <th>Categoria</th>
-              <th>Block</th>
-              <th>Available</th>
-              <th>Partner Price</th>
+        <>
+          <table className="tickets-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Team / Artist</th>
+                <th>Evento</th>
+                <th>Data evento</th>
+                <th>Categoria</th>
+                <th>Block</th>
+                <th>Available</th>
+                <th>Partner Price</th>
 
-              {canEdit && <th>Marketplace Price</th>}
-              {canEdit && <th>Min Price</th>}
-              {canEdit && <th>Auto Reprice</th>}
-              {canEdit && <th>Undercut</th>}
-              {canEdit && <th>Last Market</th>}
-              {canEdit && <th>Last Suggested</th>}
+                {canEdit && <th>Marketplace Price</th>}
+                {canEdit && <th>Min Price</th>}
+                {canEdit && <th>Auto Reprice</th>}
+                {canEdit && <th>Undercut</th>}
+                {canEdit && <th>Last Market</th>}
+                {canEdit && <th>Last Suggested</th>}
 
-              {!canEdit && <th>Qty</th>}
-              {!canEdit && <th>Note</th>}
-              {!canEdit && <th>Totale</th>}
+                {!canEdit && <th>Qty</th>}
+                {!canEdit && <th>Note</th>}
+                {!canEdit && <th>Totale</th>}
 
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {filteredTickets.map((ticket) => {
-              const requestQuantity = Number(requestQuantities[ticket.id] || 1);
+            <tbody>
+              {paginatedTickets.map((ticket) => {
+                const requestQuantity = Number(
+                  requestQuantities[ticket.id] || 1,
+                );
 
-              const partnerPrice = Number(
-                ticket.partner_price || ticket.price || 0,
-              );
+                const partnerPrice = Number(
+                  ticket.partner_price || ticket.price || 0,
+                );
 
-              const marketplacePrice = Number(
-                ticket.marketplace_price || ticket.price || 0,
-              );
+                const marketplacePrice = Number(
+                  ticket.marketplace_price || ticket.price || 0,
+                );
 
-              const totalPrice = (partnerPrice * requestQuantity).toFixed(2);
+                const totalPrice = (partnerPrice * requestQuantity).toFixed(2);
 
-              return (
-                <tr key={ticket.id}>
-                  <td>{ticket.id}</td>
+                return (
+                  <tr key={ticket.id}>
+                    <td>{ticket.id}</td>
 
-                  <td>{getEventTeam(ticket.event_id) || "-"}</td>
+                    <td>{getEventTeam(ticket.event_id) || "-"}</td>
 
-                  <td>{getEventName(ticket.event_id)}</td>
+                    <td>{getEventName(ticket.event_id)}</td>
 
-                  <td>{formatDate(getEventDate(ticket.event_id))}</td>
+                    <td>{formatDate(getEventDate(ticket.event_id))}</td>
 
-                  <td>{ticket.category}</td>
+                    <td>{ticket.category}</td>
 
-                  <td>{ticket.block || "-"}</td>
+                    <td>{ticket.block || "-"}</td>
 
-                  <td>
-                    {editingId === ticket.id ? (
-                      <input
-                        className="table-input"
-                        type="number"
-                        value={editForm.available_quantity}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            available_quantity: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      ticket.available_quantity
-                    )}
-                  </td>
+                    <td>
+                      {editingId === ticket.id ? (
+                        <input
+                          className="table-input"
+                          type="number"
+                          value={editForm.available_quantity}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              available_quantity: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        ticket.available_quantity
+                      )}
+                    </td>
 
-                  <td>
-                    {editingId === ticket.id ? (
-                      <input
-                        className="table-input"
-                        type="number"
-                        step="0.01"
-                        value={editForm.price}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            price: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      `€ ${partnerPrice.toFixed(2)}`
-                    )}
-                  </td>
-
-                  {canEdit && (
                     <td>
                       {editingId === ticket.id ? (
                         <input
                           className="table-input"
                           type="number"
                           step="0.01"
-                          value={editForm.marketplace_price}
+                          value={editForm.price}
                           onChange={(e) =>
                             setEditForm({
                               ...editForm,
-                              marketplace_price: e.target.value,
+                              price: e.target.value,
                             })
                           }
                         />
                       ) : (
-                        `€ ${marketplacePrice.toFixed(2)}`
+                        `€ ${partnerPrice.toFixed(2)}`
                       )}
                     </td>
-                  )}
 
-                  {canEdit && (
-                    <td>
-                      {editingId === ticket.id ? (
-                        <input
-                          className="table-input"
-                          type="number"
-                          step="0.01"
-                          value={editForm.min_price}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              min_price: e.target.value,
-                            })
-                          }
-                        />
-                      ) : ticket.min_price ? (
-                        `€ ${Number(ticket.min_price).toFixed(2)}`
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                  )}
-
-                  {canEdit && (
-                    <td>
-                      {editingId === ticket.id ? (
-                        <input
-                          type="checkbox"
-                          checked={editForm.auto_reprice_enabled}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              auto_reprice_enabled: e.target.checked,
-                            })
-                          }
-                        />
-                      ) : ticket.auto_reprice_enabled ? (
-                        "ON"
-                      ) : (
-                        "OFF"
-                      )}
-                    </td>
-                  )}
-
-                  {canEdit && (
-                    <td>
-                      {editingId === ticket.id ? (
-                        <input
-                          className="table-input"
-                          type="number"
-                          step="0.01"
-                          value={editForm.undercut_amount}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              undercut_amount: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        `€ ${Number(ticket.undercut_amount || 0.01).toFixed(2)}`
-                      )}
-                    </td>
-                  )}
-
-                  {canEdit && (
-                    <td>
-                      {ticket.last_market_price
-                        ? `€ ${Number(ticket.last_market_price).toFixed(2)}`
-                        : "-"}
-                    </td>
-                  )}
-
-                  {canEdit && (
-                    <td>
-                      {ticket.last_suggested_price
-                        ? `€ ${Number(ticket.last_suggested_price).toFixed(2)}`
-                        : "-"}
-                    </td>
-                  )}
-
-                  {!canEdit && (
-                    <td>
-                      <input
-                        className="table-input"
-                        type="number"
-                        min="1"
-                        max={ticket.available_quantity}
-                        value={requestQuantities[ticket.id] || 1}
-                        onChange={(e) =>
-                          updateRequestQuantity(ticket.id, e.target.value)
-                        }
-                      />
-                    </td>
-                  )}
-
-                  {!canEdit && (
-                    <td>
-                      <input
-                        className="table-input"
-                        type="text"
-                        placeholder="Note per admin..."
-                        value={requestNotes[ticket.id] || ""}
-                        onChange={(e) =>
-                          updateRequestNote(ticket.id, e.target.value)
-                        }
-                      />
-                    </td>
-                  )}
-
-                  {!canEdit && (
-                    <td>
-                      <strong>€ {totalPrice}</strong>
-                    </td>
-                  )}
-
-                  <td>
-                    <span className={`status-badge status-${ticket.status}`}>
-                      {ticket.status}
-                    </span>
-                  </td>
-
-                  <td className="actions-cell">
-                    {canEdit ? (
-                      editingId === ticket.id ? (
-                        <>
-                          <button
-                            className="btn btn-save"
-                            onClick={() => saveEdit(ticket.id)}
-                          >
-                            Salva
-                          </button>
-
-                          <button
-                            className="btn btn-secondary"
-                            onClick={cancelEdit}
-                          >
-                            Annulla
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            className="btn btn-edit"
-                            onClick={() => startEdit(ticket)}
-                          >
-                            Modifica
-                          </button>
-
-                          <button
-                            className="btn btn-delete"
-                            onClick={() => deleteTicket(ticket.id)}
-                          >
-                            Elimina
-                          </button>
-
-                          {marketplaceMode && (
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => loadPublishReadiness(ticket.id)}
-                            >
-                              Check Publish Readiness
-                            </button>
-                          )}
-
-                          {marketplaceMode && (
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => publishToGigsberg(ticket)}
-                              disabled={publishingTicketId === ticket.id}
-                            >
-                              {publishingTicketId === ticket.id
-                                ? "Publishing..."
-                                : "Publish Gigsberg"}
-                            </button>
-                          )}
-
-                          {marketplaceMode && (
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => autoMatchTicomboTicket(ticket)}
-                            >
-                              Auto-Match Category
-                            </button>
-                          )}
-                          {marketplaceMode && (
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => publishToTicombo(ticket)}
-                              disabled={publishingTicketId === ticket.id}
-                            >
-                              {publishingTicketId === ticket.id
-                                ? "Publishing..."
-                                : "Publish Ticombo"}
-                            </button>
-                          )}
-
-                          {marketplaceMode && (
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => publishToSportEvents365(ticket)}
-                              disabled={publishingTicketId === ticket.id}
-                            >
-                              {publishingTicketId === ticket.id
-                                ? "Publishing..."
-                                : "Publish SportEvents365"}
-                            </button>
-                          )}
-                        </>
-                      )
-                    ) : (
-                      <button
-                        className="btn btn-save"
-                        onClick={() => requestTicket(ticket)}
-                        disabled={
-                          Number(ticket.available_quantity) <= 0 ||
-                          ticket.status !== "available"
-                        }
-                      >
-                        {t("requestTickets")}
-                      </button>
+                    {canEdit && (
+                      <td>
+                        {editingId === ticket.id ? (
+                          <input
+                            className="table-input"
+                            type="number"
+                            step="0.01"
+                            value={editForm.marketplace_price}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                marketplace_price: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          `€ ${marketplacePrice.toFixed(2)}`
+                        )}
+                      </td>
                     )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+
+                    {canEdit && (
+                      <td>
+                        {editingId === ticket.id ? (
+                          <input
+                            className="table-input"
+                            type="number"
+                            step="0.01"
+                            value={editForm.min_price}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                min_price: e.target.value,
+                              })
+                            }
+                          />
+                        ) : ticket.min_price ? (
+                          `€ ${Number(ticket.min_price).toFixed(2)}`
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                    )}
+
+                    {canEdit && (
+                      <td>
+                        {editingId === ticket.id ? (
+                          <input
+                            type="checkbox"
+                            checked={editForm.auto_reprice_enabled}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                auto_reprice_enabled: e.target.checked,
+                              })
+                            }
+                          />
+                        ) : ticket.auto_reprice_enabled ? (
+                          "ON"
+                        ) : (
+                          "OFF"
+                        )}
+                      </td>
+                    )}
+
+                    {canEdit && (
+                      <td>
+                        {editingId === ticket.id ? (
+                          <input
+                            className="table-input"
+                            type="number"
+                            step="0.01"
+                            value={editForm.undercut_amount}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                undercut_amount: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          `€ ${Number(ticket.undercut_amount || 0.01).toFixed(2)}`
+                        )}
+                      </td>
+                    )}
+
+                    {canEdit && (
+                      <td>
+                        {ticket.last_market_price
+                          ? `€ ${Number(ticket.last_market_price).toFixed(2)}`
+                          : "-"}
+                      </td>
+                    )}
+
+                    {canEdit && (
+                      <td>
+                        {ticket.last_suggested_price
+                          ? `€ ${Number(ticket.last_suggested_price).toFixed(2)}`
+                          : "-"}
+                      </td>
+                    )}
+
+                    {!canEdit && (
+                      <td>
+                        <input
+                          className="table-input"
+                          type="number"
+                          min="1"
+                          max={ticket.available_quantity}
+                          value={requestQuantities[ticket.id] || 1}
+                          onChange={(e) =>
+                            updateRequestQuantity(ticket.id, e.target.value)
+                          }
+                        />
+                      </td>
+                    )}
+
+                    {!canEdit && (
+                      <td>
+                        <input
+                          className="table-input"
+                          type="text"
+                          placeholder="Note per admin..."
+                          value={requestNotes[ticket.id] || ""}
+                          onChange={(e) =>
+                            updateRequestNote(ticket.id, e.target.value)
+                          }
+                        />
+                      </td>
+                    )}
+
+                    {!canEdit && (
+                      <td>
+                        <strong>€ {totalPrice}</strong>
+                      </td>
+                    )}
+
+                    <td>
+                      <span className={`status-badge status-${ticket.status}`}>
+                        {ticket.status}
+                      </span>
+                    </td>
+
+                    <td className="actions-cell">
+                      {canEdit ? (
+                        editingId === ticket.id ? (
+                          <>
+                            <button
+                              className="btn btn-save"
+                              onClick={() => saveEdit(ticket.id)}
+                            >
+                              Salva
+                            </button>
+
+                            <button
+                              className="btn btn-secondary"
+                              onClick={cancelEdit}
+                            >
+                              Annulla
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              className="btn btn-edit"
+                              onClick={() => startEdit(ticket)}
+                            >
+                              Modifica
+                            </button>
+
+                            <button
+                              className="btn btn-delete"
+                              onClick={() => deleteTicket(ticket.id)}
+                            >
+                              Elimina
+                            </button>
+
+                            {marketplaceMode && (
+                              <button
+                                className="btn btn-secondary"
+                                onClick={() => loadPublishReadiness(ticket.id)}
+                              >
+                                Check Publish Readiness
+                              </button>
+                            )}
+
+                            {marketplaceMode && (
+                              <button
+                                className="btn btn-secondary"
+                                onClick={() => publishToGigsberg(ticket)}
+                                disabled={publishingTicketId === ticket.id}
+                              >
+                                {publishingTicketId === ticket.id
+                                  ? "Publishing..."
+                                  : "Publish Gigsberg"}
+                              </button>
+                            )}
+
+                            {marketplaceMode && (
+                              <button
+                                className="btn btn-secondary"
+                                onClick={() => autoMatchTicomboTicket(ticket)}
+                              >
+                                Auto-Match Category
+                              </button>
+                            )}
+                            {marketplaceMode && (
+                              <button
+                                className="btn btn-secondary"
+                                onClick={() => publishToTicombo(ticket)}
+                                disabled={publishingTicketId === ticket.id}
+                              >
+                                {publishingTicketId === ticket.id
+                                  ? "Publishing..."
+                                  : "Publish Ticombo"}
+                              </button>
+                            )}
+
+                            {marketplaceMode && (
+                              <button
+                                className="btn btn-secondary"
+                                onClick={() => publishToSportEvents365(ticket)}
+                                disabled={publishingTicketId === ticket.id}
+                              >
+                                {publishingTicketId === ticket.id
+                                  ? "Publishing..."
+                                  : "Publish SportEvents365"}
+                              </button>
+                            )}
+                          </>
+                        )
+                      ) : (
+                        <button
+                          className="btn btn-save"
+                          onClick={() => requestTicket(ticket)}
+                          disabled={
+                            Number(ticket.available_quantity) <= 0 ||
+                            ticket.status !== "available"
+                          }
+                        >
+                          {t("requestTickets")}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          <div
+            style={{
+              marginTop: "12px",
+              display: "flex",
+              gap: "8px",
+              alignItems: "center",
+            }}
+          >
+            <button
+              type="button"
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+            >
+              Pagina precedente
+            </button>
+
+            <span>
+              Pagina {currentPage} di {totalPages}
+            </span>
+
+            <button
+              type="button"
+              disabled={currentPage >= totalPages}
+              onClick={() =>
+                setCurrentPage((page) => Math.min(totalPages, page + 1))
+              }
+            >
+              Pagina successiva
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
