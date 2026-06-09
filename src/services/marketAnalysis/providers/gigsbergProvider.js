@@ -149,6 +149,13 @@ async function buildApiLiveMarket({ rows }) {
 }
 
 async function buildLiveMarket({ rows, category, eventId }) {
+  const eventName = rows.find((row) => row.event_name)?.event_name || "";
+  const normalizedEventName = String(eventName).toLowerCase();
+
+  const sanSiro =
+    normalizedEventName.includes("inter") ||
+    normalizedEventName.includes("milan");
+
   const mappingPublicUrl = await getMappingPublicUrl({ eventId });
   const listingPublicUrl =
     rows.find((row) => row.public_url)?.public_url || null;
@@ -163,6 +170,7 @@ async function buildLiveMarket({ rows, category, eventId }) {
     const livePrices = await getVisiblePublicPrices(publicUrl, {
       categoryName: category || null,
       headless: true,
+      sanSiro,
     });
 
     if (!livePrices.length) {

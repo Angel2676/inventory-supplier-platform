@@ -25,8 +25,9 @@ function normalizeText(value) {
     .trim();
 }
 
-function normalizeMarketplaceCategory(value) {
+function normalizeMarketplaceCategory(value, options = {}) {
   const text = normalizeText(value);
+  const { sanSiro = false } = options;
 
   if (
     text.includes("prato") ||
@@ -53,6 +54,45 @@ function normalizeMarketplaceCategory(value) {
     return "los_vecinos";
   }
 
+  // Regole speciali SOLO San Siro: Inter / Milan
+  if (sanSiro) {
+    if (text.includes("secondo anello arancio")) {
+      return "long_middle_central"; // Category 1 Platinum
+    }
+
+    if (
+      text.includes("primo anello arancio") ||
+      text.includes("primo anello rosso")
+    ) {
+      return "long_lower"; // Category 1 Gold
+    }
+
+    if (
+      text.includes("primo anello blu") ||
+      text.includes("primo anello verde")
+    ) {
+      return "short_lower"; // Category 2
+    }
+
+    if (
+      text.includes("secondo anello blu") ||
+      text.includes("secondo anello verde")
+    ) {
+      return "short_middle"; // Category 3
+    }
+
+    if (text.includes("terzo anello rosso")) {
+      return "long_upper"; // Category 1
+    }
+
+    if (
+      text.includes("terzo anello blu") ||
+      text.includes("terzo anello verde")
+    ) {
+      return "short_upper"; // Category 4
+    }
+  }
+
   if (text.includes("long lower") || text.includes("category 1 gold")) {
     return "long_lower";
   }
@@ -70,19 +110,14 @@ function normalizeMarketplaceCategory(value) {
   if (text.includes("long side middle") || text.includes("category 1 silver")) {
     return "long_middle";
   }
-  if (
-    text.includes("long upper") ||
-    text.includes("terzo anello rosso") ||
-    text.includes("category 1")
-  ) {
+
+  if (text.includes("long upper") || text.includes("category 1")) {
     return "long_upper";
   }
 
   if (
     text.includes("short side upper green") ||
     text.includes("short side upper blue") ||
-    text.includes("terzo anello verde") ||
-    text.includes("terzo anello blu") ||
     text.includes("category 4")
   ) {
     return "short_upper";
@@ -91,8 +126,6 @@ function normalizeMarketplaceCategory(value) {
   if (
     text.includes("short side middle green") ||
     text.includes("short side middle blue") ||
-    text.includes("secondo anello verde") ||
-    text.includes("secondo anello blu") ||
     text.includes("category 3")
   ) {
     return "short_middle";
@@ -102,8 +135,6 @@ function normalizeMarketplaceCategory(value) {
     text.includes("short side lower green") ||
     text.includes("short side lower blue") ||
     text.includes("short side lower blu") ||
-    text.includes("primo anello verde") ||
-    text.includes("primo anello blu") ||
     text.includes("category 2")
   ) {
     return "short_lower";
@@ -112,8 +143,8 @@ function normalizeMarketplaceCategory(value) {
   return text;
 }
 
-function getCategoryAliases(categoryName) {
-  const normalized = normalizeMarketplaceCategory(categoryName);
+function getCategoryAliases(categoryName, options = {}) {
+  const normalized = normalizeMarketplaceCategory(categoryName, options);
   const raw = normalizeText(categoryName);
 
   const aliases = new Set([normalized, raw]);
@@ -214,9 +245,9 @@ function getCategoryAliases(categoryName) {
   return Array.from(aliases).filter(Boolean);
 }
 
-function categoryMatches(line, categoryName) {
-  const normalizedLine = normalizeMarketplaceCategory(line);
-  const aliases = getCategoryAliases(categoryName);
+function categoryMatches(line, categoryName, options = {}) {
+  const normalizedLine = normalizeMarketplaceCategory(line, options);
+  const aliases = getCategoryAliases(categoryName, options);
 
   if (!normalizedLine || aliases.length === 0) return false;
 
@@ -231,19 +262,22 @@ function categoryMatches(line, categoryName) {
   });
 }
 
-function extractCategoryPricesFromText(text, categoryName) {
+function extractCategoryPricesFromText(text, categoryName, options = {}) {
   const lines = String(text || "")
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
 
-  const normalizedCategory = normalizeMarketplaceCategory(categoryName);
+  const normalizedCategory = normalizeMarketplaceCategory(
+    categoryName,
+    options,
+  );
 
   const results = [];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const normalizedLine = normalizeText(line);
+    const normalizedLine = normalizeMarketplaceCategory(line, options);
 
     if (!normalizedCategory || normalizedLine !== normalizedCategory) {
       continue;
@@ -273,7 +307,12 @@ function extractCategoryPricesFromText(text, categoryName) {
 }
 
 async function getVisiblePublicPrices(publicUrl, options = {}) {
-  const { headless = true, timeout = 45000, categoryName = null } = options;
+  const {
+    headless = true,
+    timeout = 45000,
+    categoryName = null,
+    sanSiro = false,
+  } = options;
 
   const browser = await chromium.launch({ headless });
 
@@ -345,6 +384,7 @@ async function getVisiblePublicPrices(publicUrl, options = {}) {
       const categoryPrices = extractCategoryPricesFromText(
         result.fullText,
         categoryName,
+        { sanSiro },
       );
 
       console.log("CATEGORY FILTER:", categoryName);
@@ -352,7 +392,9 @@ async function getVisiblePublicPrices(publicUrl, options = {}) {
     }
 
     if (!prices.length && categoryName) {
-      const normalizedCategory = normalizeMarketplaceCategory(categoryName);
+      const normalizedCategory = normalizeMarketplaceCategory(categoryName, {
+        sanSiro,
+      });
 
       const isSafeGenericCategory = [
         "floor",
