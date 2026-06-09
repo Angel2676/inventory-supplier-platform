@@ -305,6 +305,59 @@ function MarketplaceEventSearch() {
           {success}
         </div>
       )}
+      {marketplace === "gigsberg" && (
+        <div style={{ marginBottom: "18px" }}>
+          <h3 style={{ marginBottom: "8px" }}>Gigsberg Public URL Status</h3>
+
+          <div style={{ overflowX: "auto" }}>
+            <table className="tickets-table">
+              <thead>
+                <tr>
+                  <th>Event ID</th>
+                  <th>Evento</th>
+                  <th>Data</th>
+                  <th>Gigsberg Public URL</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {internalEvents.map((event) => (
+                  <tr key={event.id}>
+                    <td>{event.id}</td>
+                    <td>{event.name}</td>
+                    <td>
+                      {event.event_date
+                        ? new Date(event.event_date).toLocaleString()
+                        : "-"}
+                    </td>
+                    <td>
+                      {event.gigsberg_public_url ? (
+                        <a
+                          href={event.gigsberg_public_url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open URL
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                    <td>
+                      {event.has_gigsberg_public_url ? (
+                        <span className="badge badge-success">Linked</span>
+                      ) : (
+                        <span className="badge badge-warning">Missing</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {results.length > 0 ? (
         <div style={{ overflowX: "auto" }}>

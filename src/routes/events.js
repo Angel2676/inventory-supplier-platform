@@ -179,20 +179,33 @@ Please log in to your partner dashboard to browse available inventory.
 router.get("/", authJwt, async (req, res) => {
   try {
     let query = `
-      SELECT *
-      FROM events
-      WHERE status != 'deleted'
-    `;
+        SELECT
+          e.*,
+          gm.remote_event_id AS gigsberg_remote_event_id,
+          gm.remote_event_name AS gigsberg_remote_event_name,
+          gm.public_url AS gigsberg_public_url,
+          CASE
+            WHEN gm.public_url IS NOT NULL AND gm.public_url <> '' THEN true
+            ELSE false
+          END AS has_gigsberg_public_url
+        FROM events e
+        LEFT JOIN marketplace_mappings gm
+          ON gm.internal_event_id = e.id
+        AND gm.marketplace = 'gigsberg'
+        AND gm.mapping_type = 'event'
+        AND gm.is_active = true
+        WHERE e.status != 'deleted'
+      `;
 
     const values = [];
     let index = 1;
 
     if (req.user.role !== "super_admin" && req.user.role !== "sales_manager") {
       query += `
-        AND status = 'active'
-        AND visibility = 'public'
-        AND id IN (
-          SELECT event_id
+          AND e.status = 'active'
+          AND e.visibility = 'public'
+          AND e.id IN (
+            SELECT event_id
           FROM partner_event_access
           WHERE user_id = $${index}
         )
@@ -204,11 +217,11 @@ router.get("/", authJwt, async (req, res) => {
 
     query += `
       ORDER BY
-        event_type ASC NULLS LAST,
-        event_subcategory ASC NULLS LAST,
-        team_name ASC NULLS LAST,
-        event_date ASC NULLS LAST,
-        id DESC
+        e.event_type ASC NULLS LAST,
+        e.event_subcategory ASC NULLS LAST,
+        e.team_name ASC NULLS LAST,
+        e.event_date ASC NULLS LAST,
+        e.id DESC
     `;
 
     const result = await pool.query(query, values);
