@@ -595,7 +595,15 @@ async function syncMarketplaceQuantities() {
         |--------------------------------------------------------------------------
         */
 
-        if (listing.sync_status === "deleted" && currentQuantity <= 0) {
+        if (listing.sync_status === "deleted") {
+          console.log("Skipping deleted marketplace listing in quantity sync", {
+            listing_id: listing.id,
+            ticket_id: listing.ticket_id,
+            marketplace: listing.marketplace,
+            remote_listing_id: listing.remote_listing_id,
+            currentQuantity,
+          });
+
           continue;
         }
 
