@@ -21,6 +21,44 @@ function normalizeText(value) {
 function getPreferredGigsbergCategoryName(ticketCategory) {
   const category = normalizeText(ticketCategory);
 
+  // San Siro / Inter / Milan
+  if (category === normalizeText("Secondo Anello Arancio")) {
+    return "Category 1 Platinum";
+  }
+
+  if (
+    category === normalizeText("Primo Anello Arancio") ||
+    category === normalizeText("Primo Anello Rosso")
+  ) {
+    return "Category 1 Gold";
+  }
+
+  if (
+    category === normalizeText("Primo Anello Blu") ||
+    category === normalizeText("Primo Anello Verde")
+  ) {
+    return "Category 2";
+  }
+
+  if (
+    category === normalizeText("Secondo Anello Blu") ||
+    category === normalizeText("Secondo Anello Verde")
+  ) {
+    return "Category 3";
+  }
+
+  if (category === normalizeText("Terzo Anello Rosso")) {
+    return "Category 1";
+  }
+
+  if (
+    category === normalizeText("Terzo Anello Blu") ||
+    category === normalizeText("Terzo Anello Verde")
+  ) {
+    return "Category 4";
+  }
+
+  // Napoli / Stadio Maradona
   if (category === normalizeText("Distinti Superiori")) {
     return "Category 1";
   }
