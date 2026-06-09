@@ -102,7 +102,11 @@ async function publishTicomboTicket(ticketId) {
   const price = Number(
     ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
   );
-  const section = ticket.block ? String(ticket.block).trim() : "";
+  const rawBlock = String(ticket.block || "").trim();
+
+  const section =
+    rawBlock && rawBlock.toLowerCase() !== "general" ? rawBlock : "";
+
   const seatAllocationType = section ? "fixed" : "general";
 
   const ticomboPayload = {
