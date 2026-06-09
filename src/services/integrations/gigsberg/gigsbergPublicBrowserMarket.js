@@ -67,10 +67,11 @@ function normalizeMarketplaceCategory(value, options = {}) {
       return "long_lower"; // Category 1 Gold
     }
 
-    if (
-      text.includes("primo anello blu") ||
-      text.includes("primo anello verde")
-    ) {
+    if (text.includes("primo anello blu")) {
+      return "long_middle_central"; // Category 1 Platinum
+    }
+
+    if (text.includes("primo anello verde")) {
       return "short_lower"; // Category 2
     }
 
