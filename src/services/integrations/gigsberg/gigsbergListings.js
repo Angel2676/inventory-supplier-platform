@@ -472,6 +472,7 @@ async function createGigsbergListing(ticketId) {
   }
 
   let response;
+  let realListingId = null;
 
   try {
     response = await axios.post(`${GIGSBERG_BASE_URL}/listing`, form, {
@@ -486,6 +487,49 @@ async function createGigsbergListing(ticketId) {
       "GIGSBERG CREATE LISTING RESPONSE:",
       JSON.stringify(response.data, null, 2),
     );
+    realListingId = response.data?.content?.id || response.data?.id || null;
+
+    try {
+      const searchResult = await require("./gigsbergApi").searchListings({
+        event_id: gigsbergEvent.id,
+        category_id: categoryId,
+        page: 1,
+        per_page: 100,
+      });
+
+      console.log(
+        "GIGSBERG SEARCH AFTER CREATE:",
+        JSON.stringify(searchResult, null, 2),
+      );
+
+      const listings =
+        searchResult?.content ||
+        searchResult?.data ||
+        searchResult?.listings ||
+        [];
+
+      const matchedListing = listings.find((item) => {
+        const itemBlock = String(item.block || item.ticket_block || "").trim();
+        const ticketBlock = String(ticket.block || "").trim();
+
+        const itemPrice = Number(item.price || item.website_price || 0);
+        const expectedPrice = Number(price || 0);
+
+        return (
+          itemBlock === ticketBlock && Math.abs(itemPrice - expectedPrice) < 2
+        );
+      });
+
+      if (matchedListing?.id) {
+        realListingId = matchedListing.id;
+      }
+    } catch (searchError) {
+      console.warn("GIGSBERG SEARCH AFTER CREATE FAILED:", {
+        ticketId: ticket.id,
+        error: searchError.message,
+        details: searchError.response?.data,
+      });
+    }
   } catch (error) {
     console.error(
       "GIGSBERG CREATE LISTING ERROR:",
@@ -497,6 +541,7 @@ async function createGigsbergListing(ticketId) {
 
   return {
     response: response.data,
+    real_listing_id: realListingId,
     gigsberg_event_id: gigsbergEvent.id,
     gigsberg_category_id: categoryId,
     gigsberg_event: gigsbergEvent,

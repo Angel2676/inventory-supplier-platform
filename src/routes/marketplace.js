@@ -1174,6 +1174,7 @@ router.post("/publish", async (req, res) => {
         const gigsbergResult = await createGigsbergListing(ticket_id);
 
         const remoteListingId =
+          gigsbergResult?.real_listing_id ||
           gigsbergResult?.response?.content?.id ||
           gigsbergResult?.response?.id ||
           null;
@@ -2406,6 +2407,7 @@ router.post("/gigsberg/publish-all", async (req, res) => {
         const gigsbergResult = await createGigsbergListing(ticket.id);
 
         const remoteListingId =
+          gigsbergResult?.real_listing_id ||
           gigsbergResult?.response?.content?.id ||
           gigsbergResult?.response?.id ||
           null;
