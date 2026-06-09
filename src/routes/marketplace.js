@@ -2144,6 +2144,9 @@ router.delete("/listings/:id", async (req, res) => {
         {
           quantity: 0,
           presented_quantity: 0,
+          available_quantity: 0,
+          status: "inactive",
+          active: false,
         },
       );
 
