@@ -12,8 +12,10 @@ const {
 
 const {
   deleteListing: deleteGigsbergListing,
+  updateListing: updateGigsbergListing,
   searchEvents: searchGigsbergEvents,
 } = require("../services/integrations/gigsberg/gigsbergApi");
+
 const {
   findGigsbergPublicEventUrl,
 } = require("../services/integrations/gigsberg/gigsbergPublicBrowserMarket");
@@ -2137,10 +2139,49 @@ router.delete("/listings/:id", async (req, res) => {
           error: "remote_listing_id mancante",
         });
       }
-
-      const deleteResponse = await deleteGigsbergListing(
+      const deleteResponse = await updateGigsbergListing(
         listing.remote_listing_id,
+        {
+          quantity: 0,
+          presented_quantity: 0,
+        },
       );
+
+      console.log("[GIGSBERG DELIST RESPONSE]", {
+        listingId: listing.id,
+        remote_listing_id: listing.remote_listing_id,
+        deleteResponse,
+      });
+
+      if (
+        !deleteResponse ||
+        deleteResponse.error ||
+        deleteResponse.success === false
+      ) {
+        await pool.query(
+          `
+          UPDATE marketplace_listings
+          SET
+            last_sync_at = NOW(),
+            updated_at = NOW(),
+            last_error = $2
+          WHERE id = $1
+          `,
+          [
+            listing.id,
+            JSON.stringify(
+              deleteResponse || {
+                error: "Empty response from Gigsberg delete",
+              },
+            ),
+          ],
+        );
+
+        return res.status(502).json({
+          error: "Delist Gigsberg non confermato",
+          details: deleteResponse || null,
+        });
+      }
 
       await pool.query(
         `
