@@ -82,6 +82,38 @@ async function updateSportEvents365Price(listing, price) {
 
 /*
 |--------------------------------------------------------------------------
+| SPORTSEVENTS365 AUTO DELIST
+|--------------------------------------------------------------------------
+*/
+
+async function autoDelistSportEvents365Listing(listing) {
+  if (!listing.remote_event_id || !listing.remote_listing_id) {
+    throw new Error(
+      "remote_event_id o remote_listing_id mancanti per SportEvents365 delist",
+    );
+  }
+
+  const response = await updateSupplierTicket(
+    listing.remote_event_id,
+    listing.remote_listing_id,
+    {
+      quantity: 0,
+    },
+  );
+
+  return {
+    marketplace: "sportevents365",
+    action: "auto_delist_zero_quantity",
+    listing_id: listing.id,
+    remote_event_id: listing.remote_event_id,
+    remote_listing_id: listing.remote_listing_id,
+    quantity: 0,
+    response,
+  };
+}
+
+/*
+|--------------------------------------------------------------------------
 | TICOMBO QUANTITY + PRICE SYNC
 |--------------------------------------------------------------------------
 */
@@ -497,14 +529,7 @@ async function syncMarketplaceQuantities() {
           if (listing.marketplace === "ticombo") {
             responsePayload = await autoDelistTicomboListing(listing);
           } else if (listing.marketplace === "sportevents365") {
-            responsePayload = {
-              marketplace: "sportevents365",
-              action,
-              listing_id: listing.id,
-              placeholder: true,
-              message:
-                "Auto delist SportEvents365 non ancora implementato: listing marcato deleted solo localmente",
-            };
+            responsePayload = await autoDelistSportEvents365Listing(listing);
           } else if (listing.marketplace === "gigsberg") {
             responsePayload = await autoDelistGigsbergListing(listing);
           } else {
