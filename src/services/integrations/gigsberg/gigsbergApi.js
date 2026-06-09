@@ -85,7 +85,12 @@ async function gigsbergRequest({ method, url, data, params }) {
       data: responseData || error.message,
     });
 
-    throw error;
+    return {
+      success: false,
+      error: responseData?.error || responseData?.message || error.message,
+      status,
+      data: responseData || null,
+    };
   }
 }
 
