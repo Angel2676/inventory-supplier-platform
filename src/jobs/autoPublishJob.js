@@ -99,16 +99,10 @@ async function runAutoPublishJob() {
             AND ml.sync_status NOT IN ('deleted', 'failed')
         )
       ORDER BY t.id
-      LIMIT 5
+      LIMIT 1
     `);
 
     for (const ticket of gigsbergCandidates.rows) {
-      console.log("Auto publish Gigsberg temporarily disabled", {
-        ticket_id: ticket.id,
-      });
-
-      continue;
-
       try {
         const publishResult = await createGigsbergListing(ticket.id);
 
@@ -132,7 +126,7 @@ async function runAutoPublishJob() {
 }
 
 function startAutoPublishJob() {
-  cron.schedule("*/5 * * * *", async () => {
+  cron.schedule("*/10 * * * *", async () => {
     await runAutoPublishJob();
   });
 
