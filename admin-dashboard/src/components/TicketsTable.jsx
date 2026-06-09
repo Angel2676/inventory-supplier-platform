@@ -73,14 +73,17 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 50;
-  async function loadTickets() {
+  async function loadTickets({ silent = false } = {}) {
     try {
       const response = await api.get("/api/tickets?limit=1000");
       setTickets(response.data.tickets || []);
       setError("");
     } catch (err) {
       console.error(err);
-      setError("Errore caricamento tickets");
+
+      if (!silent) {
+        setError("Errore caricamento tickets");
+      }
     }
   }
 
@@ -266,7 +269,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
           "Il ticket è stato aggiunto alla coda publish Gigsberg. Appena saranno disponibili le API credentials complete sarà sincronizzato automaticamente.",
       });
 
-      await loadTickets();
+      await loadTickets({ silent: true });
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || "Errore publish Gigsberg");
@@ -319,7 +322,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
           "Il ticket è stato pubblicato su Ticombo ed è ora sincronizzato nei Marketplace Listings.",
       });
 
-      await loadTickets();
+      await loadTickets({ silent: true });
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || "Errore publish Ticombo");
@@ -369,7 +372,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
           "Il ticket è stato inviato alla coda publish SportEvents365. Il sistema userà il mapping evento e le Supplier API per completare la pubblicazione.",
       });
 
-      await loadTickets();
+      await loadTickets({ silent: true });
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || "Errore publish SportEvents365");
