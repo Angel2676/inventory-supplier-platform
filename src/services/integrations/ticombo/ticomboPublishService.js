@@ -103,7 +103,6 @@ async function publishTicomboTicket(ticketId) {
     ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
   );
   const section = ticket.block ? String(ticket.block).trim() : "";
-  const seatAllocationType = section ? "numbered" : "general";
 
   const ticomboPayload = {
     eventId: eventMapping.remote_event_id,
@@ -116,7 +115,7 @@ async function publishTicomboTicket(ticketId) {
     quantity,
     isInPossession: false,
     listWithoutTicketUpload: false,
-    seatAllocationType,
+    seatAllocationType: "general",
     bookingConfirmationFiles: [
       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
     ],
