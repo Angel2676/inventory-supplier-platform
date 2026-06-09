@@ -133,8 +133,16 @@ async function publishTicomboTicket(ticketId) {
       maxDisplayQuantity: quantity,
     },
   };
+  console.log("TICOMBO PAYLOAD:", JSON.stringify(ticomboPayload, null, 2));
 
   const publishResponse = await createTicomboListing(ticomboPayload);
+
+  console.log(
+    "TICOMBO RESPONSE:",
+
+    JSON.stringify(publishResponse, null, 2),
+  );
+
   const remoteListingId = publishResponse?.data?.listingId || null;
 
   if (!remoteListingId) {
