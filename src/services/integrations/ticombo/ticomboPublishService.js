@@ -102,10 +102,12 @@ async function publishTicomboTicket(ticketId) {
   const price = Number(
     ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
   );
+  const section = ticket.block ? String(ticket.block).trim() : "";
 
   const ticomboPayload = {
     eventId: eventMapping.remote_event_id,
     type: "e-tickets",
+    section,
     category: categoryMapping.remote_category_name,
     concession: {
       fanSection: "No Fan Restrictions",
