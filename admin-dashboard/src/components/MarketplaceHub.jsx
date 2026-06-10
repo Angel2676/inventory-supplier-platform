@@ -13,10 +13,12 @@ import TicomboCatalogUpload from "./TicomboCatalogUpload";
 
 const marketplaceTabs = [
   { key: "overview", label: "Overview" },
+  { key: "catalog", label: "Catalog" },
+  { key: "mappings", label: "Mappings" },
+  { key: "publish", label: "Publish" },
   { key: "listings", label: "Listings" },
   { key: "orders", label: "Orders" },
-  { key: "publish", label: "Publish" },
-  { key: "admin", label: "Admin" },
+  { key: "monitor", label: "Monitor" },
 ];
 
 function MarketplaceHub() {
@@ -78,13 +80,13 @@ function MarketplaceHub() {
 
         <div className="marketplace-hero-actions">
           <button type="button" onClick={() => setActiveTab("publish")}>
-            + Publish
+            Publish
           </button>
           <button type="button" onClick={() => setActiveTab("listings")}>
-            View Listings
+            Listings
           </button>
-          <button type="button" onClick={() => setActiveTab("admin")}>
-            Admin Tools
+          <button type="button" onClick={() => setActiveTab("mappings")}>
+            Mappings
           </button>
         </div>
       </div>
@@ -145,7 +147,7 @@ function MarketplaceHub() {
       </div>
 
       <div
-        className={`marketplace-tab-panel ${activeTab === "publish" ? "publish-panel" : ""}`}
+        className={`marketplace-tab-panel ${activeTab === "listings" ? "publish-panel" : ""}`}
       >
         {activeTab === "overview" && (
           <div className="marketplace-overview-v2">
@@ -225,13 +227,37 @@ function MarketplaceHub() {
           </div>
         )}
 
-        {activeTab === "listings" && (
-          <div id="marketplace-listings">
-            <MarketplaceListingsTable />
-          </div>
+        {activeTab === "catalog" && (
+          <CollapsibleSection
+            title="Ticombo Catalog"
+            description="Importa il catalogo eventi Ticombo da CSV per usare Event ID, slug, categorie e sezioni nel mapping e repricing."
+            defaultOpen={true}
+          >
+            <TicomboCatalogUpload />
+          </CollapsibleSection>
         )}
 
-        {activeTab === "orders" && <MarketplaceOrdersTable />}
+        {activeTab === "mappings" && (
+          <>
+            <CollapsibleSection
+              title="Marketplace Event Search"
+              description="Cerca eventi remoti su Ticombo, Gigsberg o altri marketplace per creare mapping e completare public URL."
+              defaultOpen={true}
+            >
+              <div id="marketplace-event-search">
+                <MarketplaceEventSearch />
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Marketplace Mappings"
+              description="Mappa eventi, categorie e blocchi interni verso gli ID dei marketplace."
+              defaultOpen={true}
+            >
+              <MarketplaceMappingsTable />
+            </CollapsibleSection>
+          </>
+        )}
 
         {activeTab === "publish" && (
           <div id="publish-marketplace-listing">
@@ -245,42 +271,28 @@ function MarketplaceHub() {
           </div>
         )}
 
-        {activeTab === "admin" && (
-          <>
+        {activeTab === "listings" && (
+          <div id="marketplace-listings">
             <CollapsibleSection
-              title="Marketplace Event Search"
-              description="Cerca eventi remoti su Ticombo o altri marketplace per creare i mapping."
+              title="Marketplace Listings"
+              description="Monitora listing pubblicati, prezzi marketplace, status e retry sync."
               defaultOpen={true}
             >
-              <div id="marketplace-event-search">
-                <MarketplaceEventSearch />
-              </div>
+              <MarketplaceListingsTable />
             </CollapsibleSection>
+          </div>
+        )}
 
-            <CollapsibleSection
-              title="Marketplace Mappings"
-              description="Mappa eventi, categorie e blocchi interni verso gli ID dei marketplace."
-              defaultOpen={false}
-            >
-              <MarketplaceMappingsTable />
-            </CollapsibleSection>
+        {activeTab === "orders" && <MarketplaceOrdersTable />}
 
-            <CollapsibleSection
-              title="Ticombo Catalog"
-              description="Importa il catalogo eventi Ticombo da CSV per usare Event ID, slug, categorie e sezioni nel mapping e repricing."
-              defaultOpen={false}
-            >
-              <TicomboCatalogUpload />
-            </CollapsibleSection>
-
-            <CollapsibleSection
-              title="Marketplace Logs"
-              description="Visualizza errori, retry, publish, sync quantity e risposte API."
-              defaultOpen={false}
-            >
-              <MarketplaceLogsTable />
-            </CollapsibleSection>
-          </>
+        {activeTab === "monitor" && (
+          <CollapsibleSection
+            title="Marketplace Logs"
+            description="Visualizza errori, retry, publish, sync quantity e risposte API."
+            defaultOpen={true}
+          >
+            <MarketplaceLogsTable />
+          </CollapsibleSection>
         )}
       </div>
     </div>
