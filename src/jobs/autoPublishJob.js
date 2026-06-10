@@ -130,7 +130,7 @@ function startAutoPublishJob() {
     await runAutoPublishJob();
   });
 
-  console.log("Auto publish job scheduled every 5 minutes");
+  console.log("Auto publish job scheduled every 10 minutes");
 }
 
 module.exports = {
