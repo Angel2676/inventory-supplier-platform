@@ -3685,3 +3685,149 @@ body.dark-mode .ticombo-empty {
 .marketplace-action-btn:hover {
   transform: translateY(-1px);
 }
+.marketplace-overview-v2 {
+  display: grid;
+  gap: 18px;
+}
+
+.marketplace-overview-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.marketplace-overview-summary > div {
+  padding: 18px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.marketplace-overview-summary span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.marketplace-overview-summary strong {
+  display: block;
+  margin-top: 8px;
+  color: #0f172a;
+  font-size: 30px;
+}
+
+.marketplace-overview-summary .warning {
+  border-left: 5px solid #f59e0b;
+}
+
+.marketplace-overview-summary .danger {
+  border-left: 5px solid #ef4444;
+}
+
+.marketplace-health-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.marketplace-health-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.marketplace-health-row strong {
+  display: block;
+  text-transform: capitalize;
+  color: #0f172a;
+}
+
+.marketplace-health-row span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.marketplace-health-metrics {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.marketplace-health-metrics span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #334155;
+  font-weight: 800;
+}
+
+.marketplace-health-metrics span.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.marketplace-health-metrics span.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 900px) {
+  .marketplace-overview-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .marketplace-health-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .marketplace-health-metrics {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .marketplace-overview-summary {
+    grid-template-columns: 1fr;
+  }
+}
+.sortable-th {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 900;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sortable-th:hover {
+  color: #2563eb;
+}
+.sortable-th {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 900;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sortable-th:hover {
+  color: #2563eb;
+}

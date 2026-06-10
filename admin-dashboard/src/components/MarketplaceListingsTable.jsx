@@ -9,6 +9,10 @@ function MarketplaceListingsTable() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [autoRepriceFilter, setAutoRepriceFilter] = useState("all");
   const [errorsOnly, setErrorsOnly] = useState(false);
+  const [sortConfig, setSortConfig] = useState({
+    key: "id",
+    direction: "asc",
+  });
 
   async function loadListings() {
     try {
@@ -37,6 +41,78 @@ function MarketplaceListingsTable() {
     if (value === null || value === undefined || value === "") return fallback;
     const number = Number(value);
     return Number.isNaN(number) ? fallback : `€ ${number.toFixed(2)}`;
+  }
+  function getSortValue(listing, key) {
+    switch (key) {
+      case "id":
+        return Number(listing.id || 0);
+
+      case "marketplace":
+        return String(listing.marketplace || "").toLowerCase();
+
+      case "event":
+        return String(listing.event_name || "").toLowerCase();
+
+      case "event_date":
+        return listing.event_date ? new Date(listing.event_date).getTime() : 0;
+
+      case "category":
+        return String(listing.category || "").toLowerCase();
+
+      case "quantity":
+        return Number(listing.available_quantity || 0);
+
+      case "marketplace_price":
+        return Number(
+          listing.marketplace_price ||
+            listing.ticket_marketplace_price ||
+            listing.base_price ||
+            0,
+        );
+
+      case "min_price":
+        return Number(listing.min_price || 0);
+
+      case "last_market":
+        return Number(listing.last_market_price || 0);
+
+      case "suggested":
+        return Number(
+          listing.suggested_marketplace_price ||
+            listing.last_suggested_price ||
+            0,
+        );
+
+      case "sync_status":
+        return String(listing.sync_status || "").toLowerCase();
+
+      case "retry_count":
+        return Number(listing.retry_count || 0);
+
+      default:
+        return "";
+    }
+  }
+
+  function handleSort(key) {
+    setSortConfig((current) => {
+      if (current.key === key) {
+        return {
+          key,
+          direction: current.direction === "asc" ? "desc" : "asc",
+        };
+      }
+
+      return {
+        key,
+        direction: "asc",
+      };
+    });
+  }
+
+  function sortIcon(key) {
+    if (sortConfig.key !== key) return "↕";
+    return sortConfig.direction === "asc" ? "▲" : "▼";
   }
 
   function getSyncStatusBadgeClass(status) {
@@ -192,17 +268,32 @@ function MarketplaceListingsTable() {
       matchesErrors
     );
   });
-  const totalListings = filteredListings.length;
+  const sortedListings = [...filteredListings].sort((a, b) => {
+    const aValue = getSortValue(a, sortConfig.key);
+    const bValue = getSortValue(b, sortConfig.key);
 
-  const autoRepriceEnabled = filteredListings.filter(
+    if (aValue < bValue) {
+      return sortConfig.direction === "asc" ? -1 : 1;
+    }
+
+    if (aValue > bValue) {
+      return sortConfig.direction === "asc" ? 1 : -1;
+    }
+
+    return 0;
+  });
+
+  const totalListings = sortedListings.length;
+
+  const autoRepriceEnabled = sortedListings.filter(
     (l) => l.auto_reprice_enabled,
   ).length;
 
-  const failedListings = filteredListings.filter(
+  const failedListings = sortedListings.filter(
     (l) => l.sync_status === "failed",
   ).length;
 
-  const needsSyncListings = filteredListings.filter(
+  const needsSyncListings = sortedListings.filter(
     (l) => l.sync_status === "needs_sync",
   ).length;
 
@@ -293,28 +384,92 @@ function MarketplaceListingsTable() {
         </label>
       </div>
 
-      {filteredListings.length === 0 ? (
+      {sortedListings.length === 0 ? (
         <p>Nessun marketplace listing presente.</p>
       ) : (
         <div className="marketplace-listings-scroll">
           <table className="tickets-table marketplace-listings-table-v2">
             <thead>
               <tr>
-                <th>Listing</th>
-                <th>Event</th>
-                <th>Ticket</th>
-                <th>Pricing</th>
-                <th>Protection</th>
-                <th>Reprice</th>
-                <th>Sync</th>
-                <th>Remote</th>
+                <th>
+                  <button
+                    className="sortable-th"
+                    onClick={() => handleSort("id")}
+                  >
+                    Listing {sortIcon("id")}
+                  </button>
+                </th>
+
+                <th>
+                  <button
+                    className="sortable-th"
+                    onClick={() => handleSort("event")}
+                  >
+                    Event {sortIcon("event")}
+                  </button>
+                </th>
+
+                <th>
+                  <button
+                    className="sortable-th"
+                    onClick={() => handleSort("category")}
+                  >
+                    Ticket {sortIcon("category")}
+                  </button>
+                </th>
+
+                <th>
+                  <button
+                    className="sortable-th"
+                    onClick={() => handleSort("marketplace_price")}
+                  >
+                    Pricing {sortIcon("marketplace_price")}
+                  </button>
+                </th>
+
+                <th>
+                  <button
+                    className="sortable-th"
+                    onClick={() => handleSort("min_price")}
+                  >
+                    Protection {sortIcon("min_price")}
+                  </button>
+                </th>
+
+                <th>
+                  <button
+                    className="sortable-th"
+                    onClick={() => handleSort("last_market")}
+                  >
+                    Reprice {sortIcon("last_market")}
+                  </button>
+                </th>
+
+                <th>
+                  <button
+                    className="sortable-th"
+                    onClick={() => handleSort("sync_status")}
+                  >
+                    Sync {sortIcon("sync_status")}
+                  </button>
+                </th>
+
+                <th>
+                  <button
+                    className="sortable-th"
+                    onClick={() => handleSort("marketplace")}
+                  >
+                    Remote {sortIcon("marketplace")}
+                  </button>
+                </th>
+
                 <th>Error</th>
                 <th>Actions</th>
               </tr>
             </thead>
 
             <tbody>
-              {filteredListings.map((listing) => {
+              {sortedListings.map((listing) => {
                 const pricingStatus = getPricingStatus(listing);
 
                 return (
