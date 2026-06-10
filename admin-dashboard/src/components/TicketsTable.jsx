@@ -1045,7 +1045,26 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           <div className="publish-category-cell">
                             <strong>{ticket.category || "-"}</strong>
                             <span>Block: {ticket.block || "-"}</span>
-                            <span>Qty: {ticket.available_quantity ?? "-"}</span>
+                            {editingId === ticket.id ? (
+                              <label className="publish-inline-edit">
+                                Qty
+                                <input
+                                  className="table-input"
+                                  type="number"
+                                  value={editForm.available_quantity}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      available_quantity: e.target.value,
+                                    })
+                                  }
+                                />
+                              </label>
+                            ) : (
+                              <span>
+                                Qty: {ticket.available_quantity ?? "-"}
+                              </span>
+                            )}
                           </div>
                         </td>
 
@@ -1053,11 +1072,42 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           <div className="publish-pricing-cell">
                             <div>
                               <span>Partner</span>
-                              <strong>€ {partnerPrice.toFixed(2)}</strong>
+                              {editingId === ticket.id ? (
+                                <input
+                                  className="table-input"
+                                  type="number"
+                                  step="0.01"
+                                  value={editForm.price}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      price: e.target.value,
+                                    })
+                                  }
+                                />
+                              ) : (
+                                <strong>€ {partnerPrice.toFixed(2)}</strong>
+                              )}
                             </div>
+
                             <div>
                               <span>Marketplace</span>
-                              <strong>€ {marketplacePrice.toFixed(2)}</strong>
+                              {editingId === ticket.id ? (
+                                <input
+                                  className="table-input"
+                                  type="number"
+                                  step="0.01"
+                                  value={editForm.marketplace_price}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      marketplace_price: e.target.value,
+                                    })
+                                  }
+                                />
+                              ) : (
+                                <strong>€ {marketplacePrice.toFixed(2)}</strong>
+                              )}
                             </div>
                           </div>
                         </td>
@@ -1065,31 +1115,82 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                         <td>
                           <div className="publish-protection-cell">
                             <span className="publish-min-label">Min Price</span>
-                            <strong>
-                              {ticket.min_price
-                                ? `€ ${Number(ticket.min_price).toFixed(2)}`
-                                : "-"}
-                            </strong>
+                            {editingId === ticket.id ? (
+                              <input
+                                className="table-input"
+                                type="number"
+                                step="0.01"
+                                value={editForm.min_price}
+                                onChange={(e) =>
+                                  setEditForm({
+                                    ...editForm,
+                                    min_price: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              <strong>
+                                {ticket.min_price
+                                  ? `€ ${Number(ticket.min_price).toFixed(2)}`
+                                  : "-"}
+                              </strong>
+                            )}
                           </div>
                         </td>
 
                         <td>
                           <div className="publish-reprice-cell">
-                            <span
-                              className={
-                                ticket.auto_reprice_enabled
-                                  ? "status-pill success"
-                                  : "status-pill neutral"
-                              }
-                            >
-                              {ticket.auto_reprice_enabled ? "ON" : "OFF"}
-                            </span>
-                            <strong>
-                              €{" "}
-                              {Number(ticket.undercut_amount || 0.01).toFixed(
-                                2,
-                              )}
-                            </strong>
+                            {editingId === ticket.id ? (
+                              <>
+                                <label className="publish-inline-edit">
+                                  Auto
+                                  <input
+                                    type="checkbox"
+                                    checked={editForm.auto_reprice_enabled}
+                                    onChange={(e) =>
+                                      setEditForm({
+                                        ...editForm,
+                                        auto_reprice_enabled: e.target.checked,
+                                      })
+                                    }
+                                  />
+                                </label>
+
+                                <label className="publish-inline-edit">
+                                  Undercut
+                                  <input
+                                    className="table-input"
+                                    type="number"
+                                    step="0.01"
+                                    value={editForm.undercut_amount}
+                                    onChange={(e) =>
+                                      setEditForm({
+                                        ...editForm,
+                                        undercut_amount: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </label>
+                              </>
+                            ) : (
+                              <>
+                                <span
+                                  className={
+                                    ticket.auto_reprice_enabled
+                                      ? "status-pill success"
+                                      : "status-pill neutral"
+                                  }
+                                >
+                                  {ticket.auto_reprice_enabled ? "ON" : "OFF"}
+                                </span>
+                                <strong>
+                                  €{" "}
+                                  {Number(
+                                    ticket.undercut_amount || 0.01,
+                                  ).toFixed(2)}
+                                </strong>
+                              </>
+                            )}
                           </div>
                         </td>
 

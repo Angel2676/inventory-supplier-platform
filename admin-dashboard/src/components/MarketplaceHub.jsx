@@ -144,7 +144,9 @@ function MarketplaceHub() {
         ))}
       </div>
 
-      <div className="marketplace-tab-panel">
+      <div
+        className={`marketplace-tab-panel ${activeTab === "publish" ? "publish-panel" : ""}`}
+      >
         {activeTab === "overview" && (
           <div className="marketplace-overview-v2">
             <div className="marketplace-overview-summary">
@@ -233,7 +235,13 @@ function MarketplaceHub() {
 
         {activeTab === "publish" && (
           <div id="publish-marketplace-listing">
-            <TicketsTable canEdit={true} marketplaceMode={true} />
+            <CollapsibleSection
+              title="Publish New Marketplace Listing"
+              description="Seleziona un ticket inventory e pubblicalo su Gigsberg, Ticombo o altri marketplace."
+              defaultOpen={true}
+            >
+              <TicketsTable canEdit={true} marketplaceMode={true} />
+            </CollapsibleSection>
           </div>
         )}
 

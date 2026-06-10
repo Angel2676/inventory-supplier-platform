@@ -4261,3 +4261,72 @@ body.dark-mode .ticombo-empty {
   color: #94a3b8;
   font-weight: 500;
 }
+.marketplace-tab-panel input,
+.marketplace-tab-panel select,
+.marketplace-tab-panel textarea,
+.marketplace-tab-panel button {
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.marketplace-tab-panel .tickets-table input.table-input {
+  min-width: 90px;
+  height: 36px;
+  padding: 6px 8px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+.marketplace-tab-panel input,
+.marketplace-tab-panel select,
+.marketplace-tab-panel textarea,
+.marketplace-tab-panel button {
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.marketplace-tab-panel .tickets-table input.table-input {
+  min-width: 90px;
+  height: 36px;
+  padding: 6px 8px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+.marketplace-tab-panel.publish-panel {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.marketplace-tab-panel.publish-panel input,
+.marketplace-tab-panel.publish-panel select,
+.marketplace-tab-panel.publish-panel textarea {
+  pointer-events: auto !important;
+  user-select: text !important;
+  position: relative;
+  z-index: 10;
+}
+.publish-inline-edit {
+  display: grid;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.publish-table-v2 .table-input {
+  min-width: 86px;
+  height: 32px;
+  padding: 5px 7px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+}
