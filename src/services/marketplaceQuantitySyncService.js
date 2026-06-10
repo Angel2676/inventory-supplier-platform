@@ -346,11 +346,12 @@ async function syncMarketplaceQuantities() {
 |--------------------------------------------------------------------------
 */
 
-        if (
-          listing.marketplace === "ticombo" &&
-          listing.sync_status === "needs_sync" &&
-          !listing.remote_listing_id
-        ) {
+      console.log("TICOMBO_FIRST_PUBLISH_DISABLED", {
+  listing_id: listing.id,
+  ticket_id: listing.ticket_id,
+});
+
+continue;
           console.log(
             `Publishing new Ticombo listing for ticket ${listing.ticket_id}`,
           );
