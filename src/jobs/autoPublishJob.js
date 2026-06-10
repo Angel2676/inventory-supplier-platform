@@ -96,7 +96,6 @@ async function runAutoPublishJob() {
           FROM marketplace_listings ml
           WHERE ml.ticket_id = t.id
             AND ml.marketplace = 'gigsberg'
-            AND ml.sync_status NOT IN ('deleted', 'failed')
         )
       ORDER BY t.id
       LIMIT 1
