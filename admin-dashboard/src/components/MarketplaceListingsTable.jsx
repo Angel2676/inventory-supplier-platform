@@ -470,25 +470,28 @@ function MarketplaceListingsTable() {
                         ) && (
                           <button
                             className="marketplace-action-btn marketplace-retry-btn"
+                            title="Retry Sync"
                             onClick={() => retrySync(listing.id)}
                           >
-                            ↻ Retry
+                            ↻
                           </button>
                         )}
 
                         <button
                           className="marketplace-action-btn marketplace-retry-btn"
+                          title="Run Repricing"
                           onClick={() => runRepricing(listing.id)}
                         >
-                          💶 Reprice
+                          💶
                         </button>
 
                         {canUnpublish(listing) && (
                           <button
                             className="marketplace-action-btn marketplace-delist-btn"
+                            title="Delist Marketplace Listing"
                             onClick={() => unpublishListing(listing)}
                           >
-                            ⛔ Delist
+                            ⛔
                           </button>
                         )}
                       </div>
