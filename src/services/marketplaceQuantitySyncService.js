@@ -392,126 +392,29 @@ async function syncMarketplaceQuantities() {
         let resultingSyncStatus = listing.sync_status || "synced";
 
         /*
-        |--------------------------------------------------------------------------
-        | AUTO REPUBLISH WHEN QUANTITY RETURNS ABOVE ZERO
-        |--------------------------------------------------------------------------
-        */
+|--------------------------------------------------------------------------
+| AUTO REPUBLISH WHEN QUANTITY RETURNS ABOVE ZERO
+|--------------------------------------------------------------------------
+*/
 
         if (listing.sync_status === "deleted" && currentQuantity > 0) {
-          action = "auto_republish_quantity_restored";
-          resultingSyncStatus = "synced";
-
           if (listing.marketplace === "ticombo") {
-            responsePayload = await autoRepublishTicomboListing(
-              listing,
+            console.log("AUTO_REPUBLISH_TICOMBO_DISABLED", {
+              listing_id: listing.id,
+              ticket_id: listing.ticket_id,
               currentQuantity,
-              currentPrice,
-            );
-
-            await pool.query(
-              `
-              UPDATE marketplace_listings
-              SET
-                sync_status = $1,
-                remote_listing_id = $2,
-                external_listing_id = $2,
-                last_quantity_synced = $3,
-                last_quantity_sync_at = NOW(),
-                marketplace_price = $4,
-                quantity_sync_attempts =
-                  COALESCE(quantity_sync_attempts, 0) + 1,
-                last_sync_at = NOW(),
-                updated_at = NOW(),
-                last_error = NULL,
-              retry_count = 0,
-              next_retry_at = NULL,
-              circuit_breaker_until = NULL
-              WHERE id = $5
-              `,
-              [
-                resultingSyncStatus,
-                responsePayload.new_remote_listing_id,
-                currentQuantity,
-                currentPrice,
-                listing.id,
-              ],
-            );
-
-            await pool.query(
-              `
-              INSERT INTO marketplace_sync_logs (
-                marketplace_listing_id,
-                ticket_id,
-                marketplace,
-                action,
-                status,
-                response_payload
-              )
-              VALUES ($1,$2,$3,$4,$5,$6)
-              `,
-              [
-                listing.id,
-                listing.ticket_id,
-                listing.marketplace,
-                action,
-                "success",
-                JSON.stringify(responsePayload),
-              ],
-            );
+            });
 
             continue;
           }
 
           responsePayload = {
             marketplace: listing.marketplace,
-            action,
+            action: "auto_republish_quantity_restored",
             listing_id: listing.id,
             placeholder: true,
-            message:
-              "Auto republish non ancora implementato per questo marketplace",
+            message: "Auto republish non implementato per questo marketplace",
           };
-
-          await pool.query(
-            `
-            UPDATE marketplace_listings
-            SET
-              last_quantity_synced = $1,
-              last_quantity_sync_at = NOW(),
-              marketplace_price = $3,
-              quantity_sync_attempts =
-                COALESCE(quantity_sync_attempts, 0) + 1,
-              last_sync_at = NOW(),
-              updated_at = NOW(),
-              last_error = NULL,
-              retry_count = 0,
-              next_retry_at = NULL,
-              circuit_breaker_until = NULL
-            WHERE id = $2
-            `,
-            [currentQuantity, listing.id, currentPrice],
-          );
-
-          await pool.query(
-            `
-            INSERT INTO marketplace_sync_logs (
-              marketplace_listing_id,
-              ticket_id,
-              marketplace,
-              action,
-              status,
-              response_payload
-            )
-            VALUES ($1,$2,$3,$4,$5,$6)
-            `,
-            [
-              listing.id,
-              listing.ticket_id,
-              listing.marketplace,
-              action,
-              "skipped",
-              JSON.stringify(responsePayload),
-            ],
-          );
 
           continue;
         }
