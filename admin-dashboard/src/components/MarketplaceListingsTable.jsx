@@ -619,13 +619,14 @@ function MarketplaceListingsTable() {
                     </td>
 
                     <td>
-                      <div className="marketplace-actions">
+                      <div className="marketplace-actions compact-actions">
                         {["failed", "needs_sync"].includes(
                           listing.sync_status,
                         ) && (
                           <button
-                            className="marketplace-action-btn marketplace-retry-btn"
-                            title="Retry Sync"
+                            className="marketplace-icon-btn retry"
+                            title="Retry sync"
+                            aria-label="Retry sync"
                             onClick={() => retrySync(listing.id)}
                           >
                             ↻
@@ -633,17 +634,19 @@ function MarketplaceListingsTable() {
                         )}
 
                         <button
-                          className="marketplace-action-btn marketplace-retry-btn"
-                          title="Run Repricing"
+                          className="marketplace-icon-btn reprice"
+                          title="Run repricing"
+                          aria-label="Run repricing"
                           onClick={() => runRepricing(listing.id)}
                         >
-                          💶
+                          €
                         </button>
 
                         {canUnpublish(listing) && (
                           <button
-                            className="marketplace-action-btn marketplace-delist-btn"
-                            title="Delist Marketplace Listing"
+                            className="marketplace-icon-btn delist"
+                            title="Delist marketplace listing"
+                            aria-label="Delist marketplace listing"
                             onClick={() => unpublishListing(listing)}
                           >
                             ⛔
