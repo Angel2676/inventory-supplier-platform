@@ -3937,3 +3937,208 @@ body.dark-mode .ticombo-empty {
   color: #0f172a;
   text-transform: capitalize;
 }
+.publish-table-v2 th {
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 900;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.publish-table-v2 td {
+  vertical-align: middle;
+}
+
+.publish-table-v2 tbody tr:hover {
+  background: #eef2ff;
+}
+
+.publish-table-v2 .actions-cell {
+  min-width: 220px;
+}
+
+.publish-table-v2 .actions-cell > * {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.publish-action-btn {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 5px 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.publish-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
+}
+
+.publish-action-btn.readiness:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.publish-action-btn.gigsberg:hover {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #86efac;
+}
+
+.publish-action-btn.ticombo:hover {
+  background: #fff7ed;
+  color: #9a3412;
+  border-color: #fdba74;
+}
+
+.publish-action-btn.sportevents:hover {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border-color: #c4b5fd;
+}
+
+.publish-action-btn.match:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.publish-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+.publish-table-v2 td {
+  vertical-align: middle;
+  font-size: 13px;
+  color: #334155;
+}
+
+.publish-table-v2 td strong {
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.publish-table-v2 td:nth-child(1),
+.publish-table-v2 td:nth-child(3),
+.publish-table-v2 td:nth-child(4),
+.publish-table-v2 td:nth-child(8),
+.publish-table-v2 td:nth-child(9),
+.publish-table-v2 td:nth-child(10),
+.publish-table-v2 td:nth-child(12),
+.publish-table-v2 td:nth-child(13),
+.publish-table-v2 td:nth-child(14) {
+  font-weight: 800;
+  color: #0f172a;
+}
+.publish-table-v2 {
+  min-width: 1250px;
+}
+
+.publish-table-v2 th {
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 900;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.publish-table-v2 td {
+  vertical-align: top;
+  font-size: 13px;
+  color: #334155;
+}
+
+.publish-table-v2 tbody tr:hover {
+  background: #eef2ff;
+}
+
+.publish-ticket-cell,
+.publish-event-cell,
+.publish-category-cell,
+.publish-pricing-cell,
+.publish-protection-cell,
+.publish-reprice-cell,
+.publish-market-cell {
+  display: grid;
+  gap: 5px;
+}
+
+.publish-ticket-cell strong,
+.publish-event-cell strong,
+.publish-category-cell strong,
+.publish-pricing-cell strong,
+.publish-protection-cell strong,
+.publish-reprice-cell strong,
+.publish-market-cell strong {
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.publish-ticket-cell span,
+.publish-event-cell span,
+.publish-category-cell span,
+.publish-pricing-cell span,
+.publish-market-cell span,
+.publish-min-label {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.publish-pricing-cell,
+.publish-market-cell {
+  min-width: 155px;
+}
+
+.publish-pricing-cell div,
+.publish-market-cell div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.publish-protection-cell,
+.publish-reprice-cell {
+  align-items: center;
+  text-align: center;
+}
+
+.publish-protection-cell strong,
+.publish-reprice-cell strong {
+  font-size: 14px;
+}
+
+.publish-actions-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 260px;
+}
+
+.publish-action-btn {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 5px 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.publish-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
+}
