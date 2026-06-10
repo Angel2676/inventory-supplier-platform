@@ -45,10 +45,10 @@ async function runTicomboMarketScannerJob() {
           `
           UPDATE marketplace_listings
           SET
-            last_market_price = NULL,
-            last_suggested_price = NULL,
+            last_market_price = $1,
+            last_suggested_price = $2,
             updated_at = NOW()
-          WHERE id = $1
+          WHERE id = $3
           `,
           [listing.marketplace_listing_id],
         );
@@ -78,18 +78,14 @@ async function runTicomboMarketScannerJob() {
           updated_at = NOW()
         WHERE id = $3
         `,
-        [
-          marketPrice,
-          priceCheck.suggestedPrice,
-          listing.marketplace_listing_id,
-        ],
+        [marketPrice, priceCheck.finalPrice, listing.marketplace_listing_id],
       );
 
       console.log("Ticombo scanner updated listing", {
         listing_id: listing.marketplace_listing_id,
         ticket_id: listing.ticket_id,
         marketPrice,
-        suggestedPrice: priceCheck.suggestedPrice,
+        uggestedPrice: priceCheck.finalPrice,
       });
     } catch (error) {
       console.error("Ticombo scanner error:", {

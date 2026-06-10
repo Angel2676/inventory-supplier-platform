@@ -126,7 +126,7 @@ async function runRepricingJob() {
             updated_at = NOW()
           WHERE id = $3
           `,
-          [marketLowestPrice || null, priceCheck.suggestedPrice, listing.id],
+          [marketLowestPrice || null, priceCheck.finalPrice, listing.id],
         );
         console.log("GIGSBERG SCANNER TICKET UPDATED", {
           ticket_id: listing.ticket_id,
@@ -214,7 +214,7 @@ async function runRepricingJob() {
         marketplace_price: priceCheck.finalPrice,
         last_market_price:
           marketLowestPrice || listing.last_market_price || null,
-        last_suggested_price: priceCheck.suggestedPrice,
+        last_suggested_price: priceCheck.finalPrice,
       });
 
       await pool.query(
