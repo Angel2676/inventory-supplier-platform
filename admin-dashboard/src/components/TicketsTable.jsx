@@ -51,6 +51,10 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
+  const [publishSortConfig, setPublishSortConfig] = useState({
+    key: "event_date",
+    direction: "asc",
+  });
   const [editingId, setEditingId] = useState(null);
 
   const [requestQuantities, setRequestQuantities] = useState({});
@@ -160,6 +164,62 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     }
 
     return text;
+  }
+  function getPublishSortValue(ticket, key) {
+    switch (key) {
+      case "ticket":
+        return Number(ticket.id || 0);
+
+      case "event":
+        return String(getEventName(ticket.event_id) || "").toLowerCase();
+
+      case "event_date":
+        return getEventDate(ticket.event_id)
+          ? new Date(getEventDate(ticket.event_id)).getTime()
+          : 0;
+
+      case "category":
+        return String(ticket.category || "").toLowerCase();
+
+      case "pricing":
+        return Number(ticket.marketplace_price || ticket.price || 0);
+
+      case "min_price":
+        return Number(ticket.min_price || 0);
+
+      case "reprice":
+        return Number(ticket.undercut_amount || 0.01);
+
+      case "market":
+        return Number(ticket.last_market_price || 0);
+
+      case "status":
+        return String(ticket.status || "").toLowerCase();
+
+      default:
+        return "";
+    }
+  }
+
+  function handlePublishSort(key) {
+    setPublishSortConfig((current) => {
+      if (current.key === key) {
+        return {
+          key,
+          direction: current.direction === "asc" ? "desc" : "asc",
+        };
+      }
+
+      return {
+        key,
+        direction: "asc",
+      };
+    });
+  }
+
+  function publishSortIcon(key) {
+    if (publishSortConfig.key !== key) return "↕";
+    return publishSortConfig.direction === "asc" ? "▲" : "▼";
   }
 
   function getEventTime(eventId) {
@@ -508,6 +568,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
         matchesTeam
       );
     })
+
     .sort((a, b) => {
       const dateA = getEventTime(a.event_id);
       const dateB = getEventTime(b.event_id);
@@ -518,9 +579,25 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
 
       return dateB - dateA;
     });
+  const sortedTickets = [...filteredTickets].sort((a, b) => {
+    if (!marketplaceMode) return 0;
+
+    const aValue = getPublishSortValue(a, publishSortConfig.key);
+    const bValue = getPublishSortValue(b, publishSortConfig.key);
+
+    if (aValue < bValue) {
+      return publishSortConfig.direction === "asc" ? -1 : 1;
+    }
+
+    if (aValue > bValue) {
+      return publishSortConfig.direction === "asc" ? 1 : -1;
+    }
+
+    return 0;
+  });
   const totalPages = Math.ceil(filteredTickets.length / pageSize) || 1;
 
-  const paginatedTickets = filteredTickets.slice(
+  const paginatedTickets = sortedTickets.slice(
     (currentPage - 1) * pageSize,
 
     currentPage * pageSize,
@@ -833,14 +910,70 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
               <tr>
                 {marketplaceMode ? (
                   <>
-                    <th>Ticket</th>
-                    <th>Event</th>
-                    <th>Category</th>
-                    <th>Pricing</th>
-                    <th>Protection</th>
-                    <th>Reprice</th>
-                    <th>Market</th>
-                    <th>Status</th>
+                    <th>
+                      <button
+                        className="sortable-th"
+                        onClick={() => handlePublishSort("ticket")}
+                      >
+                        Ticket {publishSortIcon("ticket")}
+                      </button>
+                    </th>
+                    <th>
+                      <button
+                        className="sortable-th"
+                        onClick={() => handlePublishSort("event")}
+                      >
+                        Event {publishSortIcon("event")}
+                      </button>
+                    </th>
+                    <th>
+                      <button
+                        className="sortable-th"
+                        onClick={() => handlePublishSort("category")}
+                      >
+                        Category {publishSortIcon("category")}
+                      </button>
+                    </th>
+                    <th>
+                      <button
+                        className="sortable-th"
+                        onClick={() => handlePublishSort("pricing")}
+                      >
+                        Pricing {publishSortIcon("pricing")}
+                      </button>
+                    </th>
+                    <th>
+                      <button
+                        className="sortable-th"
+                        onClick={() => handlePublishSort("min_price")}
+                      >
+                        Protection {publishSortIcon("min_price")}
+                      </button>
+                    </th>
+                    <th>
+                      <button
+                        className="sortable-th"
+                        onClick={() => handlePublishSort("reprice")}
+                      >
+                        Reprice {publishSortIcon("reprice")}
+                      </button>
+                    </th>
+                    <th>
+                      <button
+                        className="sortable-th"
+                        onClick={() => handlePublishSort("market")}
+                      >
+                        Market {publishSortIcon("market")}
+                      </button>
+                    </th>
+                    <th>
+                      <button
+                        className="sortable-th"
+                        onClick={() => handlePublishSort("status")}
+                      >
+                        Status {publishSortIcon("status")}
+                      </button>
+                    </th>
                     <th>Actions</th>
                   </>
                 ) : (
