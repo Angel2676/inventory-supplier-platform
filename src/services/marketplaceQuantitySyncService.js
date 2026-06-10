@@ -346,46 +346,15 @@ async function syncMarketplaceQuantities() {
 |--------------------------------------------------------------------------
 */
 
-      console.log("TICOMBO_FIRST_PUBLISH_DISABLED", {
-  listing_id: listing.id,
-  ticket_id: listing.ticket_id,
-});
-
-continue;
-          console.log(
-            `Publishing new Ticombo listing for ticket ${listing.ticket_id}`,
-          );
-
-          const publishResult = await publishTicomboTicket(listing.ticket_id);
-
-          await pool.query(
-            `
-    UPDATE marketplace_listings
-    SET
-      sync_status = 'synced',
-      remote_listing_id = $1,
-      external_listing_id = $1,
-      last_quantity_synced = $2,
-      marketplace_price = $3,
-      last_sync_at = NOW(),
-      updated_at = NOW(),
-      last_error = NULL,
-      retry_count = 0,
-      next_retry_at = NULL,
-      circuit_breaker_until = NULL
-    WHERE id = $4
-    `,
-            [
-              publishResult.remoteListingId,
-              currentQuantity,
-              currentPrice,
-              listing.id,
-            ],
-          );
-
-          console.log(
-            `Ticombo listing published successfully: ${publishResult.remoteListingId}`,
-          );
+        if (
+          listing.marketplace === "ticombo" &&
+          listing.sync_status === "needs_sync" &&
+          !listing.remote_listing_id
+        ) {
+          console.log("TICOMBO_FIRST_PUBLISH_DISABLED", {
+            listing_id: listing.id,
+            ticket_id: listing.ticket_id,
+          });
 
           continue;
         }
