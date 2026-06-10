@@ -1142,17 +1142,19 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                           ) : (
                             <>
                               <button
-                                className="btn btn-edit"
+                                className="publish-row-btn edit"
+                                title="Modifica ticket"
                                 onClick={() => startEdit(ticket)}
                               >
-                                Modifica
+                                Edit
                               </button>
 
                               <button
-                                className="btn btn-delete"
+                                className="publish-row-btn delete"
+                                title="Elimina ticket"
                                 onClick={() => deleteTicket(ticket.id)}
                               >
-                                Elimina
+                                Delete
                               </button>
 
                               <button
@@ -1160,7 +1162,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 title="Check publish readiness"
                                 onClick={() => loadPublishReadiness(ticket.id)}
                               >
-                                ✓ Check
+                                ✓
                               </button>
 
                               <button
@@ -1169,9 +1171,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 onClick={() => publishToGigsberg(ticket)}
                                 disabled={publishingTicketId === ticket.id}
                               >
-                                {publishingTicketId === ticket.id
-                                  ? "..."
-                                  : "Gigsberg"}
+                                {publishingTicketId === ticket.id ? "..." : "G"}
                               </button>
 
                               <button
@@ -1179,7 +1179,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 title="Auto-match Ticombo category"
                                 onClick={() => autoMatchTicomboTicket(ticket)}
                               >
-                                Ticombo Match
+                                TM
                               </button>
 
                               <button
@@ -1188,9 +1188,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 onClick={() => publishToTicombo(ticket)}
                                 disabled={publishingTicketId === ticket.id}
                               >
-                                {publishingTicketId === ticket.id
-                                  ? "..."
-                                  : "Ticombo"}
+                                {publishingTicketId === ticket.id ? "..." : "T"}
                               </button>
 
                               <button
@@ -1199,9 +1197,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 onClick={() => publishToSportEvents365(ticket)}
                                 disabled={publishingTicketId === ticket.id}
                               >
-                                {publishingTicketId === ticket.id
-                                  ? "..."
-                                  : "Sport365"}
+                                {publishingTicketId === ticket.id ? "..." : "S"}
                               </button>
                             </>
                           )}
