@@ -103,15 +103,6 @@ async function runAutoPublishJob() {
     `);
 
     for (const ticket of gigsbergCandidates.rows) {
-      console.log(
-        "Auto publish Gigsberg temporarily disabled until DB insert is implemented",
-        {
-          ticket_id: ticket.id,
-        },
-      );
-
-      continue;
-
       try {
         const publishResult = await createGigsbergListing(ticket.id);
 
