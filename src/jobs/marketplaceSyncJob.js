@@ -13,7 +13,7 @@ async function runMarketplaceSyncJob() {
 }
 
 function startMarketplaceSyncJob() {
-  cron.schedule("*/2 * * * *", async () => {
+  cron.schedule("*/5 * * * *", async () => {
     try {
       await runMarketplaceSyncJob();
     } catch (error) {
