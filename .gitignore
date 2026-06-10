@@ -9,3 +9,6 @@ debug-*.html
 *.log
 
 uploads/
+sport365_categories_385529.json
+sport365_events.json
+test_gigsberg_search_listings.js
