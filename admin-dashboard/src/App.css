@@ -3917,3 +3917,23 @@ body.dark-mode .ticombo-empty {
   background: #f8fafc;
   color: #64748b;
 }
+.min-price-highlight {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+  text-align: center;
+}
+
+.undercut-highlight {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+  text-align: center;
+}
+.listing-main-cell span {
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: capitalize;
+}

@@ -174,18 +174,18 @@ function MarketplaceListingsTable() {
     const min = Number(listing.min_price || 0);
 
     if (!min || !current) {
-      return { label: "UNKNOWN", className: "neutral" };
+      return { label: "⚪ Unknown", className: "neutral" };
     }
 
     if (current <= min) {
-      return { label: "DANGER", className: "danger" };
+      return { label: "🔴 Danger", className: "danger" };
     }
 
     if (current <= min * 1.15) {
-      return { label: "NEAR MIN", className: "warning" };
+      return { label: "🟠 Near Min", className: "warning" };
     }
 
-    return { label: "SAFE", className: "success" };
+    return { label: "🟢 Safe", className: "success" };
   }
 
   async function retrySync(listingId) {
@@ -579,7 +579,10 @@ function MarketplaceListingsTable() {
                         >
                           {pricingStatus.label}
                         </span>
-                        <small>Min: {safeNumber(listing.min_price)}</small>
+
+                        <div className="min-price-highlight">
+                          {safeNumber(listing.min_price)}
+                        </div>
                       </div>
                     </td>
 
@@ -594,10 +597,9 @@ function MarketplaceListingsTable() {
                         >
                           {listing.auto_reprice_enabled ? "ON" : "OFF"}
                         </span>
-                        <small>
-                          Undercut:{" "}
+                        <div className="undercut-highlight">
                           {safeNumber(listing.undercut_amount || 0.01)}
-                        </small>
+                        </div>
                       </div>
                     </td>
 
