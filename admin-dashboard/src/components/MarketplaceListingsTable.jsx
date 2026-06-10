@@ -119,16 +119,47 @@ function MarketplaceListingsTable() {
     switch (status) {
       case "synced":
       case "published":
-        return "status-pill success";
+        return "sync-pill synced";
+
       case "pending":
-        return "status-pill warning";
+        return "sync-pill pending";
+
       case "needs_sync":
-        return "status-pill attention";
+        return "sync-pill needs-sync";
+
       case "failed":
+        return "sync-pill failed";
+
       case "deleted":
-        return "status-pill danger";
+        return "sync-pill deleted";
+
       default:
-        return "status-pill neutral";
+        return "sync-pill neutral";
+    }
+  }
+
+  function getSyncStatusLabel(status) {
+    switch (status) {
+      case "synced":
+        return "🟢 Synced";
+
+      case "published":
+        return "🟢 Published";
+
+      case "pending":
+        return "⚪ Pending";
+
+      case "needs_sync":
+        return "🟠 Needs Sync";
+
+      case "failed":
+        return "🔴 Failed";
+
+      case "deleted":
+        return "⚫ Deleted";
+
+      default:
+        return safeText(status);
     }
   }
 
@@ -577,7 +608,7 @@ function MarketplaceListingsTable() {
                             listing.sync_status,
                           )}
                         >
-                          {safeText(listing.sync_status).toUpperCase()}
+                          {getSyncStatusLabel(listing.sync_status)}
                         </span>
                         <small>Retry: {listing.retry_count ?? 0}</small>
                         {listing.next_retry_at && (
