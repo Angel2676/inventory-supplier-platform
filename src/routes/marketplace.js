@@ -1470,11 +1470,15 @@ router.post("/publish", async (req, res) => {
       const price = Number(
         ticket.marketplace_price || ticket.partner_price || ticket.price || 0,
       );
+      const rawBlock = String(ticket.block || "").trim();
+      const section =
+        rawBlock && rawBlock.toLowerCase() !== "general" ? rawBlock : "";
 
       const ticomboPayload = {
         eventId: eventMapping.remote_event_id,
         type: "e-tickets",
         category: categoryMapping.remote_category_name,
+        section,
         concession: {
           fanSection: "No Fan Restrictions",
         },
