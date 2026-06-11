@@ -61,6 +61,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   const [requestNotes, setRequestNotes] = useState({});
 
   const [successModal, setSuccessModal] = useState(null);
+  const [errorModal, setErrorModal] = useState(null);
   const [publishingTicketId, setPublishingTicketId] = useState(null);
   const [readinessByTicketId, setReadinessByTicketId] = useState({});
   const [error, setError] = useState("");
@@ -332,7 +333,16 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       await loadTickets({ silent: true });
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || "Errore publish Gigsberg");
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.details ||
+        "Errore publish Gigsberg";
+
+      setError(message);
+      setErrorModal({
+        title: "Errore publish Gigsberg",
+        message,
+      });
     } finally {
       setPublishingTicketId(null);
     }
@@ -385,7 +395,16 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       await loadTickets({ silent: true });
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || "Errore publish Ticombo");
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.details ||
+        "Errore publish Ticombo";
+
+      setError(message);
+      setErrorModal({
+        title: "Errore publish Ticombo",
+        message,
+      });
     } finally {
       setPublishingTicketId(null);
     }
@@ -441,7 +460,16 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       await loadTickets({ silent: true });
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || "Errore publish SportEvents365");
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.details ||
+        "Errore publish SportEvents365";
+
+      setError(message);
+      setErrorModal({
+        title: "Errore publish SportEvents365",
+        message,
+      });
     } finally {
       setPublishingTicketId(null);
     }
@@ -672,6 +700,13 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
           title={successModal.title}
           message={successModal.message}
           onClose={() => setSuccessModal(null)}
+        />
+      )}
+      {errorModal && (
+        <SuccessModal
+          title={errorModal.title}
+          message={errorModal.message}
+          onClose={() => setErrorModal(null)}
         />
       )}
 
