@@ -107,7 +107,11 @@ async function publishTicomboTicket(ticketId) {
   const section =
     rawBlock && rawBlock.toLowerCase() !== "general" ? rawBlock : "";
 
-  const seatAllocationType = section ? "fixed" : "general";
+  const hasSeatDetails = Boolean(
+    ticket.row_name || ticket.seat_from || ticket.seat_to,
+  );
+
+  const seatAllocationType = hasSeatDetails ? "fixed" : "general";
 
   const ticomboPayload = {
     eventId: eventMapping.remote_event_id,
