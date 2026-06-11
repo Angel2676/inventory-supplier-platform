@@ -1473,6 +1473,7 @@ router.post("/publish", async (req, res) => {
       const rawBlock = String(ticket.block || "").trim();
       const section =
         rawBlock && rawBlock.toLowerCase() !== "general" ? rawBlock : "";
+      const seatAllocationType = section ? "numbered" : "general";
 
       const ticomboPayload = {
         eventId: eventMapping.remote_event_id,
@@ -1485,7 +1486,7 @@ router.post("/publish", async (req, res) => {
         quantity,
         isInPossession: false,
         listWithoutTicketUpload: false,
-        seatAllocationType: "general",
+        seatAllocationType,
         bookingConfirmationFiles: [
           "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
         ],
