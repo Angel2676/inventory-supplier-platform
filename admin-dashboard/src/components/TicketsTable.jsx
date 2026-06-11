@@ -285,7 +285,17 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     } catch (err) {
       console.error(err);
 
-      setError(err.response?.data?.error || "Errore aggiornamento ticket");
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.details ||
+        "Errore aggiornamento ticket";
+
+      setError(message);
+
+      setErrorModal({
+        title: "Errore aggiornamento ticket",
+        message,
+      });
     }
   }
 
@@ -297,7 +307,18 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       await loadTickets();
     } catch (err) {
       console.error(err);
-      setError("Errore eliminazione ticket");
+
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.details ||
+        "Errore eliminazione ticket";
+
+      setError(message);
+
+      setErrorModal({
+        title: "Errore eliminazione ticket",
+        message,
+      });
     }
   }
 
@@ -333,6 +354,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       await loadTickets({ silent: true });
     } catch (err) {
       console.error(err);
+
       const message =
         err.response?.data?.error ||
         err.response?.data?.details ||
@@ -367,11 +389,18 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       setPublishAllReport(response.data.report);
     } catch (err) {
       console.error(err);
-      setError(
+
+      const message =
         err.response?.data?.error ||
-          err.response?.data?.details ||
-          "Errore Publish All Gigsberg dry run",
-      );
+        err.response?.data?.details ||
+        "Errore Publish All Gigsberg dry run";
+
+      setError(message);
+
+      setErrorModal({
+        title: "Errore Publish All Gigsberg",
+        message,
+      });
     } finally {
       setPublishAllLoading(false);
     }
@@ -395,6 +424,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       await loadTickets({ silent: true });
     } catch (err) {
       console.error(err);
+
       const message =
         err.response?.data?.error ||
         err.response?.data?.details ||
@@ -434,11 +464,18 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       );
     } catch (err) {
       console.error(err);
-      setError(
+
+      const message =
         err.response?.data?.error ||
-          err.response?.data?.details ||
-          "Errore Auto-Match Categoria Ticombo",
-      );
+        err.response?.data?.details ||
+        "Errore Auto-Match Categoria Ticombo";
+
+      setError(message);
+
+      setErrorModal({
+        title: "Errore Auto-Match Ticombo",
+        message,
+      });
     }
   }
 
@@ -518,7 +555,18 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       await loadTickets();
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || "Errore invio richiesta ticket");
+
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.details ||
+        "Errore invio richiesta ticket";
+
+      setError(message);
+
+      setErrorModal({
+        title: "Errore richiesta ticket",
+        message,
+      });
     }
   }
 
@@ -683,9 +731,17 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     } catch (err) {
       console.error(err);
 
-      setError(
-        err.response?.data?.error || "Errore controllo publish readiness",
-      );
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.details ||
+        "Errore controllo publish readiness";
+
+      setError(message);
+
+      setErrorModal({
+        title: "Errore Publish Readiness",
+        message,
+      });
     }
   }
 
