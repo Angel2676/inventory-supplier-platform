@@ -979,25 +979,25 @@ router.get("/publish-readiness/:ticketId", async (req, res) => {
 
         if (categoryMappingResult.rows.length === 0) {
           console.log("TICOMBO CONTENT REQUEST TRIGGERED");
-          const errorText = `Mapping categoria Ticombo mancante per ${ticket.category}`;
+          const errorText = `Mapping categoria Ticombo mancante per category=${ticket.category}, block=${ticket.block || ""}`;
 
           await pool.query(
             `
-    INSERT INTO marketplace_content_requests (
-      marketplace,
-      event_id,
-      event_name,
-      event_date,
-      venue,
-      city,
-      country,
-      request_status,
-      remote_event_id,
-      notes,
-      updated_at
-    )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
-    `,
+            INSERT INTO marketplace_content_requests (
+              marketplace,
+              event_id,
+              event_name,
+              event_date,
+              venue,
+              city,
+              country,
+              request_status,
+              remote_event_id,
+              notes,
+              updated_at
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+            `,
             [
               "ticombo",
               ticket.event_id,
@@ -1872,16 +1872,32 @@ router.post("/publish", async (req, res) => {
 
       const categoryMappingResult = await pool.query(
         `
-        SELECT *
-        FROM marketplace_mappings
-        WHERE marketplace = 'sportevents365'
-          AND mapping_type = 'category'
-          AND internal_event_id = $1
-          AND internal_category = $2
-          AND is_active = true
-        LIMIT 1
-        `,
-        [ticket.event_id, ticket.category],
+  SELECT *
+  FROM marketplace_mappings
+  WHERE marketplace = 'ticombo'
+    AND internal_event_id = $1
+    AND is_active = true
+    AND (
+      (
+        mapping_type = 'category_block'
+        AND internal_category = $2
+        AND internal_block = $3
+      )
+      OR (
+        mapping_type = 'category'
+        AND internal_category = $2
+      )
+    )
+  ORDER BY
+    CASE
+      WHEN mapping_type = 'category_block' THEN 1
+      WHEN mapping_type = 'category' THEN 2
+      ELSE 3
+    END,
+    id DESC
+  LIMIT 1
+  `,
+        [ticket.event_id, ticket.category, ticket.block],
       );
 
       if (categoryMappingResult.rows.length === 0) {
