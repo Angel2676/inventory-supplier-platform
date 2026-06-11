@@ -401,11 +401,17 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       );
 
       alert(
-        `Auto-Match Categoria Ticombo completato\n\nCategoria: ${
-          response.data.mapping?.remote_category_name || "-"
-        }\nBlock: ${
-          response.data.mapping?.remote_block_name || "-"
-        }\nTipo: ${response.data.mapping?.mapping_type || "-"}`,
+        response.data.alreadyMapped
+          ? `Mapping Ticombo già esistente\n\nCategoria: ${
+              response.data.mapping?.remote_category_name || "-"
+            }\nBlock: ${
+              response.data.mapping?.remote_block_name || "-"
+            }\nTipo: ${response.data.mapping?.mapping_type || "-"}`
+          : `Auto-Match Categoria Ticombo completato\n\nCategoria: ${
+              response.data.mapping?.remote_category_name || "-"
+            }\nBlock: ${
+              response.data.mapping?.remote_block_name || "-"
+            }\nTipo: ${response.data.mapping?.mapping_type || "-"}`,
       );
     } catch (err) {
       console.error(err);
@@ -1276,8 +1282,16 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                               </button>
 
                               <button
-                                className="publish-action-btn match"
-                                title="Auto-match Ticombo category"
+                                className={`publish-action-btn match ${
+                                  ticket.ticombo_mapping_exists
+                                    ? "mapped"
+                                    : "missing"
+                                }`}
+                                title={
+                                  ticket.ticombo_mapping_exists
+                                    ? "Mapping Ticombo già presente"
+                                    : "Mapping Ticombo mancante - clicca per Auto-Match"
+                                }
                                 onClick={() => autoMatchTicomboTicket(ticket)}
                               >
                                 TM

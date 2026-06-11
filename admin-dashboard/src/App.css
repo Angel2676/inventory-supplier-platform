@@ -4330,3 +4330,12 @@ body.dark-mode .ticombo-empty {
   background: #ffffff;
   color: #0f172a;
 }
+.publish-action-btn.match.mapped {
+  background: #16a34a;
+  color: white;
+}
+
+.publish-action-btn.match.missing {
+  background: #dc2626;
+  color: white;
+}

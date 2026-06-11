@@ -135,11 +135,33 @@ router.get("/", authJwt, async (req, res) => {
     } = req.query;
 
     let query = `
-      SELECT tickets.*
-      FROM tickets
-      WHERE 1=1
-      AND tickets.status != 'deleted'
-    `;
+          SELECT
+            tickets.*,
+            EXISTS (
+              SELECT 1
+              FROM marketplace_mappings tm
+              WHERE tm.marketplace = 'ticombo'
+                AND tm.is_active = true
+                AND tm.internal_event_id = tickets.event_id
+                AND tm.internal_category = tickets.category
+                AND (
+                  (
+                    tickets.block IS NOT NULL
+                    AND tickets.block <> ''
+                    AND tm.mapping_type = 'category_block'
+                    AND tm.internal_block = tickets.block
+                  )
+                  OR
+                  (
+                    (tickets.block IS NULL OR tickets.block = '')
+                    AND tm.mapping_type = 'category'
+                  )
+                )
+            ) AS ticombo_mapping_exists
+          FROM tickets
+          WHERE 1=1
+          AND tickets.status != 'deleted'
+        `;
 
     const values = [];
     let paramCount = 1;
