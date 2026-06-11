@@ -104,8 +104,10 @@ async function publishTicomboTicket(ticketId) {
   );
   const rawBlock = String(ticket.block || "").trim();
 
-  const section =
-    rawBlock && rawBlock.toLowerCase() !== "general" ? rawBlock : "";
+  const section = "";
+  console.log(
+    `TICOMBO TEST - ticket ${ticket.id}: block="${rawBlock}" -> section vuota`,
+  );
 
   const hasSeatDetails = Boolean(
     ticket.row_name || ticket.seat_from || ticket.seat_to,
