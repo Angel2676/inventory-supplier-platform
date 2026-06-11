@@ -1496,7 +1496,7 @@ router.post("/publish", async (req, res) => {
         allowProposals: false,
         refId: `inventory-${ticket.id}`,
         sellingOptions: {
-          splitType: "none",
+          splitType: "any",
           maxDisplayQuantity: quantity,
         },
       };
