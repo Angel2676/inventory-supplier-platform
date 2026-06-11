@@ -1473,7 +1473,7 @@ router.post("/publish", async (req, res) => {
       const rawBlock = String(ticket.block || "").trim();
       const section =
         rawBlock && rawBlock.toLowerCase() !== "general" ? rawBlock : "";
-      const seatAllocationType = section ? "numbered" : "general";
+      const seatAllocationType = section ? "fixed" : "general";
 
       const ticomboPayload = {
         eventId: eventMapping.remote_event_id,
