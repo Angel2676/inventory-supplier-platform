@@ -2966,6 +2966,38 @@ router.post(
       const match = catalogResult.rows[0];
 
       const mappingType = hasBlock ? "category_block" : "category";
+      const existingMappingResult = await pool.query(
+        `
+  SELECT *
+  FROM marketplace_mappings
+  WHERE marketplace = 'ticombo'
+    AND mapping_type = $1
+    AND internal_event_id = $2
+    AND internal_category = $3
+    AND COALESCE(internal_block, '') = COALESCE($4, '')
+    AND is_active = true
+  ORDER BY id DESC
+  LIMIT 1
+  `,
+        [
+          mappingType,
+          ticket.event_id,
+          ticket.category || null,
+          hasBlock ? String(ticket.block).trim() : null,
+        ],
+      );
+
+      if (existingMappingResult.rows.length > 0) {
+        return res.json({
+          success: true,
+          alreadyMapped: true,
+          message: "Mapping Ticombo già esistente: auto-match non ripetuto",
+          ticket,
+          eventMapping,
+          match,
+          mapping: existingMappingResult.rows[0],
+        });
+      }
 
       const mappingResult = await pool.query(
         `
