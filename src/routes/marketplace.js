@@ -1726,7 +1726,7 @@ router.post("/publish", async (req, res) => {
             marketplace_price = $6,
             last_error = NULL,
             updated_at = NOW()
-          WHERE marketplace = $7
+          WHERE id = $7
           RETURNING *
           `,
           [
@@ -1789,7 +1789,7 @@ router.post("/publish", async (req, res) => {
         VALUES ($1,$2,$3,$4,$5,$6,$7)
         `,
         [
-          listingResult.rows[0].id,
+          listingResult.rows?.[0]?.id || null,
           ticket.id,
           "ticombo",
           "publish",
@@ -1874,7 +1874,7 @@ router.post("/publish", async (req, res) => {
         `
   SELECT *
   FROM marketplace_mappings
-  WHERE marketplace = 'ticombo'
+  WHERE marketplace = 'sportevents365'
     AND internal_event_id = $1
     AND is_active = true
     AND (
