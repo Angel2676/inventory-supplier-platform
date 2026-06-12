@@ -1537,22 +1537,23 @@ router.post("/publish", async (req, res) => {
             ? { rows: [pendingListingResult.rows[0]] }
             : await pool.query(
                 `
-        INSERT INTO marketplace_listings (
-          ticket_id,
-          marketplace,
-          external_event_id,
-          external_category_id,
-          remote_event_id,
-          remote_category_id,
-          sync_status,
-          sync_direction,
-          last_sync_at,
-          marketplace_price,
-          last_error
-        )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10)
-        RETURNING *
-        `,
+                  INSERT INTO marketplace_listings (
+                    ticket_id,
+                    marketplace,
+                    external_event_id,
+                    external_category_id,
+                    remote_event_id,
+                    remote_category_id,
+                    sync_status,
+                    sync_direction,
+                    last_sync_at,
+                    marketplace_price,
+                    min_price,
+                    last_error
+                  )
+                  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10,$11)
+                  RETURNING *
+                  `,
                 [
                   ticket.id,
                   "ticombo",
@@ -1563,6 +1564,7 @@ router.post("/publish", async (req, res) => {
                   "pending_content_request",
                   "inventory_to_marketplace",
                   price,
+                  ticket.min_price || null,
                   errorText,
                 ],
               );
@@ -1571,37 +1573,37 @@ router.post("/publish", async (req, res) => {
 
           await pool.query(
             `
-    UPDATE marketplace_listings
-    SET
-      sync_status = 'pending_content_request',
-      last_error = $1,
-      last_sync_at = NOW(),
-      updated_at = NOW(),
-      next_retry_at = NULL,
-      circuit_breaker_until = NULL
-    WHERE id = $2
-    `,
+              UPDATE marketplace_listings
+              SET
+                sync_status = 'pending_content_request',
+                last_error = $1,
+                last_sync_at = NOW(),
+                updated_at = NOW(),
+                next_retry_at = NULL,
+                circuit_breaker_until = NULL
+              WHERE id = $2
+              `,
             [errorText, waitingListing.id],
           );
 
           try {
             await pool.query(
               `
-    INSERT INTO marketplace_content_requests (
-      marketplace,
-      event_id,
-      event_name,
-      event_date,
-      venue,
-      city,
-      country,
-      request_status,
-      remote_event_id,
-      notes,
-      updated_at
-    )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
-    `,
+                INSERT INTO marketplace_content_requests (
+                  marketplace,
+                  event_id,
+                  event_name,
+                  event_date,
+                  venue,
+                  city,
+                  country,
+                  request_status,
+                  remote_event_id,
+                  notes,
+                  updated_at
+                )
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+                `,
               [
                 "ticombo",
                 ticket.event_id,
@@ -1649,9 +1651,10 @@ router.post("/publish", async (req, res) => {
                 sync_direction,
                 last_sync_at,
                 marketplace_price,
+                min_price,
                 last_error
               )
-              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10)
+              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10,$11)
               RETURNING *
               `,
               [
@@ -1664,6 +1667,7 @@ router.post("/publish", async (req, res) => {
                 "failed",
                 "inventory_to_marketplace",
                 price,
+                ticket.min_price || null,
                 publishError.response?.data
                   ? JSON.stringify(publishError.response.data)
                   : publishError.message,
@@ -1742,22 +1746,23 @@ router.post("/publish", async (req, res) => {
       } else {
         listingResult = await pool.query(
           `
-          INSERT INTO marketplace_listings (
-            ticket_id,
-            marketplace,
-            external_event_id,
-            external_category_id,
-            remote_event_id,
-            remote_category_id,
-            remote_listing_id,
-            sync_status,
-            sync_direction,
-            last_sync_at,
-            marketplace_price,
-            last_error
-          )
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW(),$10,$11)
-          RETURNING *
+         INSERT INTO marketplace_listings (
+              ticket_id,
+              marketplace,
+              external_event_id,
+              external_category_id,
+              remote_event_id,
+              remote_category_id,
+              remote_listing_id,
+              sync_status,
+              sync_direction,
+              last_sync_at,
+              marketplace_price,
+              min_price,
+              last_error
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW(),$10,$11,$12)
+            RETURNING *
           `,
           [
             ticket.id,
@@ -1770,6 +1775,7 @@ router.post("/publish", async (req, res) => {
             "synced",
             "inventory_to_marketplace",
             price,
+            ticket.min_price || null,
             null,
           ],
         );
