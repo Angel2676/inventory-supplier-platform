@@ -385,7 +385,7 @@ async function runGigsbergMarketScannerJob() {
             updated_at = NOW()
           WHERE id = $3
           `,
-          [lowestPrice, priceCheck.suggestedPrice, listing.ticket_id],
+          [lowestPrice, priceCheck.finalPrice, listing.ticket_id],
         );
       } catch (error) {
         console.error(

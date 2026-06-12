@@ -2076,7 +2076,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
           updated_at = NOW()
         WHERE id = $2
         `,
-        [priceCheck.suggestedPrice, id],
+        [priceCheck.finalPrice, id],
       );
 
       return res.json({
@@ -2097,7 +2097,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
         updated_at = NOW()
       WHERE id = $3
       `,
-      [priceCheck.finalPrice, priceCheck.suggestedPrice, id],
+      [priceCheck.finalPrice, priceCheck.finalPrice, id],
     );
 
     await pool.query(

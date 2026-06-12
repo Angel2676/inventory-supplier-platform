@@ -700,7 +700,7 @@ router.post("/:id/price-check", async (req, res) => {
         last_reprice_at = NOW()
       WHERE id = $3
       `,
-      [marketLowestPrice, priceCheck.suggestedPrice, id],
+      [marketLowestPrice, priceCheck.finalPrice, id],
     );
 
     res.json({
@@ -758,7 +758,7 @@ router.post("/:id/reprice", async (req, res) => {
           last_reprice_at = NOW()
         WHERE id = $3
         `,
-        [marketLowestPrice, priceCheck.suggestedPrice, id],
+        [marketLowestPrice, priceCheck.finalPrice, id],
       );
 
       return res.json({
@@ -781,7 +781,7 @@ router.post("/:id/reprice", async (req, res) => {
       WHERE id = $4
       RETURNING *
       `,
-      [priceCheck.finalPrice, marketLowestPrice, priceCheck.suggestedPrice, id],
+      [priceCheck.finalPrice, marketLowestPrice, priceCheck.finalPrice, id],
     );
 
     res.json({

@@ -1,0 +1,6062 @@
+{
+  "data": [
+    {
+      "id": 364219,
+      "name": "Match 1: Mexico vs South Africa",
+      "homeTeam": {
+        "id": 2400,
+        "name": "Mexico"
+      },
+      "awayTeam": {
+        "id": 2600,
+        "name": "South Africa"
+      },
+      "participants": [
+        {
+          "id": 2400,
+          "name": "Mexico"
+        },
+        {
+          "id": 2600,
+          "name": "South Africa"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "11/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 2072,
+        "name": "Mexico CIty"
+      },
+      "venue": {
+        "id": 2721,
+        "name": "Estadio Azteca",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/mexico_city.png",
+        "address": "Calzada de Tlalpan 34000 \r\nSanta Ursula Coapa \r\nMexico City, D.F. 04850",
+        "latitude": 19.3029,
+        "longitude": -99.1504
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364219",
+      "availableCategoriesQuantity": 16,
+      "minTicketPrice": {
+        "price": 3509,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364632,
+      "name": "Match 2 (Group A): South Korea vs To be decided",
+      "homeTeam": {
+        "id": 6663,
+        "name": "South Korea"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 6663,
+          "name": "South Korea"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "11/06/2026",
+      "timeOfEvent": "22:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 3013,
+        "name": "Zapopan"
+      },
+      "venue": {
+        "id": 5408,
+        "name": "Estadio Akron",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/guadala.jpg",
+        "address": "Cto. J.V.C. 2800, El Baj&iacute;o, 45014 Zapopan, Jal., Mexico\r\n",
+        "latitude": 20.6818,
+        "longitude": 103.463
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364632",
+      "availableCategoriesQuantity": 17,
+      "minTicketPrice": {
+        "price": 390,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364220,
+      "name": "Match 3 (Group B): Canada vs To be decided",
+      "homeTeam": {
+        "id": 2496,
+        "name": "Canada"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 2496,
+          "name": "Canada"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "12/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1097,
+        "name": "Toronto"
+      },
+      "venue": {
+        "id": 2684,
+        "name": "BMO Field (National Soccer Stadium)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/torwc.png",
+        "address": "170 Princes Blvd,\r\nToronto,\r\nOntario M6K3C3",
+        "latitude": 43.6328,
+        "longitude": -79.4186
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364220",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 1720,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364221,
+      "name": "Match 4 (Group D): USA vs Paraguay",
+      "homeTeam": {
+        "id": 2399,
+        "name": "USA"
+      },
+      "awayTeam": {
+        "id": 2514,
+        "name": "Paraguay"
+      },
+      "participants": [
+        {
+          "id": 2399,
+          "name": "USA"
+        },
+        {
+          "id": 2514,
+          "name": "Paraguay"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "12/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2572,
+        "name": "Inglewood, CA"
+      },
+      "venue": {
+        "id": 4673,
+        "name": "SoFi Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inglewood26.png",
+        "address": "1000 S Prairie Ave, Inglewood, CA 90301, United States",
+        "latitude": 33.9534,
+        "longitude": 118.339
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364221",
+      "availableCategoriesQuantity": 15,
+      "minTicketPrice": {
+        "price": 1400,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364224,
+      "name": "Match 6 (Group D): Australia vs To be decided",
+      "homeTeam": {
+        "id": 2397,
+        "name": "Australia"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 2397,
+          "name": "Australia"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "13/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1529,
+        "name": "Vancouver"
+      },
+      "venue": {
+        "id": 3454,
+        "name": "BC Place Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/VANHQ.png",
+        "address": "",
+        "latitude": 0,
+        "longitude": 0
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364224",
+      "availableCategoriesQuantity": 10,
+      "minTicketPrice": {
+        "price": 387,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364222,
+      "name": "Match 8 (Group B): Qatar vs Switzerland",
+      "homeTeam": {
+        "id": 2416,
+        "name": "Qatar"
+      },
+      "awayTeam": {
+        "id": 2331,
+        "name": "Switzerland"
+      },
+      "participants": [
+        {
+          "id": 2416,
+          "name": "Qatar"
+        },
+        {
+          "id": 2331,
+          "name": "Switzerland"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "13/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2229,
+        "name": "Santa Clara, CA"
+      },
+      "venue": {
+        "id": 3778,
+        "name": "Levi's Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/tadium4040cpw2gjgj.png",
+        "address": "",
+        "latitude": 37.403,
+        "longitude": -121.97
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364222",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 382,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364225,
+      "name": "Match 7 (Group C): Brazil vs Morocco",
+      "homeTeam": {
+        "id": 2375,
+        "name": "Brazil"
+      },
+      "awayTeam": {
+        "id": 2657,
+        "name": "Morocco"
+      },
+      "participants": [
+        {
+          "id": 2375,
+          "name": "Brazil"
+        },
+        {
+          "id": 2657,
+          "name": "Morocco"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "13/06/2026",
+      "timeOfEvent": "18:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1317,
+        "name": "East Rutherford, NJ"
+      },
+      "venue": {
+        "id": 2764,
+        "name": "MetLife Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/utherford4400202.png",
+        "address": "50 State Highway 120\r\nEast Rutherford, New Jersey 07073",
+        "latitude": 40.8136,
+        "longitude": -74.0744
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364225",
+      "availableCategoriesQuantity": 22,
+      "minTicketPrice": {
+        "price": 1015,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364223,
+      "name": "Match 5 (Group C): Haiti vs Scotland",
+      "homeTeam": {
+        "id": 5589,
+        "name": "Haiti"
+      },
+      "awayTeam": {
+        "id": 1026,
+        "name": "Scotland"
+      },
+      "participants": [
+        {
+          "id": 5589,
+          "name": "Haiti"
+        },
+        {
+          "id": 1026,
+          "name": "Scotland"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "13/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1308,
+        "name": "Foxborough, MA"
+      },
+      "venue": {
+        "id": 1347,
+        "name": "Gillette Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/illette7830fjl2.png",
+        "address": "One Patriot Place\r\nFoxborough, MA 02035-1388",
+        "latitude": 42.0908,
+        "longitude": -71.2644
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364223",
+      "availableCategoriesQuantity": 11,
+      "minTicketPrice": {
+        "price": 894,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364228,
+      "name": "Match 10 (Group E): Germany vs Curacao",
+      "homeTeam": {
+        "id": 1039,
+        "name": "Germany"
+      },
+      "awayTeam": {
+        "id": 6551,
+        "name": "Curacao"
+      },
+      "participants": [
+        {
+          "id": 1039,
+          "name": "Germany"
+        },
+        {
+          "id": 6551,
+          "name": "Curacao"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "14/06/2026",
+      "timeOfEvent": "13:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1281,
+        "name": "Houston, TX"
+      },
+      "venue": {
+        "id": 1355,
+        "name": "NRG Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/69696969.png",
+        "address": "Two Reliant Park\r\nHouston, TX 77054",
+        "latitude": 29.6847,
+        "longitude": -95.4108
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364228",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 588,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364226,
+      "name": "Match 11 (Group F): Netherlands vs Japan",
+      "homeTeam": {
+        "id": 1062,
+        "name": "Netherlands"
+      },
+      "awayTeam": {
+        "id": 2421,
+        "name": "Japan"
+      },
+      "participants": [
+        {
+          "id": 1062,
+          "name": "Netherlands"
+        },
+        {
+          "id": 2421,
+          "name": "Japan"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "14/06/2026",
+      "timeOfEvent": "16:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1311,
+        "name": "Dallas, TX"
+      },
+      "venue": {
+        "id": 3918,
+        "name": "AT&T Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/90210.png",
+        "address": "1 AT&amp;T Way\r\nArlington, TX 76011\r\nUnited States",
+        "latitude": 32.7473,
+        "longitude": -97.0945
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364226",
+      "availableCategoriesQuantity": 11,
+      "minTicketPrice": {
+        "price": 700,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364227,
+      "name": "Match 9 (Group E): Ivory Coast vs Ecuador",
+      "homeTeam": {
+        "id": 2330,
+        "name": "Ivory Coast"
+      },
+      "awayTeam": {
+        "id": 2493,
+        "name": "Ecuador"
+      },
+      "participants": [
+        {
+          "id": 2330,
+          "name": "Ivory Coast"
+        },
+        {
+          "id": 2493,
+          "name": "Ecuador"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "14/06/2026",
+      "timeOfEvent": "19:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1283,
+        "name": "Philadelphia, PA"
+      },
+      "venue": {
+        "id": 1354,
+        "name": "Lincoln Financial Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inancial66vw5.png",
+        "address": "3501 South Broad Street \r\nPhiladelphia, Pennsylvania",
+        "latitude": 39.9008,
+        "longitude": -75.1675
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364227",
+      "availableCategoriesQuantity": 10,
+      "minTicketPrice": {
+        "price": 556,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364633,
+      "name": "Match 12 (Group F): To be decided vs Tunisia",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": 2663,
+        "name": "Tunisia"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": 2663,
+          "name": "Tunisia"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "14/06/2026",
+      "timeOfEvent": "22:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 3014,
+        "name": "Guadalupe, Nuevo León"
+      },
+      "venue": {
+        "id": 5409,
+        "name": "Estadio Monterrey (BBVA Bancomer)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/wsmw246fgkw2333221112f.png",
+        "address": "Av. Pablo Livas 2011, La Pastora, 67140 Guadalupe, N.L., Mexico\r\n",
+        "latitude": 25.6691,
+        "longitude": 100.244
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364633",
+      "availableCategoriesQuantity": 10,
+      "minTicketPrice": {
+        "price": 288,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364230,
+      "name": "Match 14 (Group H): Spain vs Cape Verde",
+      "homeTeam": {
+        "id": 1056,
+        "name": "Spain"
+      },
+      "awayTeam": {
+        "id": 6030,
+        "name": "Cape Verde"
+      },
+      "participants": [
+        {
+          "id": 1056,
+          "name": "Spain"
+        },
+        {
+          "id": 6030,
+          "name": "Cape Verde"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "15/06/2026",
+      "timeOfEvent": "12:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1277,
+        "name": "Atlanta, GA"
+      },
+      "venue": {
+        "id": 4149,
+        "name": "Mercedes Benz Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/atl_png.png",
+        "address": "35 Northside Dr NW, Atlanta, GA 30313, USA",
+        "latitude": 33.7554,
+        "longitude": -84.4012
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364230",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 564,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364232,
+      "name": "Match 16 (Group G): Belgium vs Egypt",
+      "homeTeam": {
+        "id": 1016,
+        "name": "Belgium"
+      },
+      "awayTeam": {
+        "id": 2973,
+        "name": "Egypt"
+      },
+      "participants": [
+        {
+          "id": 1016,
+          "name": "Belgium"
+        },
+        {
+          "id": 2973,
+          "name": "Egypt"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "15/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1273,
+        "name": "Seattle, WA"
+      },
+      "venue": {
+        "id": 3453,
+        "name": "Lumen Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/umen0002kswe2.png",
+        "address": "",
+        "latitude": 47.5953,
+        "longitude": -122.332
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364232",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 564,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364229,
+      "name": "Match 13 (Group H): Saudi Arabia vs Uruguay",
+      "homeTeam": {
+        "id": 2418,
+        "name": "Saudi Arabia"
+      },
+      "awayTeam": {
+        "id": 2511,
+        "name": "Uruguay"
+      },
+      "participants": [
+        {
+          "id": 2418,
+          "name": "Saudi Arabia"
+        },
+        {
+          "id": 2511,
+          "name": "Uruguay"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "15/06/2026",
+      "timeOfEvent": "18:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1307,
+        "name": "Miami, FL"
+      },
+      "venue": {
+        "id": 1293,
+        "name": "Hard Rock Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/ecided4444ccdjgw78.png",
+        "address": "2269 Dan Marino Blvd.\r\nMiami, FL 33056",
+        "latitude": 25.9581,
+        "longitude": -80.2389
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364229",
+      "availableCategoriesQuantity": 14,
+      "minTicketPrice": {
+        "price": 464,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364231,
+      "name": "Match 15 (Group G): Iran vs New Zealand",
+      "homeTeam": {
+        "id": 2420,
+        "name": "Iran"
+      },
+      "awayTeam": {
+        "id": 2537,
+        "name": "New Zealand"
+      },
+      "participants": [
+        {
+          "id": 2420,
+          "name": "Iran"
+        },
+        {
+          "id": 2537,
+          "name": "New Zealand"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "15/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2572,
+        "name": "Inglewood, CA"
+      },
+      "venue": {
+        "id": 4673,
+        "name": "SoFi Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inglewood26.png",
+        "address": "1000 S Prairie Ave, Inglewood, CA 90301, United States",
+        "latitude": 33.9534,
+        "longitude": 118.339
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364231",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 588,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364233,
+      "name": "Match 20 (Group J): Austria vs Jordan",
+      "homeTeam": {
+        "id": 2329,
+        "name": "Austria"
+      },
+      "awayTeam": {
+        "id": 5731,
+        "name": "Jordan"
+      },
+      "participants": [
+        {
+          "id": 2329,
+          "name": "Austria"
+        },
+        {
+          "id": 5731,
+          "name": "Jordan"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "16/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2229,
+        "name": "Santa Clara, CA"
+      },
+      "venue": {
+        "id": 3778,
+        "name": "Levi's Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/tadium4040cpw2gjgj.png",
+        "address": "",
+        "latitude": 37.403,
+        "longitude": -121.97
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364233",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 282,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364235,
+      "name": "Match 17 (Group I): France vs Senegal",
+      "homeTeam": {
+        "id": 1024,
+        "name": "France"
+      },
+      "awayTeam": {
+        "id": 5904,
+        "name": "Senegal"
+      },
+      "participants": [
+        {
+          "id": 1024,
+          "name": "France"
+        },
+        {
+          "id": 5904,
+          "name": "Senegal"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "16/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1317,
+        "name": "East Rutherford, NJ"
+      },
+      "venue": {
+        "id": 2764,
+        "name": "MetLife Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/utherford4400202.png",
+        "address": "50 State Highway 120\r\nEast Rutherford, New Jersey 07073",
+        "latitude": 40.8136,
+        "longitude": -74.0744
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364235",
+      "availableCategoriesQuantity": 17,
+      "minTicketPrice": {
+        "price": 610,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364236,
+      "name": "Match 18 (Group I): Norway vs To be decided",
+      "homeTeam": {
+        "id": 1034,
+        "name": "Norway"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 1034,
+          "name": "Norway"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "16/06/2026",
+      "timeOfEvent": "18:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1308,
+        "name": "Foxborough, MA"
+      },
+      "venue": {
+        "id": 1347,
+        "name": "Gillette Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/illette7830fjl2.png",
+        "address": "One Patriot Place\r\nFoxborough, MA 02035-1388",
+        "latitude": 42.0908,
+        "longitude": -71.2644
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364236",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 642,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364234,
+      "name": "Match 19 (Group J): Argentina vs Algeria",
+      "homeTeam": {
+        "id": 2398,
+        "name": "Argentina"
+      },
+      "awayTeam": {
+        "id": 5812,
+        "name": "Algeria"
+      },
+      "participants": [
+        {
+          "id": 2398,
+          "name": "Argentina"
+        },
+        {
+          "id": 5812,
+          "name": "Algeria"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "16/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1269,
+        "name": "Kansas City, MO"
+      },
+      "venue": {
+        "id": 1361,
+        "name": "Arrowhead Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/rrowhead48484848jf.png",
+        "address": "1 Arrowhead Drive\r\nKansas City, MO 64129",
+        "latitude": 39.0489,
+        "longitude": -94.4839
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364234",
+      "availableCategoriesQuantity": 11,
+      "minTicketPrice": {
+        "price": 1128,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364237,
+      "name": "Match 23 (Group K): Portugal vs To be decided",
+      "homeTeam": {
+        "id": 1018,
+        "name": "Portugal"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 1018,
+          "name": "Portugal"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "17/06/2026",
+      "timeOfEvent": "13:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1281,
+        "name": "Houston, TX"
+      },
+      "venue": {
+        "id": 1355,
+        "name": "NRG Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/69696969.png",
+        "address": "Two Reliant Park\r\nHouston, TX 77054",
+        "latitude": 29.6847,
+        "longitude": -95.4108
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364237",
+      "availableCategoriesQuantity": 15,
+      "minTicketPrice": {
+        "price": 813,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364238,
+      "name": "Match 22 (Group L): England vs Croatia",
+      "homeTeam": {
+        "id": 1045,
+        "name": "England"
+      },
+      "awayTeam": {
+        "id": 1047,
+        "name": "Croatia"
+      },
+      "participants": [
+        {
+          "id": 1045,
+          "name": "England"
+        },
+        {
+          "id": 1047,
+          "name": "Croatia"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "17/06/2026",
+      "timeOfEvent": "16:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1311,
+        "name": "Dallas, TX"
+      },
+      "venue": {
+        "id": 3918,
+        "name": "AT&T Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/90210.png",
+        "address": "1 AT&amp;T Way\r\nArlington, TX 76011\r\nUnited States",
+        "latitude": 32.7473,
+        "longitude": -97.0945
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364238",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 926,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364240,
+      "name": "Match 21 (Group L): Ghana vs Panama",
+      "homeTeam": {
+        "id": 2811,
+        "name": "Ghana"
+      },
+      "awayTeam": {
+        "id": 5336,
+        "name": "Panama"
+      },
+      "participants": [
+        {
+          "id": 2811,
+          "name": "Ghana"
+        },
+        {
+          "id": 5336,
+          "name": "Panama"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "17/06/2026",
+      "timeOfEvent": "19:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1097,
+        "name": "Toronto"
+      },
+      "venue": {
+        "id": 2684,
+        "name": "BMO Field (National Soccer Stadium)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/torwc.png",
+        "address": "170 Princes Blvd,\r\nToronto,\r\nOntario M6K3C3",
+        "latitude": 43.6328,
+        "longitude": -79.4186
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364240",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 409,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364239,
+      "name": "Match 24 (Group K): Uzbekistan vs Colombia",
+      "homeTeam": {
+        "id": 2417,
+        "name": "Uzbekistan"
+      },
+      "awayTeam": {
+        "id": 2513,
+        "name": "Colombia"
+      },
+      "participants": [
+        {
+          "id": 2417,
+          "name": "Uzbekistan"
+        },
+        {
+          "id": 2513,
+          "name": "Colombia"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "17/06/2026",
+      "timeOfEvent": "22:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 2072,
+        "name": "Mexico CIty"
+      },
+      "venue": {
+        "id": 2721,
+        "name": "Estadio Azteca",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/mexico_city.png",
+        "address": "Calzada de Tlalpan 34000 \r\nSanta Ursula Coapa \r\nMexico City, D.F. 04850",
+        "latitude": 19.3029,
+        "longitude": -99.1504
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364239",
+      "availableCategoriesQuantity": 14,
+      "minTicketPrice": {
+        "price": 590,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364241,
+      "name": "Match 25 (Group A): To be decided vs South Africa",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": 2600,
+        "name": "South Africa"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": 2600,
+          "name": "South Africa"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "18/06/2026",
+      "timeOfEvent": "12:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1277,
+        "name": "Atlanta, GA"
+      },
+      "venue": {
+        "id": 4149,
+        "name": "Mercedes Benz Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/atl_png.png",
+        "address": "35 Northside Dr NW, Atlanta, GA 30313, USA",
+        "latitude": 33.7554,
+        "longitude": -84.4012
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364241",
+      "availableCategoriesQuantity": 11,
+      "minTicketPrice": {
+        "price": 358,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364242,
+      "name": "Match 26 (Group B): Switzerland vs To be decided",
+      "homeTeam": {
+        "id": 2331,
+        "name": "Switzerland"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 2331,
+          "name": "Switzerland"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "18/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2572,
+        "name": "Inglewood, CA"
+      },
+      "venue": {
+        "id": 4673,
+        "name": "SoFi Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inglewood26.png",
+        "address": "1000 S Prairie Ave, Inglewood, CA 90301, United States",
+        "latitude": 33.9534,
+        "longitude": 118.339
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364242",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 550,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364243,
+      "name": "Match 27 (Group B): Canada vs Qatar",
+      "homeTeam": {
+        "id": 2496,
+        "name": "Canada"
+      },
+      "awayTeam": {
+        "id": 2416,
+        "name": "Qatar"
+      },
+      "participants": [
+        {
+          "id": 2496,
+          "name": "Canada"
+        },
+        {
+          "id": 2416,
+          "name": "Qatar"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "18/06/2026",
+      "timeOfEvent": "18:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1529,
+        "name": "Vancouver"
+      },
+      "venue": {
+        "id": 3454,
+        "name": "BC Place Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/VANHQ.png",
+        "address": "",
+        "latitude": 0,
+        "longitude": 0
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364243",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 568,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364634,
+      "name": "Match 28 (Group A): Mexico vs South Korea",
+      "homeTeam": {
+        "id": 2400,
+        "name": "Mexico"
+      },
+      "awayTeam": {
+        "id": 6663,
+        "name": "South Korea"
+      },
+      "participants": [
+        {
+          "id": 2400,
+          "name": "Mexico"
+        },
+        {
+          "id": 6663,
+          "name": "South Korea"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "18/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 3013,
+        "name": "Zapopan"
+      },
+      "venue": {
+        "id": 5408,
+        "name": "Estadio Akron",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/guadala.jpg",
+        "address": "Cto. J.V.C. 2800, El Baj&iacute;o, 45014 Zapopan, Jal., Mexico\r\n",
+        "latitude": 20.6818,
+        "longitude": 103.463
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364634",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 1536,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364244,
+      "name": "Match 31 (Group D): To be decided vs Paraguay",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": 2514,
+        "name": "Paraguay"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": 2514,
+          "name": "Paraguay"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "19/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2229,
+        "name": "Santa Clara, CA"
+      },
+      "venue": {
+        "id": 3778,
+        "name": "Levi's Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/tadium4040cpw2gjgj.png",
+        "address": "",
+        "latitude": 37.403,
+        "longitude": -121.97
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364244",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 387,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364247,
+      "name": "Match 32 (Group D): USA vs Australia",
+      "homeTeam": {
+        "id": 2399,
+        "name": "USA"
+      },
+      "awayTeam": {
+        "id": 2397,
+        "name": "Australia"
+      },
+      "participants": [
+        {
+          "id": 2399,
+          "name": "USA"
+        },
+        {
+          "id": 2397,
+          "name": "Australia"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "19/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1273,
+        "name": "Seattle, WA"
+      },
+      "venue": {
+        "id": 3453,
+        "name": "Lumen Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/umen0002kswe2.png",
+        "address": "",
+        "latitude": 47.5953,
+        "longitude": -122.332
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364247",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 1128,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364245,
+      "name": "Match 30 (Group C): Scotland vs Morocco",
+      "homeTeam": {
+        "id": 1026,
+        "name": "Scotland"
+      },
+      "awayTeam": {
+        "id": 2657,
+        "name": "Morocco"
+      },
+      "participants": [
+        {
+          "id": 1026,
+          "name": "Scotland"
+        },
+        {
+          "id": 2657,
+          "name": "Morocco"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "19/06/2026",
+      "timeOfEvent": "18:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1308,
+        "name": "Foxborough, MA"
+      },
+      "venue": {
+        "id": 1347,
+        "name": "Gillette Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/illette7830fjl2.png",
+        "address": "One Patriot Place\r\nFoxborough, MA 02035-1388",
+        "latitude": 42.0908,
+        "longitude": -71.2644
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364245",
+      "availableCategoriesQuantity": 11,
+      "minTicketPrice": {
+        "price": 756,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364246,
+      "name": "Match 29 (Group C): Brazil vs Haiti",
+      "homeTeam": {
+        "id": 2375,
+        "name": "Brazil"
+      },
+      "awayTeam": {
+        "id": 5589,
+        "name": "Haiti"
+      },
+      "participants": [
+        {
+          "id": 2375,
+          "name": "Brazil"
+        },
+        {
+          "id": 5589,
+          "name": "Haiti"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "19/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1283,
+        "name": "Philadelphia, PA"
+      },
+      "venue": {
+        "id": 1354,
+        "name": "Lincoln Financial Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inancial66vw5.png",
+        "address": "3501 South Broad Street \r\nPhiladelphia, Pennsylvania",
+        "latitude": 39.9008,
+        "longitude": -75.1675
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364246",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 740,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364635,
+      "name": "Match 36 (Group F): Tunisia vs Japan",
+      "homeTeam": {
+        "id": 2663,
+        "name": "Tunisia"
+      },
+      "awayTeam": {
+        "id": 2421,
+        "name": "Japan"
+      },
+      "participants": [
+        {
+          "id": 2663,
+          "name": "Tunisia"
+        },
+        {
+          "id": 2421,
+          "name": "Japan"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "20/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 3014,
+        "name": "Guadalupe, Nuevo León"
+      },
+      "venue": {
+        "id": 5409,
+        "name": "Estadio Monterrey (BBVA Bancomer)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/wsmw246fgkw2333221112f.png",
+        "address": "Av. Pablo Livas 2011, La Pastora, 67140 Guadalupe, N.L., Mexico\r\n",
+        "latitude": 25.6691,
+        "longitude": 100.244
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364635",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 289,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364250,
+      "name": "Match 35 (Group F): Netherlands vs To be decided",
+      "homeTeam": {
+        "id": 1062,
+        "name": "Netherlands"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 1062,
+          "name": "Netherlands"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "20/06/2026",
+      "timeOfEvent": "13:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1281,
+        "name": "Houston, TX"
+      },
+      "venue": {
+        "id": 1355,
+        "name": "NRG Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/69696969.png",
+        "address": "Two Reliant Park\r\nHouston, TX 77054",
+        "latitude": 29.6847,
+        "longitude": -95.4108
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364250",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 465,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364249,
+      "name": "Match 33 (Group E): Germany vs Ivory Coast",
+      "homeTeam": {
+        "id": 1039,
+        "name": "Germany"
+      },
+      "awayTeam": {
+        "id": 2330,
+        "name": "Ivory Coast"
+      },
+      "participants": [
+        {
+          "id": 1039,
+          "name": "Germany"
+        },
+        {
+          "id": 2330,
+          "name": "Ivory Coast"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "20/06/2026",
+      "timeOfEvent": "16:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1097,
+        "name": "Toronto"
+      },
+      "venue": {
+        "id": 2684,
+        "name": "BMO Field (National Soccer Stadium)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/torwc.png",
+        "address": "170 Princes Blvd,\r\nToronto,\r\nOntario M6K3C3",
+        "latitude": 43.6328,
+        "longitude": -79.4186
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364249",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 915,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364248,
+      "name": "Match 34 (Group E): Ecuador vs Curacao",
+      "homeTeam": {
+        "id": 2493,
+        "name": "Ecuador"
+      },
+      "awayTeam": {
+        "id": 6551,
+        "name": "Curacao"
+      },
+      "participants": [
+        {
+          "id": 2493,
+          "name": "Ecuador"
+        },
+        {
+          "id": 6551,
+          "name": "Curacao"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "20/06/2026",
+      "timeOfEvent": "20:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1269,
+        "name": "Kansas City, MO"
+      },
+      "venue": {
+        "id": 1361,
+        "name": "Arrowhead Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/rrowhead48484848jf.png",
+        "address": "1 Arrowhead Drive\r\nKansas City, MO 64129",
+        "latitude": 39.0489,
+        "longitude": -94.4839
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364248",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 405,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364253,
+      "name": "Match 38 (Group H): Spain vs Saudi Arabia",
+      "homeTeam": {
+        "id": 1056,
+        "name": "Spain"
+      },
+      "awayTeam": {
+        "id": 2418,
+        "name": "Saudi Arabia"
+      },
+      "participants": [
+        {
+          "id": 1056,
+          "name": "Spain"
+        },
+        {
+          "id": 2418,
+          "name": "Saudi Arabia"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "21/06/2026",
+      "timeOfEvent": "12:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1277,
+        "name": "Atlanta, GA"
+      },
+      "venue": {
+        "id": 4149,
+        "name": "Mercedes Benz Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/atl_png.png",
+        "address": "35 Northside Dr NW, Atlanta, GA 30313, USA",
+        "latitude": 33.7554,
+        "longitude": -84.4012
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364253",
+      "availableCategoriesQuantity": 14,
+      "minTicketPrice": {
+        "price": 542,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364252,
+      "name": "Match 39 (Group G): Belgium vs Iran",
+      "homeTeam": {
+        "id": 1016,
+        "name": "Belgium"
+      },
+      "awayTeam": {
+        "id": 2420,
+        "name": "Iran"
+      },
+      "participants": [
+        {
+          "id": 1016,
+          "name": "Belgium"
+        },
+        {
+          "id": 2420,
+          "name": "Iran"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "21/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2572,
+        "name": "Inglewood, CA"
+      },
+      "venue": {
+        "id": 4673,
+        "name": "SoFi Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inglewood26.png",
+        "address": "1000 S Prairie Ave, Inglewood, CA 90301, United States",
+        "latitude": 33.9534,
+        "longitude": 118.339
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364252",
+      "availableCategoriesQuantity": 10,
+      "minTicketPrice": {
+        "price": 569,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364251,
+      "name": "Match 37 (Group H): Uruguay vs Cape Verde",
+      "homeTeam": {
+        "id": 2511,
+        "name": "Uruguay"
+      },
+      "awayTeam": {
+        "id": 6030,
+        "name": "Cape Verde"
+      },
+      "participants": [
+        {
+          "id": 2511,
+          "name": "Uruguay"
+        },
+        {
+          "id": 6030,
+          "name": "Cape Verde"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "21/06/2026",
+      "timeOfEvent": "18:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1307,
+        "name": "Miami, FL"
+      },
+      "venue": {
+        "id": 1293,
+        "name": "Hard Rock Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/ecided4444ccdjgw78.png",
+        "address": "2269 Dan Marino Blvd.\r\nMiami, FL 33056",
+        "latitude": 25.9581,
+        "longitude": -80.2389
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364251",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 440,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364254,
+      "name": "Match 40 (Group G): New Zealand vs Egypt",
+      "homeTeam": {
+        "id": 2537,
+        "name": "New Zealand"
+      },
+      "awayTeam": {
+        "id": 2973,
+        "name": "Egypt"
+      },
+      "participants": [
+        {
+          "id": 2537,
+          "name": "New Zealand"
+        },
+        {
+          "id": 2973,
+          "name": "Egypt"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "21/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1529,
+        "name": "Vancouver"
+      },
+      "venue": {
+        "id": 3454,
+        "name": "BC Place Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/VANHQ.png",
+        "address": "",
+        "latitude": 0,
+        "longitude": 0
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364254",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 285,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364256,
+      "name": "Match 43 (Group J): Argentina vs Austria",
+      "homeTeam": {
+        "id": 2398,
+        "name": "Argentina"
+      },
+      "awayTeam": {
+        "id": 2329,
+        "name": "Austria"
+      },
+      "participants": [
+        {
+          "id": 2398,
+          "name": "Argentina"
+        },
+        {
+          "id": 2329,
+          "name": "Austria"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "22/06/2026",
+      "timeOfEvent": "13:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1311,
+        "name": "Dallas, TX"
+      },
+      "venue": {
+        "id": 3918,
+        "name": "AT&T Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/90210.png",
+        "address": "1 AT&amp;T Way\r\nArlington, TX 76011\r\nUnited States",
+        "latitude": 32.7473,
+        "longitude": -97.0945
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364256",
+      "availableCategoriesQuantity": 11,
+      "minTicketPrice": {
+        "price": 942,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364258,
+      "name": "Match 42 (Group I): France vs To be decided",
+      "homeTeam": {
+        "id": 1024,
+        "name": "France"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 1024,
+          "name": "France"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "22/06/2026",
+      "timeOfEvent": "17:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1283,
+        "name": "Philadelphia, PA"
+      },
+      "venue": {
+        "id": 1354,
+        "name": "Lincoln Financial Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inancial66vw5.png",
+        "address": "3501 South Broad Street \r\nPhiladelphia, Pennsylvania",
+        "latitude": 39.9008,
+        "longitude": -75.1675
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364258",
+      "availableCategoriesQuantity": 15,
+      "minTicketPrice": {
+        "price": 588,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364255,
+      "name": "Match 41 (Group I): Norway vs Senegal",
+      "homeTeam": {
+        "id": 1034,
+        "name": "Norway"
+      },
+      "awayTeam": {
+        "id": 5904,
+        "name": "Senegal"
+      },
+      "participants": [
+        {
+          "id": 1034,
+          "name": "Norway"
+        },
+        {
+          "id": 5904,
+          "name": "Senegal"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "22/06/2026",
+      "timeOfEvent": "20:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1317,
+        "name": "East Rutherford, NJ"
+      },
+      "venue": {
+        "id": 2764,
+        "name": "MetLife Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/utherford4400202.png",
+        "address": "50 State Highway 120\r\nEast Rutherford, New Jersey 07073",
+        "latitude": 40.8136,
+        "longitude": -74.0744
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364255",
+      "availableCategoriesQuantity": 10,
+      "minTicketPrice": {
+        "price": 464,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364257,
+      "name": "Match 44 (Group J): Jordan vs Algeria",
+      "homeTeam": {
+        "id": 5731,
+        "name": "Jordan"
+      },
+      "awayTeam": {
+        "id": 5812,
+        "name": "Algeria"
+      },
+      "participants": [
+        {
+          "id": 5731,
+          "name": "Jordan"
+        },
+        {
+          "id": 5812,
+          "name": "Algeria"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "22/06/2026",
+      "timeOfEvent": "23:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2229,
+        "name": "Santa Clara, CA"
+      },
+      "venue": {
+        "id": 3778,
+        "name": "Levi's Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/tadium4040cpw2gjgj.png",
+        "address": "",
+        "latitude": 37.403,
+        "longitude": -121.97
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364257",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 266,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364259,
+      "name": "Match 47 (Group K): Portugal vs Uzbekistan",
+      "homeTeam": {
+        "id": 1018,
+        "name": "Portugal"
+      },
+      "awayTeam": {
+        "id": 2417,
+        "name": "Uzbekistan"
+      },
+      "participants": [
+        {
+          "id": 1018,
+          "name": "Portugal"
+        },
+        {
+          "id": 2417,
+          "name": "Uzbekistan"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "23/06/2026",
+      "timeOfEvent": "13:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1281,
+        "name": "Houston, TX"
+      },
+      "venue": {
+        "id": 1355,
+        "name": "NRG Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/69696969.png",
+        "address": "Two Reliant Park\r\nHouston, TX 77054",
+        "latitude": 29.6847,
+        "longitude": -95.4108
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364259",
+      "availableCategoriesQuantity": 14,
+      "minTicketPrice": {
+        "price": 588,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364260,
+      "name": "Match 45 (Group L): England vs Ghana",
+      "homeTeam": {
+        "id": 1045,
+        "name": "England"
+      },
+      "awayTeam": {
+        "id": 2811,
+        "name": "Ghana"
+      },
+      "participants": [
+        {
+          "id": 1045,
+          "name": "England"
+        },
+        {
+          "id": 2811,
+          "name": "Ghana"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "23/06/2026",
+      "timeOfEvent": "16:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1308,
+        "name": "Foxborough, MA"
+      },
+      "venue": {
+        "id": 1347,
+        "name": "Gillette Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/illette7830fjl2.png",
+        "address": "One Patriot Place\r\nFoxborough, MA 02035-1388",
+        "latitude": 42.0908,
+        "longitude": -71.2644
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364260",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 891,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364261,
+      "name": "Match 46 (Group L): Panama vs Croatia",
+      "homeTeam": {
+        "id": 5336,
+        "name": "Panama"
+      },
+      "awayTeam": {
+        "id": 1047,
+        "name": "Croatia"
+      },
+      "participants": [
+        {
+          "id": 5336,
+          "name": "Panama"
+        },
+        {
+          "id": 1047,
+          "name": "Croatia"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "23/06/2026",
+      "timeOfEvent": "19:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1097,
+        "name": "Toronto"
+      },
+      "venue": {
+        "id": 2684,
+        "name": "BMO Field (National Soccer Stadium)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/torwc.png",
+        "address": "170 Princes Blvd,\r\nToronto,\r\nOntario M6K3C3",
+        "latitude": 43.6328,
+        "longitude": -79.4186
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364261",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 588,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364636,
+      "name": "Match 48 (Group K): Colombia vs To be decided",
+      "homeTeam": {
+        "id": 2513,
+        "name": "Colombia"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 2513,
+          "name": "Colombia"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "23/06/2026",
+      "timeOfEvent": "22:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 3013,
+        "name": "Zapopan"
+      },
+      "venue": {
+        "id": 5408,
+        "name": "Estadio Akron",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/guadala.jpg",
+        "address": "Cto. J.V.C. 2800, El Baj&iacute;o, 45014 Zapopan, Jal., Mexico\r\n",
+        "latitude": 20.6818,
+        "longitude": 103.463
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364636",
+      "availableCategoriesQuantity": 10,
+      "minTicketPrice": {
+        "price": 762,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364263,
+      "name": "Match 52 (Group B): To be decided vs Qatar",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": 2416,
+        "name": "Qatar"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": 2416,
+          "name": "Qatar"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "24/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1273,
+        "name": "Seattle, WA"
+      },
+      "venue": {
+        "id": 3453,
+        "name": "Lumen Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/umen0002kswe2.png",
+        "address": "",
+        "latitude": 47.5953,
+        "longitude": -122.332
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364263",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 454,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364264,
+      "name": "Match 51 (Group B): Switzerland vs Canada",
+      "homeTeam": {
+        "id": 2331,
+        "name": "Switzerland"
+      },
+      "awayTeam": {
+        "id": 2496,
+        "name": "Canada"
+      },
+      "participants": [
+        {
+          "id": 2331,
+          "name": "Switzerland"
+        },
+        {
+          "id": 2496,
+          "name": "Canada"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "24/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1529,
+        "name": "Vancouver"
+      },
+      "venue": {
+        "id": 3454,
+        "name": "BC Place Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/VANHQ.png",
+        "address": "",
+        "latitude": 0,
+        "longitude": 0
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364264",
+      "availableCategoriesQuantity": 7,
+      "minTicketPrice": {
+        "price": 650,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364265,
+      "name": "Match 49 (Group C): Scotland vs Brazil",
+      "homeTeam": {
+        "id": 1026,
+        "name": "Scotland"
+      },
+      "awayTeam": {
+        "id": 2375,
+        "name": "Brazil"
+      },
+      "participants": [
+        {
+          "id": 1026,
+          "name": "Scotland"
+        },
+        {
+          "id": 2375,
+          "name": "Brazil"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "24/06/2026",
+      "timeOfEvent": "18:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1307,
+        "name": "Miami, FL"
+      },
+      "venue": {
+        "id": 1293,
+        "name": "Hard Rock Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/ecided4444ccdjgw78.png",
+        "address": "2269 Dan Marino Blvd.\r\nMiami, FL 33056",
+        "latitude": 25.9581,
+        "longitude": -80.2389
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364265",
+      "availableCategoriesQuantity": 15,
+      "minTicketPrice": {
+        "price": 1144,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364266,
+      "name": "Match 50 (Group C): Morocco vs Haiti",
+      "homeTeam": {
+        "id": 2657,
+        "name": "Morocco"
+      },
+      "awayTeam": {
+        "id": 5589,
+        "name": "Haiti"
+      },
+      "participants": [
+        {
+          "id": 2657,
+          "name": "Morocco"
+        },
+        {
+          "id": 5589,
+          "name": "Haiti"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "24/06/2026",
+      "timeOfEvent": "18:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1277,
+        "name": "Atlanta, GA"
+      },
+      "venue": {
+        "id": 4149,
+        "name": "Mercedes Benz Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/atl_png.png",
+        "address": "35 Northside Dr NW, Atlanta, GA 30313, USA",
+        "latitude": 33.7554,
+        "longitude": -84.4012
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364266",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 320,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364262,
+      "name": "Match 53 (Group A): Mexico vs To be decided",
+      "homeTeam": {
+        "id": 2400,
+        "name": "Mexico"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 2400,
+          "name": "Mexico"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "24/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 2072,
+        "name": "Mexico CIty"
+      },
+      "venue": {
+        "id": 2721,
+        "name": "Estadio Azteca",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/mexico_city.png",
+        "address": "Calzada de Tlalpan 34000 \r\nSanta Ursula Coapa \r\nMexico City, D.F. 04850",
+        "latitude": 19.3029,
+        "longitude": -99.1504
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364262",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 1416,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364637,
+      "name": "Match 54 (Group A): South Africa vs South Korea",
+      "homeTeam": {
+        "id": 2600,
+        "name": "South Africa"
+      },
+      "awayTeam": {
+        "id": 6663,
+        "name": "South Korea"
+      },
+      "participants": [
+        {
+          "id": 2600,
+          "name": "South Africa"
+        },
+        {
+          "id": 6663,
+          "name": "South Korea"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "24/06/2026",
+      "timeOfEvent": "21:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 3014,
+        "name": "Guadalupe, Nuevo León"
+      },
+      "venue": {
+        "id": 5409,
+        "name": "Estadio Monterrey (BBVA Bancomer)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/wsmw246fgkw2333221112f.png",
+        "address": "Av. Pablo Livas 2011, La Pastora, 67140 Guadalupe, N.L., Mexico\r\n",
+        "latitude": 25.6691,
+        "longitude": 100.244
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364637",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 353,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364270,
+      "name": "Match 55 (Group E): Curacao vs Ivory Coast",
+      "homeTeam": {
+        "id": 6551,
+        "name": "Curacao"
+      },
+      "awayTeam": {
+        "id": 2330,
+        "name": "Ivory Coast"
+      },
+      "participants": [
+        {
+          "id": 6551,
+          "name": "Curacao"
+        },
+        {
+          "id": 2330,
+          "name": "Ivory Coast"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "25/06/2026",
+      "timeOfEvent": "16:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1283,
+        "name": "Philadelphia, PA"
+      },
+      "venue": {
+        "id": 1354,
+        "name": "Lincoln Financial Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inancial66vw5.png",
+        "address": "3501 South Broad Street \r\nPhiladelphia, Pennsylvania",
+        "latitude": 39.9008,
+        "longitude": -75.1675
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364270",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 382,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364272,
+      "name": "Match 56 (Group E): Ecuador vs Germany",
+      "homeTeam": {
+        "id": 2493,
+        "name": "Ecuador"
+      },
+      "awayTeam": {
+        "id": 1039,
+        "name": "Germany"
+      },
+      "participants": [
+        {
+          "id": 2493,
+          "name": "Ecuador"
+        },
+        {
+          "id": 1039,
+          "name": "Germany"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "25/06/2026",
+      "timeOfEvent": "16:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1317,
+        "name": "East Rutherford, NJ"
+      },
+      "venue": {
+        "id": 2764,
+        "name": "MetLife Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/utherford4400202.png",
+        "address": "50 State Highway 120\r\nEast Rutherford, New Jersey 07073",
+        "latitude": 40.8136,
+        "longitude": -74.0744
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364272",
+      "availableCategoriesQuantity": 16,
+      "minTicketPrice": {
+        "price": 953,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364267,
+      "name": "Match 57 (Group F): Japan vs To be decided",
+      "homeTeam": {
+        "id": 2421,
+        "name": "Japan"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 2421,
+          "name": "Japan"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "25/06/2026",
+      "timeOfEvent": "19:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1311,
+        "name": "Dallas, TX"
+      },
+      "venue": {
+        "id": 3918,
+        "name": "AT&T Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/90210.png",
+        "address": "1 AT&amp;T Way\r\nArlington, TX 76011\r\nUnited States",
+        "latitude": 32.7473,
+        "longitude": -97.0945
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364267",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 548,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364269,
+      "name": "Match 58 (Group F): Tunisia vs Netherlands",
+      "homeTeam": {
+        "id": 2663,
+        "name": "Tunisia"
+      },
+      "awayTeam": {
+        "id": 1062,
+        "name": "Netherlands"
+      },
+      "participants": [
+        {
+          "id": 2663,
+          "name": "Tunisia"
+        },
+        {
+          "id": 1062,
+          "name": "Netherlands"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "25/06/2026",
+      "timeOfEvent": "19:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1269,
+        "name": "Kansas City, MO"
+      },
+      "venue": {
+        "id": 1361,
+        "name": "Arrowhead Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/rrowhead48484848jf.png",
+        "address": "1 Arrowhead Drive\r\nKansas City, MO 64129",
+        "latitude": 39.0489,
+        "longitude": -94.4839
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364269",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 411,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364268,
+      "name": "Match 59 (Group D): USA vs To be decided",
+      "homeTeam": {
+        "id": 2399,
+        "name": "USA"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 2399,
+          "name": "USA"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "25/06/2026",
+      "timeOfEvent": "22:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2572,
+        "name": "Inglewood, CA"
+      },
+      "venue": {
+        "id": 4673,
+        "name": "SoFi Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inglewood26.png",
+        "address": "1000 S Prairie Ave, Inglewood, CA 90301, United States",
+        "latitude": 33.9534,
+        "longitude": 118.339
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364268",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 959,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364271,
+      "name": "Match 60 (Group D): Paraguay vs Australia",
+      "homeTeam": {
+        "id": 2514,
+        "name": "Paraguay"
+      },
+      "awayTeam": {
+        "id": 2397,
+        "name": "Australia"
+      },
+      "participants": [
+        {
+          "id": 2514,
+          "name": "Paraguay"
+        },
+        {
+          "id": 2397,
+          "name": "Australia"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "25/06/2026",
+      "timeOfEvent": "22:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2229,
+        "name": "Santa Clara, CA"
+      },
+      "venue": {
+        "id": 3778,
+        "name": "Levi's Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/tadium4040cpw2gjgj.png",
+        "address": "",
+        "latitude": 37.403,
+        "longitude": -121.97
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364271",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 353,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364273,
+      "name": "Match 62 (Group I): Senegal vs To be decided",
+      "homeTeam": {
+        "id": 5904,
+        "name": "Senegal"
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": 5904,
+          "name": "Senegal"
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "26/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1097,
+        "name": "Toronto"
+      },
+      "venue": {
+        "id": 2684,
+        "name": "BMO Field (National Soccer Stadium)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/torwc.png",
+        "address": "170 Princes Blvd,\r\nToronto,\r\nOntario M6K3C3",
+        "latitude": 43.6328,
+        "longitude": -79.4186
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364273",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 415,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364275,
+      "name": "Match 61 (Group I): Norway vs France",
+      "homeTeam": {
+        "id": 1034,
+        "name": "Norway"
+      },
+      "awayTeam": {
+        "id": 1024,
+        "name": "France"
+      },
+      "participants": [
+        {
+          "id": 1034,
+          "name": "Norway"
+        },
+        {
+          "id": 1024,
+          "name": "France"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "26/06/2026",
+      "timeOfEvent": "15:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1308,
+        "name": "Foxborough, MA"
+      },
+      "venue": {
+        "id": 1347,
+        "name": "Gillette Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/illette7830fjl2.png",
+        "address": "One Patriot Place\r\nFoxborough, MA 02035-1388",
+        "latitude": 42.0908,
+        "longitude": -71.2644
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364275",
+      "availableCategoriesQuantity": 16,
+      "minTicketPrice": {
+        "price": 850,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364276,
+      "name": "Match 65 (Group H): Cape Verde vs Saudi Arabia",
+      "homeTeam": {
+        "id": 6030,
+        "name": "Cape Verde"
+      },
+      "awayTeam": {
+        "id": 2418,
+        "name": "Saudi Arabia"
+      },
+      "participants": [
+        {
+          "id": 6030,
+          "name": "Cape Verde"
+        },
+        {
+          "id": 2418,
+          "name": "Saudi Arabia"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "26/06/2026",
+      "timeOfEvent": "20:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1281,
+        "name": "Houston, TX"
+      },
+      "venue": {
+        "id": 1355,
+        "name": "NRG Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/69696969.png",
+        "address": "Two Reliant Park\r\nHouston, TX 77054",
+        "latitude": 29.6847,
+        "longitude": -95.4108
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364276",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 229,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364638,
+      "name": "Match 66 (Group H): Uruguay vs Spain",
+      "homeTeam": {
+        "id": 2511,
+        "name": "Uruguay"
+      },
+      "awayTeam": {
+        "id": 1056,
+        "name": "Spain"
+      },
+      "participants": [
+        {
+          "id": 2511,
+          "name": "Uruguay"
+        },
+        {
+          "id": 1056,
+          "name": "Spain"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "26/06/2026",
+      "timeOfEvent": "20:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 3013,
+        "name": "Zapopan"
+      },
+      "venue": {
+        "id": 5408,
+        "name": "Estadio Akron",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/guadala.jpg",
+        "address": "Cto. J.V.C. 2800, El Baj&iacute;o, 45014 Zapopan, Jal., Mexico\r\n",
+        "latitude": 20.6818,
+        "longitude": 103.463
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364638",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 1106,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364274,
+      "name": "Match 64 (Group G): New Zealand vs Belgium",
+      "homeTeam": {
+        "id": 2537,
+        "name": "New Zealand"
+      },
+      "awayTeam": {
+        "id": 1016,
+        "name": "Belgium"
+      },
+      "participants": [
+        {
+          "id": 2537,
+          "name": "New Zealand"
+        },
+        {
+          "id": 1016,
+          "name": "Belgium"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "26/06/2026",
+      "timeOfEvent": "23:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1529,
+        "name": "Vancouver"
+      },
+      "venue": {
+        "id": 3454,
+        "name": "BC Place Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/VANHQ.png",
+        "address": "",
+        "latitude": 0,
+        "longitude": 0
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364274",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 427,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364277,
+      "name": "Match 63 (Group G): Egypt vs Iran",
+      "homeTeam": {
+        "id": 2973,
+        "name": "Egypt"
+      },
+      "awayTeam": {
+        "id": 2420,
+        "name": "Iran"
+      },
+      "participants": [
+        {
+          "id": 2973,
+          "name": "Egypt"
+        },
+        {
+          "id": 2420,
+          "name": "Iran"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "26/06/2026",
+      "timeOfEvent": "23:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1273,
+        "name": "Seattle, WA"
+      },
+      "venue": {
+        "id": 3453,
+        "name": "Lumen Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/umen0002kswe2.png",
+        "address": "",
+        "latitude": 47.5953,
+        "longitude": -122.332
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364277",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 440,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364278,
+      "name": "Match 68 (Group L): Croatia vs Ghana",
+      "homeTeam": {
+        "id": 1047,
+        "name": "Croatia"
+      },
+      "awayTeam": {
+        "id": 2811,
+        "name": "Ghana"
+      },
+      "participants": [
+        {
+          "id": 1047,
+          "name": "Croatia"
+        },
+        {
+          "id": 2811,
+          "name": "Ghana"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "27/06/2026",
+      "timeOfEvent": "17:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1283,
+        "name": "Philadelphia, PA"
+      },
+      "venue": {
+        "id": 1354,
+        "name": "Lincoln Financial Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inancial66vw5.png",
+        "address": "3501 South Broad Street \r\nPhiladelphia, Pennsylvania",
+        "latitude": 39.9008,
+        "longitude": -75.1675
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364278",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 469,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364283,
+      "name": "Match 67 (Group L): Panama vs England",
+      "homeTeam": {
+        "id": 5336,
+        "name": "Panama"
+      },
+      "awayTeam": {
+        "id": 1045,
+        "name": "England"
+      },
+      "participants": [
+        {
+          "id": 5336,
+          "name": "Panama"
+        },
+        {
+          "id": 1045,
+          "name": "England"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "27/06/2026",
+      "timeOfEvent": "17:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1317,
+        "name": "East Rutherford, NJ"
+      },
+      "venue": {
+        "id": 2764,
+        "name": "MetLife Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/utherford4400202.png",
+        "address": "50 State Highway 120\r\nEast Rutherford, New Jersey 07073",
+        "latitude": 40.8136,
+        "longitude": -74.0744
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364283",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 769,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364281,
+      "name": "Match 71 (Group K): Colombia vs Portugal",
+      "homeTeam": {
+        "id": 2513,
+        "name": "Colombia"
+      },
+      "awayTeam": {
+        "id": 1018,
+        "name": "Portugal"
+      },
+      "participants": [
+        {
+          "id": 2513,
+          "name": "Colombia"
+        },
+        {
+          "id": 1018,
+          "name": "Portugal"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "27/06/2026",
+      "timeOfEvent": "19:30",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1307,
+        "name": "Miami, FL"
+      },
+      "venue": {
+        "id": 1293,
+        "name": "Hard Rock Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/ecided4444ccdjgw78.png",
+        "address": "2269 Dan Marino Blvd.\r\nMiami, FL 33056",
+        "latitude": 25.9581,
+        "longitude": -80.2389
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364281",
+      "availableCategoriesQuantity": 19,
+      "minTicketPrice": {
+        "price": 1873,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364282,
+      "name": "Match 72 (Group K): To be decided vs Uzbekistan",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": 2417,
+        "name": "Uzbekistan"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": 2417,
+          "name": "Uzbekistan"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "27/06/2026",
+      "timeOfEvent": "19:30",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1277,
+        "name": "Atlanta, GA"
+      },
+      "venue": {
+        "id": 4149,
+        "name": "Mercedes Benz Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/atl_png.png",
+        "address": "35 Northside Dr NW, Atlanta, GA 30313, USA",
+        "latitude": 33.7554,
+        "longitude": -84.4012
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364282",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 279,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364279,
+      "name": "Match 69 (Group J): Algeria vs Austria",
+      "homeTeam": {
+        "id": 5812,
+        "name": "Algeria"
+      },
+      "awayTeam": {
+        "id": 2329,
+        "name": "Austria"
+      },
+      "participants": [
+        {
+          "id": 5812,
+          "name": "Algeria"
+        },
+        {
+          "id": 2329,
+          "name": "Austria"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "27/06/2026",
+      "timeOfEvent": "22:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1269,
+        "name": "Kansas City, MO"
+      },
+      "venue": {
+        "id": 1361,
+        "name": "Arrowhead Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/rrowhead48484848jf.png",
+        "address": "1 Arrowhead Drive\r\nKansas City, MO 64129",
+        "latitude": 39.0489,
+        "longitude": -94.4839
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364279",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 249,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364280,
+      "name": "Match 70 (Group J): Jordan vs Argentina",
+      "homeTeam": {
+        "id": 5731,
+        "name": "Jordan"
+      },
+      "awayTeam": {
+        "id": 2398,
+        "name": "Argentina"
+      },
+      "participants": [
+        {
+          "id": 5731,
+          "name": "Jordan"
+        },
+        {
+          "id": 2398,
+          "name": "Argentina"
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "27/06/2026",
+      "timeOfEvent": "22:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1311,
+        "name": "Dallas, TX"
+      },
+      "venue": {
+        "id": 3918,
+        "name": "AT&T Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/90210.png",
+        "address": "1 AT&amp;T Way\r\nArlington, TX 76011\r\nUnited States",
+        "latitude": 32.7473,
+        "longitude": -97.0945
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364280",
+      "availableCategoriesQuantity": 10,
+      "minTicketPrice": {
+        "price": 1264,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364284,
+      "name": "Round of 32 Match 73: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "28/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2572,
+        "name": "Inglewood, CA"
+      },
+      "venue": {
+        "id": 4673,
+        "name": "SoFi Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inglewood26.png",
+        "address": "1000 S Prairie Ave, Inglewood, CA 90301, United States",
+        "latitude": 33.9534,
+        "longitude": 118.339
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364284",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 672,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364285,
+      "name": "Round of 32 Match 74: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "29/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1308,
+        "name": "Foxborough, MA"
+      },
+      "venue": {
+        "id": 1347,
+        "name": "Gillette Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/illette7830fjl2.png",
+        "address": "One Patriot Place\r\nFoxborough, MA 02035-1388",
+        "latitude": 42.0908,
+        "longitude": -71.2644
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364285",
+      "availableCategoriesQuantity": 13,
+      "minTicketPrice": {
+        "price": 762,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364286,
+      "name": "Round of 32 Match 76: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "29/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1281,
+        "name": "Houston, TX"
+      },
+      "venue": {
+        "id": 1355,
+        "name": "NRG Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/69696969.png",
+        "address": "Two Reliant Park\r\nHouston, TX 77054",
+        "latitude": 29.6847,
+        "longitude": -95.4108
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364286",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 796,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364639,
+      "name": "Round of 32 Match 75: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "29/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 3014,
+        "name": "Guadalupe, Nuevo León"
+      },
+      "venue": {
+        "id": 5409,
+        "name": "Estadio Monterrey (BBVA Bancomer)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/wsmw246fgkw2333221112f.png",
+        "address": "Av. Pablo Livas 2011, La Pastora, 67140 Guadalupe, N.L., Mexico\r\n",
+        "latitude": 25.6691,
+        "longitude": 100.244
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364639",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 762,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364287,
+      "name": "Round of 32 Match 77: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "30/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1317,
+        "name": "East Rutherford, NJ"
+      },
+      "venue": {
+        "id": 2764,
+        "name": "MetLife Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/utherford4400202.png",
+        "address": "50 State Highway 120\r\nEast Rutherford, New Jersey 07073",
+        "latitude": 40.8136,
+        "longitude": -74.0744
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364287",
+      "availableCategoriesQuantity": 15,
+      "minTicketPrice": {
+        "price": 717,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364288,
+      "name": "Round of 32 Match 78: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "30/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1311,
+        "name": "Dallas, TX"
+      },
+      "venue": {
+        "id": 3918,
+        "name": "AT&T Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/90210.png",
+        "address": "1 AT&amp;T Way\r\nArlington, TX 76011\r\nUnited States",
+        "latitude": 32.7473,
+        "longitude": -97.0945
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364288",
+      "availableCategoriesQuantity": 11,
+      "minTicketPrice": {
+        "price": 739,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364289,
+      "name": "Round of 32 Match 79: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "30/06/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 2072,
+        "name": "Mexico CIty"
+      },
+      "venue": {
+        "id": 2721,
+        "name": "Estadio Azteca",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/mexico_city.png",
+        "address": "Calzada de Tlalpan 34000 \r\nSanta Ursula Coapa \r\nMexico City, D.F. 04850",
+        "latitude": 19.3029,
+        "longitude": -99.1504
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364289",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 1579,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364290,
+      "name": "Round of 32 Match 82: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "01/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1273,
+        "name": "Seattle, WA"
+      },
+      "venue": {
+        "id": 3453,
+        "name": "Lumen Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/umen0002kswe2.png",
+        "address": "",
+        "latitude": 47.5953,
+        "longitude": -122.332
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364290",
+      "availableCategoriesQuantity": 9,
+      "minTicketPrice": {
+        "price": 520,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364291,
+      "name": "Round of 32 Match 81: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "01/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2229,
+        "name": "Santa Clara, CA"
+      },
+      "venue": {
+        "id": 3778,
+        "name": "Levi's Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/tadium4040cpw2gjgj.png",
+        "address": "",
+        "latitude": 37.403,
+        "longitude": -121.97
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364291",
+      "availableCategoriesQuantity": 7,
+      "minTicketPrice": {
+        "price": 824,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364292,
+      "name": "Round of 32Match 80: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "01/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1277,
+        "name": "Atlanta, GA"
+      },
+      "venue": {
+        "id": 4149,
+        "name": "Mercedes Benz Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/enz666b3q32324.png",
+        "address": "35 Northside Dr NW, Atlanta, GA 30313, USA",
+        "latitude": 33.7554,
+        "longitude": -84.4012
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364292",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 796,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364293,
+      "name": "Round of 32 Match 83: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "02/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1097,
+        "name": "Toronto"
+      },
+      "venue": {
+        "id": 2684,
+        "name": "BMO Field (National Soccer Stadium)",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/torwc.png",
+        "address": "170 Princes Blvd,\r\nToronto,\r\nOntario M6K3C3",
+        "latitude": 43.6328,
+        "longitude": -79.4186
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364293",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 1031,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364294,
+      "name": "Round of 32 Match 84: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "02/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2572,
+        "name": "Inglewood, CA"
+      },
+      "venue": {
+        "id": 4673,
+        "name": "SoFi Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inglewood26.png",
+        "address": "1000 S Prairie Ave, Inglewood, CA 90301, United States",
+        "latitude": 33.9534,
+        "longitude": 118.339
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364294",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 845,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364295,
+      "name": "Round of 32 Match 85: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "02/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1529,
+        "name": "Vancouver"
+      },
+      "venue": {
+        "id": 3454,
+        "name": "BC Place Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/VANHQ.png",
+        "address": "",
+        "latitude": 0,
+        "longitude": 0
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364295",
+      "availableCategoriesQuantity": 7,
+      "minTicketPrice": {
+        "price": 700,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364296,
+      "name": "Round of 32 Match 86: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "03/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1307,
+        "name": "Miami, FL"
+      },
+      "venue": {
+        "id": 1293,
+        "name": "Hard Rock Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/ecided4444ccdjgw78.png",
+        "address": "2269 Dan Marino Blvd.\r\nMiami, FL 33056",
+        "latitude": 25.9581,
+        "longitude": -80.2389
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364296",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 1382,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364297,
+      "name": "Round of 32 Match 87: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "03/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1269,
+        "name": "Kansas City, MO"
+      },
+      "venue": {
+        "id": 1361,
+        "name": "Arrowhead Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/rrowhead48484848jf.png",
+        "address": "1 Arrowhead Drive\r\nKansas City, MO 64129",
+        "latitude": 39.0489,
+        "longitude": -94.4839
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364297",
+      "availableCategoriesQuantity": 12,
+      "minTicketPrice": {
+        "price": 751,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364298,
+      "name": "Round of 32 Match 88: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "03/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1311,
+        "name": "Dallas, TX"
+      },
+      "venue": {
+        "id": 3918,
+        "name": "AT&T Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/90210.png",
+        "address": "1 AT&amp;T Way\r\nArlington, TX 76011\r\nUnited States",
+        "latitude": 32.7473,
+        "longitude": -97.0945
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364298",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 950,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364299,
+      "name": "Round of 16 Match 89: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "04/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1283,
+        "name": "Philadelphia, PA"
+      },
+      "venue": {
+        "id": 1354,
+        "name": "Lincoln Financial Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inancial66vw5.png",
+        "address": "3501 South Broad Street \r\nPhiladelphia, Pennsylvania",
+        "latitude": 39.9008,
+        "longitude": -75.1675
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364299",
+      "availableCategoriesQuantity": 7,
+      "minTicketPrice": {
+        "price": 980,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364300,
+      "name": "Round of 16 Match 90: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "04/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1281,
+        "name": "Houston, TX"
+      },
+      "venue": {
+        "id": 1355,
+        "name": "NRG Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/69696969.png",
+        "address": "Two Reliant Park\r\nHouston, TX 77054",
+        "latitude": 29.6847,
+        "longitude": -95.4108
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364300",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 1015,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364301,
+      "name": "Round of 16 Match 91: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "05/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1317,
+        "name": "East Rutherford, NJ"
+      },
+      "venue": {
+        "id": 2764,
+        "name": "MetLife Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/utherford4400202.png",
+        "address": "50 State Highway 120\r\nEast Rutherford, New Jersey 07073",
+        "latitude": 40.8136,
+        "longitude": -74.0744
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364301",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 1044,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364302,
+      "name": "Round of 16 Match 92: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "05/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1056,
+        "name": "Mexico"
+      },
+      "city": {
+        "id": 2072,
+        "name": "Mexico CIty"
+      },
+      "venue": {
+        "id": 2721,
+        "name": "Estadio Azteca",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/mexico_city.png",
+        "address": "Calzada de Tlalpan 34000 \r\nSanta Ursula Coapa \r\nMexico City, D.F. 04850",
+        "latitude": 19.3029,
+        "longitude": -99.1504
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364302",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 1692,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364303,
+      "name": "Round of 16 Match 93: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "06/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1311,
+        "name": "Dallas, TX"
+      },
+      "venue": {
+        "id": 3918,
+        "name": "AT&T Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/90210.png",
+        "address": "1 AT&amp;T Way\r\nArlington, TX 76011\r\nUnited States",
+        "latitude": 32.7473,
+        "longitude": -97.0945
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364303",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 1354,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364304,
+      "name": "Round of 16 Match 94: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "06/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1273,
+        "name": "Seattle, WA"
+      },
+      "venue": {
+        "id": 3453,
+        "name": "Lumen Field",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/umen0002kswe2.png",
+        "address": "",
+        "latitude": 47.5953,
+        "longitude": -122.332
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364304",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 1027,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364305,
+      "name": "Round of 16 Match 95: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "07/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1277,
+        "name": "Atlanta, GA"
+      },
+      "venue": {
+        "id": 4149,
+        "name": "Mercedes Benz Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/atl_png.png",
+        "address": "35 Northside Dr NW, Atlanta, GA 30313, USA",
+        "latitude": 33.7554,
+        "longitude": -84.4012
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364305",
+      "availableCategoriesQuantity": 7,
+      "minTicketPrice": {
+        "price": 1174,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364306,
+      "name": "Round of 16 Match 96: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "07/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1063,
+        "name": "Canada"
+      },
+      "city": {
+        "id": 1529,
+        "name": "Vancouver"
+      },
+      "venue": {
+        "id": 3454,
+        "name": "BC Place Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/VANHQ.png",
+        "address": "",
+        "latitude": 0,
+        "longitude": 0
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364306",
+      "availableCategoriesQuantity": 6,
+      "minTicketPrice": {
+        "price": 1331,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364307,
+      "name": "Quarter-Final Match 97: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "09/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1308,
+        "name": "Foxborough, MA"
+      },
+      "venue": {
+        "id": 1347,
+        "name": "Gillette Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/illette7830fjl2.png",
+        "address": "One Patriot Place\r\nFoxborough, MA 02035-1388",
+        "latitude": 42.0908,
+        "longitude": -71.2644
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364307",
+      "availableCategoriesQuantity": 7,
+      "minTicketPrice": {
+        "price": 1749,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364308,
+      "name": "Quarter-Final Match 98: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "10/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 2572,
+        "name": "Inglewood, CA"
+      },
+      "venue": {
+        "id": 4673,
+        "name": "SoFi Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/inglewood26.png",
+        "address": "1000 S Prairie Ave, Inglewood, CA 90301, United States",
+        "latitude": 33.9534,
+        "longitude": 118.339
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364308",
+      "availableCategoriesQuantity": 8,
+      "minTicketPrice": {
+        "price": 1670,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364309,
+      "name": "Quarter-Final Match 100: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "11/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1269,
+        "name": "Kansas City, MO"
+      },
+      "venue": {
+        "id": 1361,
+        "name": "Arrowhead Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/rrowhead48484848jf.png",
+        "address": "1 Arrowhead Drive\r\nKansas City, MO 64129",
+        "latitude": 39.0489,
+        "longitude": -94.4839
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364309",
+      "availableCategoriesQuantity": 7,
+      "minTicketPrice": {
+        "price": 1749,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": 364310,
+      "name": "Quarter-Final Match 99: To be decided vs To be decided",
+      "homeTeam": {
+        "id": null,
+        "name": null
+      },
+      "awayTeam": {
+        "id": null,
+        "name": "To be decided"
+      },
+      "participants": [
+        {
+          "id": null,
+          "name": null
+        },
+        {
+          "id": null,
+          "name": null
+        }
+      ],
+      "eventType": {
+        "id": 1000,
+        "name": "Football (Soccer)",
+        "isTeamSport": true,
+        "concert": false
+      },
+      "tournament": {
+        "id": 694,
+        "name": "World Cup 2026",
+        "isGroupEvent": true
+      },
+      "dateOfEvent": "11/07/2026",
+      "timeOfEvent": "00:00",
+      "finalDate": true,
+      "finalTime": true,
+      "dateTimeBoundaries": "",
+      "country": {
+        "id": 1064,
+        "name": "USA"
+      },
+      "city": {
+        "id": 1307,
+        "name": "Miami, FL"
+      },
+      "venue": {
+        "id": 1293,
+        "name": "Hard Rock Stadium",
+        "mapUrl": "https://images-cdn.sportsevents365.com/venues/thumbs/ecided4444ccdjgw78.png",
+        "address": "2269 Dan Marino Blvd.\r\nMiami, FL 33056",
+        "latitude": 25.9581,
+        "longitude": -80.2389
+      },
+      "eventUrl": "https://tickets-partners.com/event/?q=eq,364310",
+      "availableCategoriesQuantity": 10,
+      "minTicketPrice": {
+        "price": 1917,
+        "currency": "EUR"
+      }
+    }
+  ],
+  "links": {
+    "first": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=1&language=en_us&currency=EUR",
+    "last": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=5&language=en_us&currency=EUR",
+    "prev": null,
+    "next": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=2&language=en_us&currency=EUR"
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 5,
+    "links": [
+      {
+        "url": null,
+        "label": "&laquo; Previous",
+        "active": false
+      },
+      {
+        "url": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=1&language=en_us&currency=EUR",
+        "label": "1",
+        "active": true
+      },
+      {
+        "url": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=2&language=en_us&currency=EUR",
+        "label": "2",
+        "active": false
+      },
+      {
+        "url": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=3&language=en_us&currency=EUR",
+        "label": "3",
+        "active": false
+      },
+      {
+        "url": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=4&language=en_us&currency=EUR",
+        "label": "4",
+        "active": false
+      },
+      {
+        "url": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=5&language=en_us&currency=EUR",
+        "label": "5",
+        "active": false
+      },
+      {
+        "url": "http://api-v2.sandbox365.com/events/event-type/1000?apiKey=23e09efdcfce2580aeb0f6ea036cc8ee&dateFrom=01%2F06%2F2026&perPage=500&page=2&language=en_us&currency=EUR",
+        "label": "Next &raquo;",
+        "active": false
+      }
+    ],
+    "path": "http://api-v2.sandbox365.com/events/event-type/1000",
+    "per_page": 100,
+    "to": 100,
+    "total": 481,
+    "dateFrom": "10/06/2026",
+    "dateTo": "01/06/2027",
+    "title": "Football (Soccer) tickets",
+    "apiId": 1039456,
+    "totalPages": 5
+  },
+  "success": true
+}
