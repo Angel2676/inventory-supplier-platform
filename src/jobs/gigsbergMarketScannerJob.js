@@ -367,11 +367,7 @@ async function runGigsbergMarketScannerJob() {
           WHERE id = $3
           RETURNING id, ticket_id, last_market_price, last_suggested_price
           `,
-          [
-            lowestPrice,
-            priceCheck.suggestedPrice,
-            listing.marketplace_listing_id,
-          ],
+          [lowestPrice, priceCheck.finalPrice, listing.marketplace_listing_id],
         );
 
         console.log("GIGSBERG SCANNER MARKETPLACE_LISTING UPDATED", {

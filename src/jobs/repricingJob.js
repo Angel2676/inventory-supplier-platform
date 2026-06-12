@@ -231,7 +231,7 @@ async function runRepricingJob() {
         [
           priceCheck.finalPrice,
           marketLowestPrice || listing.last_market_price || null,
-          priceCheck.suggestedPrice,
+          priceCheck.finalPrice,
           listing.id,
         ],
       );
