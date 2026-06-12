@@ -50,7 +50,7 @@ async function runTicomboMarketScannerJob() {
             updated_at = NOW()
           WHERE id = $3
           `,
-          [listing.marketplace_listing_id],
+          [null, null, listing.marketplace_listing_id],
         );
 
         console.log("Ticombo scanner: no competitor price", {
