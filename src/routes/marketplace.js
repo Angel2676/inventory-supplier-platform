@@ -1758,10 +1758,12 @@ router.post("/publish", async (req, res) => {
               sync_direction,
               last_sync_at,
               marketplace_price,
+              auto_reprice_enabled,
               min_price,
+              undercut_amount,
               last_error
             )
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW(),$10,$11,$12)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW(),$10,$11,$12,$13,$14)
             RETURNING *
           `,
           [
@@ -1775,7 +1777,9 @@ router.post("/publish", async (req, res) => {
             "synced",
             "inventory_to_marketplace",
             price,
+            ticket.auto_reprice_enabled ?? false,
             ticket.min_price || null,
+            ticket.undercut_amount || 0.01,
             null,
           ],
         );
