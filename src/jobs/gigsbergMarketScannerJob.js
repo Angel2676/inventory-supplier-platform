@@ -52,6 +52,8 @@ async function runGigsbergMarketScannerJob() {
         ml.id AS marketplace_listing_id,
         ml.ticket_id,
         t.event_id AS internal_event_id,
+        e.name AS event_name,
+        e.venue,
         ml.remote_listing_id,
         ml.remote_event_id,
         ml.remote_category_id,
@@ -63,6 +65,7 @@ async function runGigsbergMarketScannerJob() {
         t.last_market_price
       FROM marketplace_listings ml
       JOIN tickets t ON t.id = ml.ticket_id
+      JOIN events e ON e.id = t.event_id
       WHERE ml.marketplace = 'gigsberg'
         AND ml.sync_status = 'synced'
     `);
@@ -76,6 +79,10 @@ async function runGigsbergMarketScannerJob() {
           "Scanning Gigsberg listing:",
           listing.marketplace_listing_id,
         );
+
+        const isSanSiroEvent =
+          /inter|milan/i.test(String(listing.event_name || "")) ||
+          /san siro|meazza/i.test(String(listing.venue || ""));
 
         const remoteListingId = Number(listing.remote_listing_id);
 
@@ -122,6 +129,10 @@ async function runGigsbergMarketScannerJob() {
         try {
           const ownPublicPrice = Number(listing.marketplace_price || 0);
 
+          const isSanSiroEvent =
+            /inter|milan/i.test(String(listing.event_name || "")) ||
+            /san siro|meazza/i.test(String(listing.venue || ""));
+
           const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
             headless: true,
 
@@ -130,6 +141,8 @@ async function runGigsbergMarketScannerJob() {
             ownPriceTolerance: 5,
 
             categoryName: listing.category,
+
+            sanSiro: isSanSiroEvent,
           });
 
           if (publicMarket?.min_price) {
@@ -207,6 +220,7 @@ async function runGigsbergMarketScannerJob() {
             ownPrice: Number(listing.marketplace_price || 0),
             ownPriceTolerance: 5,
             categoryName: listing.category,
+            sanSiro: isSanSiroEvent,
           });
 
           if (publicMarket?.min_price) {
@@ -224,25 +238,25 @@ async function runGigsbergMarketScannerJob() {
 
             await pool.query(
               `
-      UPDATE marketplace_listings
-      SET
-        last_market_price = NULL,
-        last_suggested_price = NULL,
-        updated_at = NOW()
-      WHERE id = $1
-      `,
+              UPDATE marketplace_listings
+              SET
+                last_market_price = NULL,
+                last_suggested_price = NULL,
+                updated_at = NOW()
+              WHERE id = $1
+              `,
               [listing.marketplace_listing_id],
             );
 
             await pool.query(
               `
-      UPDATE tickets
-      SET
-        last_market_price = NULL,
-        suggested_marketplace_price = NULL,
-        updated_at = NOW()
-      WHERE id = $1
-      `,
+              UPDATE tickets
+              SET
+                last_market_price = NULL,
+                suggested_marketplace_price = NULL,
+                updated_at = NOW()
+              WHERE id = $1
+              `,
               [listing.ticket_id],
             );
 
@@ -260,6 +274,8 @@ async function runGigsbergMarketScannerJob() {
               ownPriceTolerance: 5,
 
               categoryName: listing.category,
+
+              sanSiro: isSanSiroEvent,
             });
 
             if (publicMarket?.min_price) {
@@ -298,6 +314,7 @@ async function runGigsbergMarketScannerJob() {
             ownPrice: Number(listing.marketplace_price || 0),
             ownPriceTolerance: 5,
             categoryName: listing.category,
+            sanSiro: isSanSiroEvent,
           });
 
           if (publicMarket?.min_price) {
