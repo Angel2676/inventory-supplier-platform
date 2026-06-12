@@ -285,19 +285,27 @@ function extractCategoryPricesFromText(text, categoryName, options = {}) {
 
     const blockText = lines.slice(i, i + 20).join("\n");
 
-    const priceMatch = blockText.match(/US\$\s*[0-9]+(?:[.,][0-9]{2})?/);
+    const priceMatch = blockText.match(
+      /(US\$|€|EUR)\s*[0-9]+(?:[.,][0-9]{2})?/,
+    );
 
     if (priceMatch) {
-      const usdPrice = parsePrice(priceMatch[0]);
+      const rawPrice = priceMatch[0];
+      const parsedPrice = parsePrice(rawPrice);
 
-      if (usdPrice) {
-        const eurPrice = Number((usdPrice * USD_TO_EUR_RATE).toFixed(2));
+      if (parsedPrice) {
+        const isUsd = rawPrice.includes("US$");
+
+        const eurPrice = isUsd
+          ? Number((parsedPrice * USD_TO_EUR_RATE).toFixed(2))
+          : Number(parsedPrice.toFixed(2));
 
         results.push({
           category: line,
-          usdPrice,
+          price: eurPrice,
+          usdPrice: isUsd ? parsedPrice : null,
           eurPrice,
-          rawPrice: priceMatch[0],
+          rawPrice,
         });
       }
     }

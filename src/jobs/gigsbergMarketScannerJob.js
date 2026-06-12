@@ -127,7 +127,9 @@ async function runGigsbergMarketScannerJob() {
         let activeListings = [];
 
         try {
-          const ownPublicPrice = Number(listing.marketplace_price || 0);
+          const ownPublicPrice = Number(
+            listing.last_market_price || listing.marketplace_price || 0,
+          );
 
           const isSanSiroEvent =
             /inter|milan/i.test(String(listing.event_name || "")) ||
@@ -135,13 +137,9 @@ async function runGigsbergMarketScannerJob() {
 
           const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
             headless: true,
-
             ownPrice: ownPublicPrice,
-
             ownPriceTolerance: 5,
-
             categoryName: listing.category,
-
             sanSiro: isSanSiroEvent,
           });
 
@@ -217,7 +215,9 @@ async function runGigsbergMarketScannerJob() {
         if (activeListings.length === 0) {
           const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
             headless: true,
-            ownPrice: Number(listing.marketplace_price || 0),
+            ownPrice: Number(
+              listing.last_market_price || listing.marketplace_price || 0,
+            ),
             ownPriceTolerance: 5,
             categoryName: listing.category,
             sanSiro: isSanSiroEvent,
@@ -269,7 +269,9 @@ async function runGigsbergMarketScannerJob() {
             const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
               headless: true,
 
-              ownPrice: Number(listing.marketplace_price || 0),
+              ownPrice: Number(
+                listing.last_market_price || listing.marketplace_price || 0,
+              ),
 
               ownPriceTolerance: 5,
 
@@ -311,7 +313,9 @@ async function runGigsbergMarketScannerJob() {
         if (activeListings.length === 0) {
           const publicMarket = await getVisibleLowestPublicPrice(publicUrl, {
             headless: true,
-            ownPrice: Number(listing.marketplace_price || 0),
+            ownPrice: Number(
+              listing.last_market_price || listing.marketplace_price || 0,
+            ),
             ownPriceTolerance: 5,
             categoryName: listing.category,
             sanSiro: isSanSiroEvent,
