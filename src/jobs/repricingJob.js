@@ -115,6 +115,10 @@ async function runRepricingJob() {
           0,
       );
 
+      const safeLastMarketPrice = marketLowestPrice || null;
+      const safeLastSuggestedPrice =
+        safeLastMarketPrice === null ? null : priceCheck.finalPrice;
+
       if (!priceCheck.shouldUpdate) {
         await pool.query(
           `
@@ -126,7 +130,7 @@ async function runRepricingJob() {
             updated_at = NOW()
           WHERE id = $3
           `,
-          [marketLowestPrice || null, priceCheck.finalPrice, listing.id],
+          [safeLastMarketPrice, safeLastSuggestedPrice, listing.id],
         );
         console.log("GIGSBERG SCANNER TICKET UPDATED", {
           ticket_id: listing.ticket_id,
