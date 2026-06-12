@@ -162,19 +162,19 @@ async function runRepricingJob() {
           `Updating Gigsberg listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
         );
 
-        const gigsbergGrossPrice = priceCheck.finalPrice;
+        const gigsbergPublicPrice = priceCheck.finalPrice;
 
         console.log("Gigsberg public price repricing:", {
           listing_id: listing.id,
           remote_listing_id: listing.remote_listing_id,
-          public_price_sent_to_gigsberg: gigsbergGrossPrice,
+          public_price_sent_to_gigsberg: gigsbergPublicPrice,
           competitor_price: marketLowestPrice,
           undercut_amount:
             listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
         });
 
         await updateGigsbergListing(listing.remote_listing_id, {
-          price: gigsbergGrossPrice,
+          price: gigsbergPublicPrice,
           quantity: Number(listing.available_quantity),
           presented_quantity: Number(listing.available_quantity),
         });
