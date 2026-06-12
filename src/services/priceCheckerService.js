@@ -43,7 +43,7 @@ function calculateSafePrice({
       shouldUpdate: current !== min,
       reason: "MIN_PRICE_APPLIED",
       direction: min > current ? "UP_TO_MIN_PRICE" : "DOWN_TO_MIN_PRICE",
-      suggestedPrice,
+      suggestedPrice: min,
       finalPrice: min,
     };
   }
