@@ -12,6 +12,9 @@ const {
 const {
   getTicomboLowestMarketPrice,
 } = require("../services/integrations/ticombo/ticomboMarketScanner");
+const {
+  getTicomboPublicMarketPrice,
+} = require("../services/integrations/ticombo/ticomboPublicMarket");
 
 async function runRepricingJob() {
   console.log("Marketplace repricing job started");
@@ -90,10 +93,37 @@ async function runRepricingJob() {
             lowestPrice: ticomboMarket.lowestPrice,
             competitorListingId: ticomboMarket.competitorListingId,
             matchedCount: ticomboMarket.matchedCount,
+            source: "api",
           });
+        } else if (listing.public_url) {
+          const ownPublicPrice =
+            currentMarketplacePrice > 0
+              ? Number((currentMarketplacePrice * 1.3).toFixed(2))
+              : null;
+
+          const publicMarket = await getTicomboPublicMarketPrice({
+            publicUrl: listing.public_url,
+            category: listing.ticket_category,
+            ownPublicPrice,
+            headless: true,
+          });
+
+          if (publicMarket.lowestPrice) {
+            marketLowestPrice = Number(publicMarket.lowestPrice);
+
+            console.log("Ticombo public market price detected:", {
+              listing_id: listing.id,
+              remote_event_id: listing.remote_event_id,
+              category: listing.ticket_category,
+              ownPublicPrice,
+              lowestPrice: publicMarket.lowestPrice,
+              prices: publicMarket.prices,
+              matchedCount: publicMarket.matchedCount,
+              source: "public_browser",
+            });
+          }
         }
       }
-
       const priceCheck = calculateSafePrice({
         currentPrice: currentMarketplacePrice,
         marketLowestPrice,
@@ -142,6 +172,7 @@ async function runRepricingJob() {
 
         continue;
       }
+      let ticomboApiPrice = priceCheck.finalPrice;
 
       if (listing.marketplace === "gigsberg" && listing.remote_listing_id) {
         if (
@@ -203,8 +234,33 @@ async function runRepricingJob() {
           `Updating Ticombo listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
         );
 
+        if (listing.marketplace === "ticombo" && currentMarketplacePrice > 0) {
+          const currentPublicPrice = marketLowestPrice
+            ? Number((currentMarketplacePrice * 1.3).toFixed(2))
+            : null;
+
+          const publicToSellerRate =
+            currentPublicPrice && currentMarketplacePrice
+              ? currentPublicPrice / currentMarketplacePrice
+              : 1.3;
+
+          ticomboApiPrice = Number(
+            (priceCheck.finalPrice / publicToSellerRate).toFixed(2),
+          );
+
+          console.log("Ticombo public to seller conversion:", {
+            listing_id: listing.id,
+            remote_listing_id: listing.remote_listing_id,
+            current_seller_price: currentMarketplacePrice,
+            estimated_current_public_price: currentPublicPrice,
+            target_public_price: priceCheck.finalPrice,
+            seller_price_sent_to_ticombo: ticomboApiPrice,
+            public_to_seller_rate: publicToSellerRate,
+          });
+        }
+
         await updateTicomboListing(listing.remote_listing_id, {
-          price: priceCheck.finalPrice,
+          price: ticomboApiPrice,
         });
 
         console.log(
@@ -219,20 +275,24 @@ async function runRepricingJob() {
           marketLowestPrice || listing.last_market_price || null,
         last_suggested_price: priceCheck.finalPrice,
       });
+      const dbMarketplacePrice =
+        listing.marketplace === "ticombo"
+          ? ticomboApiPrice
+          : priceCheck.finalPrice;
 
       await pool.query(
         `
-        UPDATE marketplace_listings
-        SET
-          marketplace_price = $1,
-          last_market_price = $2,
-          last_suggested_price = $3,
-          last_reprice_at = NOW(),
-          updated_at = NOW()
-        WHERE id = $4
-        `,
+          UPDATE marketplace_listings
+          SET
+            marketplace_price = $1,
+            last_market_price = $2,
+            last_suggested_price = $3,
+            last_reprice_at = NOW(),
+            updated_at = NOW()
+          WHERE id = $4
+          `,
         [
-          priceCheck.finalPrice,
+          dbMarketplacePrice,
           marketLowestPrice || listing.last_market_price || null,
           priceCheck.finalPrice,
           listing.id,
