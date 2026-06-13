@@ -42,6 +42,9 @@ const upload = multer({ dest: "uploads/" });
 
 const createAuditLog = require("../services/auditLogService");
 const { calculateSafePrice } = require("../services/priceCheckerService");
+const {
+  getTicomboPublicMarketPrice,
+} = require("../services/integrations/ticombo/ticomboPublicMarket");
 
 /**
  * LIST MARKETPLACE LISTINGS
@@ -2052,7 +2055,12 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
       SELECT
         ml.*,
         t.id AS ticket_id,
-        t.marketplace_price AS ticket_marketplace_price
+        t.category AS ticket_category,
+        t.block AS ticket_block,
+        t.available_quantity,
+        t.marketplace_price AS ticket_marketplace_price,
+        t.min_price AS ticket_min_price,
+        t.undercut_amount AS ticket_undercut_amount
       FROM marketplace_listings ml
       JOIN tickets t ON t.id = ml.ticket_id
       WHERE ml.id = $1
@@ -2069,32 +2077,77 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
 
     const listing = listingResult.rows[0];
 
+    const currentMarketplacePrice = Number(
+      listing.marketplace_price || listing.ticket_marketplace_price || 0,
+    );
+
+    let marketLowestPrice = Number(listing.last_market_price || 0);
+
+    if (listing.marketplace === "ticombo" && listing.public_url) {
+      const ownPublicPrice =
+        currentMarketplacePrice > 0
+          ? Number((currentMarketplacePrice * 1.3).toFixed(2))
+          : null;
+
+      const publicMarket = await getTicomboPublicMarketPrice({
+        publicUrl: listing.public_url,
+        category: listing.ticket_category,
+        ownPublicPrice,
+        headless: true,
+      });
+
+      if (publicMarket.lowestPrice) {
+        marketLowestPrice = Number(publicMarket.lowestPrice);
+
+        console.log("Manual Ticombo public market price detected:", {
+          listing_id: listing.id,
+          category: listing.ticket_category,
+          ownPublicPrice,
+          lowestPrice: publicMarket.lowestPrice,
+          prices: publicMarket.prices,
+          matchedCount: publicMarket.matchedCount,
+        });
+      }
+    }
+
+    const effectiveUndercutAmount =
+      listing.marketplace === "ticombo"
+        ? 1
+        : Number(
+            listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
+          );
+
     const priceCheck = calculateSafePrice({
-      currentPrice: Number(
-        listing.marketplace_price || listing.ticket_marketplace_price || 0,
-      ),
-      marketLowestPrice: Number(listing.last_market_price || 0),
-      minPrice: Number(listing.min_price || 0),
-      undercutAmount: Number(listing.undercut_amount || 0.01),
+      currentPrice: currentMarketplacePrice,
+      marketLowestPrice,
+      minPrice: Number(listing.min_price || listing.ticket_min_price || 0),
+      undercutAmount: effectiveUndercutAmount,
     });
+
+    const safeLastMarketPrice = marketLowestPrice || null;
+    const safeLastSuggestedPrice =
+      safeLastMarketPrice === null ? null : priceCheck.finalPrice;
 
     if (!priceCheck.shouldUpdate) {
       await pool.query(
         `
         UPDATE marketplace_listings
         SET
-          last_suggested_price = $1,
+          last_market_price = $1,
+          last_suggested_price = $2,
           last_reprice_at = NOW(),
           updated_at = NOW()
-        WHERE id = $2
+        WHERE id = $3
         `,
-        [priceCheck.finalPrice, id],
+        [safeLastMarketPrice, safeLastSuggestedPrice, id],
       );
 
       return res.json({
         success: true,
         updated: false,
         reason: priceCheck.reason,
+        market_price: safeLastMarketPrice,
+        suggested_price: safeLastSuggestedPrice,
         result: priceCheck,
       });
     }
@@ -2103,18 +2156,14 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
     let sellerPrice = priceCheck.finalPrice;
 
     if (listing.marketplace === "ticombo" && listing.remote_listing_id) {
-      const currentSellerPrice = Number(
-        listing.marketplace_price || listing.ticket_marketplace_price || 0,
-      );
-
       const currentPublicPrice =
-        currentSellerPrice > 0
-          ? Number((currentSellerPrice * 1.3).toFixed(2))
+        currentMarketplacePrice > 0
+          ? Number((currentMarketplacePrice * 1.3).toFixed(2))
           : null;
 
       const publicToSellerRate =
-        currentPublicPrice && currentSellerPrice
-          ? currentPublicPrice / currentSellerPrice
+        currentPublicPrice && currentMarketplacePrice
+          ? currentPublicPrice / currentMarketplacePrice
           : 1.3;
 
       sellerPrice = Number(
@@ -2133,12 +2182,13 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
       UPDATE marketplace_listings
       SET
         marketplace_price = $1,
-        last_suggested_price = $2,
+        last_market_price = $2,
+        last_suggested_price = $3,
         last_reprice_at = NOW(),
         updated_at = NOW()
-      WHERE id = $3
+      WHERE id = $4
       `,
-      [marketplacePriceToSave, priceCheck.finalPrice, id],
+      [marketplacePriceToSave, safeLastMarketPrice, priceCheck.finalPrice, id],
     );
 
     await pool.query(
@@ -2156,8 +2206,10 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
       success: true,
       updated: true,
       old_price: listing.marketplace_price,
+      market_price: safeLastMarketPrice,
       new_price: priceCheck.finalPrice,
       seller_price: sellerPrice,
+      undercut_amount: effectiveUndercutAmount,
       result: priceCheck,
     });
   } catch (error) {
