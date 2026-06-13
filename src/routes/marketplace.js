@@ -5,7 +5,9 @@ const fs = require("fs");
 const pool = require("../db");
 const authJwt = require("../middleware/authJwt");
 const requireRole = require("../middleware/requireRole");
-
+const {
+  updateTicomboListing,
+} = require("../services/integrations/ticombo/ticomboListings");
 const {
   createGigsbergListing,
 } = require("../services/integrations/gigsberg/gigsbergListings");
@@ -2097,6 +2099,35 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
       });
     }
 
+    let marketplacePriceToSave = priceCheck.finalPrice;
+    let sellerPrice = priceCheck.finalPrice;
+
+    if (listing.marketplace === "ticombo" && listing.remote_listing_id) {
+      const currentSellerPrice = Number(
+        listing.marketplace_price || listing.ticket_marketplace_price || 0,
+      );
+
+      const currentPublicPrice =
+        currentSellerPrice > 0
+          ? Number((currentSellerPrice * 1.3).toFixed(2))
+          : null;
+
+      const publicToSellerRate =
+        currentPublicPrice && currentSellerPrice
+          ? currentPublicPrice / currentSellerPrice
+          : 1.3;
+
+      sellerPrice = Number(
+        (priceCheck.finalPrice / publicToSellerRate).toFixed(2),
+      );
+
+      await updateTicomboListing(listing.remote_listing_id, {
+        price: sellerPrice,
+      });
+
+      marketplacePriceToSave = sellerPrice;
+    }
+
     await pool.query(
       `
       UPDATE marketplace_listings
@@ -2107,7 +2138,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
         updated_at = NOW()
       WHERE id = $3
       `,
-      [priceCheck.finalPrice, priceCheck.finalPrice, id],
+      [marketplacePriceToSave, priceCheck.finalPrice, id],
     );
 
     await pool.query(
@@ -2118,7 +2149,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
         updated_at = NOW()
       WHERE id = $2
       `,
-      [priceCheck.finalPrice, listing.ticket_id],
+      [marketplacePriceToSave, listing.ticket_id],
     );
 
     return res.json({
@@ -2126,6 +2157,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
       updated: true,
       old_price: listing.marketplace_price,
       new_price: priceCheck.finalPrice,
+      seller_price: sellerPrice,
       result: priceCheck,
     });
   } catch (error) {
