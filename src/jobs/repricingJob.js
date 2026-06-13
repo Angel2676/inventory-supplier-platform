@@ -74,28 +74,7 @@ async function runRepricingJob() {
       );
 
       if (listing.marketplace === "ticombo") {
-        const ticomboMarket = await getTicomboLowestMarketPrice({
-          remoteEventId: listing.remote_event_id,
-          category: listing.ticket_category,
-          block: listing.ticket_block,
-          quantity: Number(listing.available_quantity || 1),
-          excludeListingId: listing.remote_listing_id,
-        });
-
-        if (ticomboMarket.lowestPrice) {
-          marketLowestPrice = Number(ticomboMarket.lowestPrice);
-
-          console.log("Ticombo market price detected:", {
-            listing_id: listing.id,
-            remote_event_id: listing.remote_event_id,
-            category: listing.ticket_category,
-            block: listing.ticket_block,
-            lowestPrice: ticomboMarket.lowestPrice,
-            competitorListingId: ticomboMarket.competitorListingId,
-            matchedCount: ticomboMarket.matchedCount,
-            source: "api",
-          });
-        } else if (listing.public_url) {
+        if (listing.public_url) {
           const ownPublicPrice =
             currentMarketplacePrice > 0
               ? Number((currentMarketplacePrice * 1.3).toFixed(2))
@@ -119,7 +98,32 @@ async function runRepricingJob() {
               lowestPrice: publicMarket.lowestPrice,
               prices: publicMarket.prices,
               matchedCount: publicMarket.matchedCount,
-              source: "public_browser",
+              source: "public_browser_primary",
+            });
+          }
+        }
+
+        if (!marketLowestPrice) {
+          const ticomboMarket = await getTicomboLowestMarketPrice({
+            remoteEventId: listing.remote_event_id,
+            category: listing.ticket_category,
+            block: listing.ticket_block,
+            quantity: Number(listing.available_quantity || 1),
+            excludeListingId: listing.remote_listing_id,
+          });
+
+          if (ticomboMarket.lowestPrice) {
+            marketLowestPrice = Number(ticomboMarket.lowestPrice);
+
+            console.log("Ticombo market price detected:", {
+              listing_id: listing.id,
+              remote_event_id: listing.remote_event_id,
+              category: listing.ticket_category,
+              block: listing.ticket_block,
+              lowestPrice: ticomboMarket.lowestPrice,
+              competitorListingId: ticomboMarket.competitorListingId,
+              matchedCount: ticomboMarket.matchedCount,
+              source: "api_fallback",
             });
           }
         }

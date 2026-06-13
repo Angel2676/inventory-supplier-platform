@@ -70,7 +70,7 @@ async function getTicomboPublicMarketPrice({
 
     const competitorPrices = prices.filter((price) => {
       if (!own) return true;
-      return Math.abs(price - own) > 0.01;
+      return Math.abs(price - own) > 1.5;
     });
 
     competitorPrices.sort((a, b) => a - b);
