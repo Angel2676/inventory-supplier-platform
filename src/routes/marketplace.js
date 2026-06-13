@@ -62,8 +62,8 @@ router.get("/listings", async (req, res) => {
         t.price AS base_price,
         t.partner_price,
         t.marketplace_price AS ticket_marketplace_price,
-        t.last_market_price,
-        t.suggested_marketplace_price,
+        t.last_market_price AS ticket_last_market_price,
+        t.suggested_marketplace_price AS ticket_suggested_marketplace_price,
         
         e.name AS event_name,
         e.event_date
