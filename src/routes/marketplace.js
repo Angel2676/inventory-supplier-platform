@@ -2139,6 +2139,13 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
     const safeLastSuggestedPrice =
       safeLastMarketPrice === null ? null : priceCheck.finalPrice;
 
+    console.log("MANUAL PRICE CHECK", {
+      listing_id: listing.id,
+      currentMarketplacePrice,
+      marketLowestPrice,
+      priceCheck,
+    });
+
     if (!priceCheck.shouldUpdate) {
       await pool.query(
         `
