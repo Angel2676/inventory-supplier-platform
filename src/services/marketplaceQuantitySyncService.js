@@ -97,17 +97,47 @@ async function autoDelistSportEvents365Listing(listing) {
     listing.remote_event_id,
     listing.remote_listing_id,
     {
-      quantity: 0,
+      displayed: false,
     },
   );
 
   return {
     marketplace: "sportevents365",
-    action: "auto_delist_zero_quantity",
+    action: "auto_hide_zero_quantity",
     listing_id: listing.id,
     remote_event_id: listing.remote_event_id,
     remote_listing_id: listing.remote_listing_id,
-    quantity: 0,
+    displayed: false,
+    response,
+  };
+}
+
+async function autoRestoreSportEvents365Listing(listing, quantity, price) {
+  if (!listing.remote_event_id || !listing.remote_listing_id) {
+    throw new Error(
+      "remote_event_id o remote_listing_id mancanti per SportEvents365 restore",
+    );
+  }
+
+  const response = await updateSupplierTicket(
+    listing.remote_event_id,
+    listing.remote_listing_id,
+    {
+      quantity: Number(quantity),
+      price: Number(price),
+      displayed: true,
+    },
+  );
+
+  return {
+    marketplace: "sportevents365",
+    action: "auto_restore_quantity_restored",
+    listing_id: listing.id,
+    remote_event_id: listing.remote_event_id,
+    remote_listing_id: listing.remote_listing_id,
+    quantity: Number(quantity),
+    price: Number(price),
+    displayed: true,
     response,
   };
 }
@@ -319,7 +349,7 @@ async function syncMarketplaceQuantities() {
       ON t.id = ml.ticket_id
     JOIN marketplace_settings ms
       ON ms.marketplace = ml.marketplace
-    WHERE ml.sync_status IN ('synced', 'needs_sync')
+    WHERE ml.sync_status IN ('synced', 'needs_sync', 'deleted')
       AND ms.enabled = true
       AND ms.api_configured = true
       AND (
@@ -368,6 +398,67 @@ async function syncMarketplaceQuantities() {
 */
 
         if (listing.sync_status === "deleted" && currentQuantity > 0) {
+          action = "auto_restore_quantity_restored";
+          resultingSyncStatus = "synced";
+
+          if (listing.marketplace === "sportevents365") {
+            responsePayload = await autoRestoreSportEvents365Listing(
+              listing,
+              currentQuantity,
+              currentPrice,
+            );
+
+            await pool.query(
+              `
+              UPDATE marketplace_listings
+              SET
+                sync_status = $1,
+                last_quantity_synced = $2,
+                last_quantity_sync_at = NOW(),
+                marketplace_price = $3,
+                quantity_sync_attempts =
+                  COALESCE(quantity_sync_attempts, 0) + 1,
+                last_sync_at = NOW(),
+                updated_at = NOW(),
+                last_error = NULL,
+                retry_count = 0,
+                next_retry_at = NULL,
+                circuit_breaker_until = NULL
+              WHERE id = $4
+              `,
+              [
+                resultingSyncStatus,
+                currentQuantity,
+                currentPrice,
+                listing.id,
+              ],
+            );
+
+            await pool.query(
+              `
+              INSERT INTO marketplace_sync_logs (
+                marketplace_listing_id,
+                ticket_id,
+                marketplace,
+                action,
+                status,
+                response_payload
+              )
+              VALUES ($1,$2,$3,$4,$5,$6)
+              `,
+              [
+                listing.id,
+                listing.ticket_id,
+                listing.marketplace,
+                action,
+                "success",
+                responsePayload ? JSON.stringify(responsePayload) : null,
+              ],
+            );
+
+            continue;
+          }
+
           if (listing.marketplace === "ticombo") {
             console.log("AUTO_REPUBLISH_TICOMBO_DISABLED", {
               listing_id: listing.id,
@@ -380,10 +471,10 @@ async function syncMarketplaceQuantities() {
 
           responsePayload = {
             marketplace: listing.marketplace,
-            action: "auto_republish_quantity_restored",
+            action,
             listing_id: listing.id,
             placeholder: true,
-            message: "Auto republish non implementato per questo marketplace",
+            message: "Auto restore non implementato per questo marketplace",
           };
 
           continue;
