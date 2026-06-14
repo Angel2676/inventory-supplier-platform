@@ -7,6 +7,7 @@ function getSportEvents365Config() {
   const username = process.env.SPORTSEVENTS365_HTTP_USERNAME;
   const password = process.env.SPORTSEVENTS365_HTTP_PASSWORD;
   const apiKey = process.env.SPORTSEVENTS365_API_KEY;
+  const source = process.env.SPORTSEVENTS365_HTTP_SOURCE;
 
   const supplierEmail = process.env.SPORTSEVENTS365_SUPPLIER_EMAIL;
   const supplierPassword = process.env.SPORTSEVENTS365_SUPPLIER_PASSWORD;
@@ -15,7 +16,7 @@ function getSportEvents365Config() {
     throw new Error("SPORTSEVENTS365_BASE_URL mancante nel file .env");
   }
 
-  if (!username || !password || !apiKey) {
+  if (!username || !password || !apiKey || !source) {
     throw new Error("Credenziali SportEvents365 mancanti nel file .env");
   }
 
@@ -23,13 +24,14 @@ function getSportEvents365Config() {
     username,
     password,
     apiKey,
+    source,
     supplierEmail,
     supplierPassword
   };
 }
 
 function getSportEvents365Client() {
-  const { username, password } = getSportEvents365Config();
+  const { username, password, source } = getSportEvents365Config();
 
   const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
 
@@ -39,13 +41,14 @@ function getSportEvents365Client() {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      Authorization: `Basic ${basicAuth}`
+      Authorization: `Basic ${basicAuth}`,
+      source
     }
   });
 }
 
 function getSportEvents365SupplierClient() {
-  const { supplierEmail, supplierPassword } = getSportEvents365Config();
+  const { supplierEmail, supplierPassword, source } = getSportEvents365Config();
 
   if (!supplierEmail || !supplierPassword) {
     throw new Error(
@@ -63,7 +66,8 @@ function getSportEvents365SupplierClient() {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      "X-Supplier-Auth": supplierAuth
+      "X-Supplier-Auth": supplierAuth,
+      source
     }
   });
 }
