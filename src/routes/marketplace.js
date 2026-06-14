@@ -2082,9 +2082,11 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
     );
 
     let marketLowestPrice = Number(listing.last_market_price || 0);
+    let marketLowestPrice = Number(listing.last_market_price || 0);
+    let ownPublicPrice = null;
 
     if (listing.marketplace === "ticombo" && listing.public_url) {
-      const ownPublicPrice =
+      ownPublicPrice =
         currentMarketplacePrice > 0
           ? Number((currentMarketplacePrice * 1.3).toFixed(2))
           : null;
@@ -2107,18 +2109,18 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
           prices: publicMarket.prices,
           matchedCount: publicMarket.matchedCount,
         });
+      } else {
+        console.log("Manual Ticombo public market price NOT found:", {
+          listing_id: listing.id,
+          category: listing.ticket_category,
+          ownPublicPrice,
+          publicUrl: listing.public_url,
+          prices: publicMarket.prices,
+          lowestPrice: publicMarket.lowestPrice,
+          matchedCount: publicMarket.matchedCount,
+          source: publicMarket.source,
+        });
       }
-    } else {
-      console.log("Manual Ticombo public market price NOT found:", {
-        listing_id: listing.id,
-        category: listing.ticket_category,
-        ownPublicPrice,
-        publicUrl: listing.public_url,
-        prices: publicMarket.prices,
-        lowestPrice: publicMarket.lowestPrice,
-        matchedCount: publicMarket.matchedCount,
-        source: publicMarket.source,
-      });
     }
 
     const effectiveUndercutAmount =
