@@ -81,6 +81,10 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   async function loadTickets({ silent = false } = {}) {
     try {
       const response = await api.get("/api/tickets?limit=1000");
+
+      console.log("TICKETS COUNT", response.data.count);
+      console.log("FIRST TICKETS", response.data.tickets?.slice(0, 10));
+
       setTickets(response.data.tickets || []);
       setError("");
     } catch (err) {
@@ -95,6 +99,10 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   async function loadEvents() {
     try {
       const response = await api.get("/api/events");
+
+      console.log("EVENTS COUNT", response.data?.length);
+      console.log("FIRST EVENTS", response.data?.slice(0, 10));
+
       setEvents(response.data || []);
     } catch (err) {
       console.error(err);
@@ -145,7 +153,8 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   }
 
   function getEventTeam(eventId) {
-    return getEvent(eventId)?.team_name || "";
+    const event = getEvent(eventId);
+    return event?.team_name || event?.name || "";
   }
 
   function getSubcategories(type) {
@@ -593,7 +602,8 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
       ? event.event_subcategory === subcategoryFilter
       : true;
 
-    const matchesTeam = teamFilter ? event.team_name === teamFilter : true;
+    const eventTeam = event.team_name || event.name || "";
+    const matchesTeam = teamFilter ? eventTeam === teamFilter : true;
 
     const matchesEvent = eventFilter
       ? Number(event.id) === Number(eventFilter)
@@ -871,7 +881,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
             {Array.from(
               new Set(
                 filteredEventsForTeams
-                  .map((event) => event.team_name)
+                  .map((event) => event.team_name || event.name)
                   .filter(Boolean),
               ),
             )
