@@ -3,6 +3,7 @@ const { chromium } = require("playwright");
 function normalize(value) {
   return String(value || "")
     .toLowerCase()
+    .replace(/\s+/g, " ")
     .trim();
 }
 
@@ -11,6 +12,114 @@ function parsePrice(line) {
   if (!match) return null;
 
   return Number(match[1].replace(",", "."));
+}
+
+function extractPricesFromLines(lines, category) {
+  const targetCategory = normalize(category);
+  const prices = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = normalize(lines[i]);
+
+    if (line !== targetCategory) continue;
+
+    const block = lines.slice(i, i + 20);
+
+    for (const blockLine of block) {
+      const price = parsePrice(blockLine);
+      if (!price) continue;
+
+      prices.push(price);
+      break;
+    }
+  }
+
+  return prices;
+}
+
+async function getBodyLines(page) {
+  const text = await page.locator("body").innerText();
+
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+async function tryActivateCategory(page, category) {
+  const targetCategory = String(category || "").trim();
+
+  if (!targetCategory) return false;
+
+  const escaped = targetCategory.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const candidates = [
+    page
+      .locator("button", {
+        hasText: new RegExp(
+          `^${escaped}\\s*(\$begin:math:text$\\\\d\+\\$end:math:text$)?$`,
+          "i",
+        ),
+      })
+      .first(),
+    page
+      .locator("label", {
+        hasText: new RegExp(
+          `^${escaped}\\s*(\$begin:math:text$\\\\d\+\\$end:math:text$)?$`,
+          "i",
+        ),
+      })
+      .first(),
+    page
+      .locator("[role='button']", {
+        hasText: new RegExp(
+          `^${escaped}\\s*(\$begin:math:text$\\\\d\+\\$end:math:text$)?$`,
+          "i",
+        ),
+      })
+      .first(),
+    page
+      .locator("input[type='checkbox']")
+      .locator(
+        `xpath=following-sibling::*[contains(normalize-space(.), "${targetCategory}")]`,
+      )
+      .first(),
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      if ((await candidate.count()) === 0) continue;
+      if (!(await candidate.isVisible().catch(() => false))) continue;
+
+      await candidate.evaluate((el) => {
+        el.scrollIntoView({ block: "center", inline: "center" });
+      });
+
+      await page.waitForTimeout(500);
+
+      await candidate.evaluate((el) => {
+        el.click();
+      });
+
+      await page.waitForTimeout(5000);
+
+      return true;
+    } catch (error) {
+      console.log("Ticombo category click failed:", {
+        category: targetCategory,
+        message: error.message,
+      });
+    }
+  }
+
+  return false;
+}
+
+async function scrollToLoadMore(page) {
+  for (let i = 0; i < 4; i++) {
+    await page.mouse.wheel(0, 900);
+    await page.waitForTimeout(1500);
+  }
 }
 
 async function getTicomboPublicMarketPrice({
@@ -43,26 +152,25 @@ async function getTicomboPublicMarketPrice({
 
     await page.waitForTimeout(8000);
 
-    const text = await page.locator("body").innerText();
-    const lines = text
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
+    let lines = await getBodyLines(page);
+    let prices = extractPricesFromLines(lines, category);
+    let categoryActivated = false;
 
-    const targetCategory = normalize(category);
-    const prices = [];
+    if (prices.length === 0) {
+      await scrollToLoadMore(page);
+      lines = await getBodyLines(page);
+      prices = extractPricesFromLines(lines, category);
+    }
 
-    for (let i = 0; i < lines.length; i++) {
-      if (normalize(lines[i]) !== targetCategory) continue;
+    if (prices.length === 0) {
+      categoryActivated = await tryActivateCategory(page, category);
 
-      const block = lines.slice(i, i + 20);
+      if (categoryActivated) {
+        await scrollToLoadMore(page);
 
-      for (const line of block) {
-        const price = parsePrice(line);
-        if (!price) continue;
+        lines = await getBodyLines(page);
 
-        prices.push(price);
-        break;
+        prices = extractPricesFromLines(lines, category);
       }
     }
 
@@ -83,6 +191,7 @@ async function getTicomboPublicMarketPrice({
       ownPublicPrice: own,
       lowestPrice: competitorPrices[0] || null,
       matchedCount: competitorPrices.length,
+      categoryActivated,
     };
   } finally {
     await browser.close();
