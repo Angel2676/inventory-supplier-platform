@@ -2108,6 +2108,17 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
           matchedCount: publicMarket.matchedCount,
         });
       }
+    } else {
+      console.log("Manual Ticombo public market price NOT found:", {
+        listing_id: listing.id,
+        category: listing.ticket_category,
+        ownPublicPrice,
+        publicUrl: listing.public_url,
+        prices: publicMarket.prices,
+        lowestPrice: publicMarket.lowestPrice,
+        matchedCount: publicMarket.matchedCount,
+        source: publicMarket.source,
+      });
     }
 
     const effectiveUndercutAmount =
