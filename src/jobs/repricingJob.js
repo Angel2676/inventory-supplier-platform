@@ -128,6 +128,13 @@ async function runRepricingJob() {
           }
         }
       }
+      const effectiveUndercutAmount =
+        listing.marketplace === "ticombo"
+          ? 1
+          : Number(
+              listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
+            );
+
       const priceCheck = calculateSafePrice({
         currentPrice: currentMarketplacePrice,
         marketLowestPrice,
@@ -137,9 +144,7 @@ async function runRepricingJob() {
             listing.marketplace_default_min_price ||
             0,
         ),
-        undercutAmount: Number(
-          listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
-        ),
+        undercutAmount: effectiveUndercutAmount,
       });
 
       const effectiveMinPrice = Number(
