@@ -2082,7 +2082,6 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
     );
 
     let marketLowestPrice = Number(listing.last_market_price || 0);
-    let marketLowestPrice = Number(listing.last_market_price || 0);
     let ownPublicPrice = null;
 
     if (listing.marketplace === "ticombo" && listing.public_url) {
