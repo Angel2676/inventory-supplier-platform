@@ -106,42 +106,69 @@ async function getSportEvents365EventTypes() {
   return response.data;
 }
 
-async function searchSportEvents365Events({ keyword }) {
+async function searchSportEvents365Events({ keyword, maxPages = 30 }) {
   const client = getSportEvents365Client();
   const { apiKey } = getSportEvents365Config();
 
-  const response = await client.get("/events/event-type/1000", {
-    params: {
-      apiKey,
-      dateFrom: getTodayDateForSportEvents365(),
-      perPage: 100,
-      language: "en_us",
-      currency: "EUR"
-    }
-  });
+  const normalizedKeyword = String(keyword || "").toLowerCase().trim();
 
-  const events = response.data?.data || [];
+  if (!normalizedKeyword) {
+    return [];
+  }
 
-  const normalizedKeyword = String(keyword || "").toLowerCase();
+  const matches = [];
 
-  return events
-    .filter((event) => {
+  for (let page = 1; page <= maxPages; page += 1) {
+    const response = await client.get("/events/event-type/1000", {
+      params: {
+        apiKey,
+        dateFrom: getTodayDateForSportEvents365(),
+        perPage: 100,
+        page,
+        language: "en_us",
+        currency: "EUR"
+      }
+    });
+
+    const events = response.data?.data || [];
+
+    for (const event of events) {
+      const participants = Array.isArray(event.participants)
+        ? event.participants.map((p) => p?.name).filter(Boolean).join(" ")
+        : "";
+
       const text = [
         event.name,
         event.homeTeam?.name,
         event.awayTeam?.name,
-        event.participants?.name,
+        participants,
         event.tournament?.name,
+        event.country?.name,
         event.city?.name,
-        event.venue?.name
+        event.venue?.name,
+        event.dateOfEvent,
+        event.timeOfEvent
       ]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
 
-      return text.includes(normalizedKeyword);
-    })
-    .map(normalizeSportEvents365Event);
+      if (text.includes(normalizedKeyword)) {
+        matches.push(normalizeSportEvents365Event(event));
+      }
+    }
+
+    const lastPage =
+      response.data?.meta?.last_page ||
+      response.data?.meta?.totalPages ||
+      page;
+
+    if (!events.length || page >= lastPage) {
+      break;
+    }
+  }
+
+  return matches;
 }
 
 async function getSportEvents365TicketsByEventId(eventId) {
