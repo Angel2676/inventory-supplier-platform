@@ -4349,3 +4349,43 @@ body.dark-mode .ticombo-empty {
   background: #dc2626;
   color: white;
 }
+
+.marketplace-jobs-card {
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.marketplace-jobs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.marketplace-jobs-actions button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #111827;
+  color: white;
+}
+
+.marketplace-jobs-actions button:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.job-message {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-weight: 600;
+}
