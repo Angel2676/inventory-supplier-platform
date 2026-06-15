@@ -25,6 +25,7 @@ const {
 const {
   searchSportEvents365Events,
   createSupplierTickets,
+  updateSupplierTicket,
 } = require("../services/integrations/sportevents365/sportevents365Api");
 
 const {
@@ -2359,6 +2360,75 @@ router.delete("/listings/:id", async (req, res) => {
       return res.json({
         success: true,
         message: "Listing Gigsberg eliminato",
+        response: deleteResponse,
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SPORTSEVENTS365
+    |--------------------------------------------------------------------------
+    */
+
+    if (listing.marketplace === "sportevents365") {
+      if (!listing.remote_event_id || !listing.remote_listing_id) {
+        return res.status(400).json({
+          error: "remote_event_id o remote_listing_id mancanti",
+        });
+      }
+
+      const deleteResponse = await updateSupplierTicket(
+        listing.remote_event_id,
+        listing.remote_listing_id,
+        {
+          displayed: false,
+        },
+      );
+
+      await pool.query(
+        `
+        UPDATE marketplace_listings
+        SET
+          sync_status = 'deleted',
+          last_quantity_synced = 0,
+          last_quantity_sync_at = NOW(),
+          last_sync_at = NOW(),
+          updated_at = NOW(),
+          last_error = NULL
+        WHERE id = $1
+        `,
+        [listing.id],
+      );
+
+      await pool.query(
+        `
+        INSERT INTO marketplace_sync_logs (
+          marketplace_listing_id,
+          ticket_id,
+          marketplace,
+          action,
+          status,
+          response_payload
+        )
+        VALUES ($1,$2,$3,$4,$5,$6)
+        `,
+        [
+          listing.id,
+          listing.ticket_id,
+          listing.marketplace,
+          "delete_listing",
+          "success",
+          JSON.stringify({
+            action: "hide_listing",
+            displayed: false,
+            response: deleteResponse,
+          }),
+        ],
+      );
+
+      return res.json({
+        success: true,
+        message: "Listing SportEvents365 nascosto",
         response: deleteResponse,
       });
     }
