@@ -41,7 +41,47 @@ function extractTicomboPublicListings(data) {
     .filter((item) => item.price && item.status === "ACTIVE");
 }
 
-async function getTicomboPublicEventListings(eventId, { quantity = 2 } = {}) {
+function normalizeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function matchesTicomboCategory(item, category, block) {
+  const wantedCategory = normalizeText(category);
+  const wantedBlock = normalizeText(block);
+
+  const itemCategory = normalizeText(item.category);
+  const itemSection = normalizeText(item.section);
+
+  if (!wantedCategory) return true;
+
+  const categoryMatches =
+    itemCategory === wantedCategory ||
+    itemSection === wantedCategory ||
+    itemCategory.includes(wantedCategory) ||
+    wantedCategory.includes(itemCategory) ||
+    itemSection.includes(wantedCategory) ||
+    wantedCategory.includes(itemSection);
+
+  if (!categoryMatches) return false;
+
+  if (!wantedBlock) return true;
+
+  return (
+    itemSection === wantedBlock ||
+    itemSection.includes(wantedBlock) ||
+    wantedBlock.includes(itemSection)
+  );
+}
+
+async function getTicomboPublicEventListings(
+  eventId,
+  { quantity = 2, category = "", block = "", excludeListingId = "" } = {},
+) {
   if (!eventId) {
     throw new Error("eventId obbligatorio per Ticombo public market API");
   }
@@ -69,12 +109,24 @@ async function getTicomboPublicEventListings(eventId, { quantity = 2 } = {}) {
 
   const listings = extractTicomboPublicListings(response.data);
 
-  const prices = listings
+  const matchedListings = listings.filter((item) =>
+    matchesTicomboCategory(item, category, block),
+  );
+
+  const listingsForPrice = matchedListings.length ? matchedListings : listings;
+
+  const prices = listingsForPrice
     .map((item) => item.price)
     .filter((price) => Number.isFinite(price) && price > 0)
     .sort((a, b) => a - b);
 
-  const competitorListings = listings.filter((item) => !item.isOwnListing);
+  const competitorListings = listingsForPrice.filter((item) => {
+    const sameListing =
+      excludeListingId &&
+      String(item.listingId || "") === String(excludeListingId || "");
+
+    return !item.isOwnListing && !sameListing;
+  });
 
   const competitorPrices = competitorListings
     .map((item) => item.price)
@@ -85,8 +137,11 @@ async function getTicomboPublicEventListings(eventId, { quantity = 2 } = {}) {
     source: "ticombo_public_api",
     eventId,
     currency: "EUR",
+    category,
+    block,
 
     listingsCount: listings.length,
+    matchedListingsCount: matchedListings.length,
 
     lowestPrice: prices[0] || null,
 
@@ -108,7 +163,7 @@ async function getTicomboPublicEventListings(eventId, { quantity = 2 } = {}) {
 
     prices,
 
-    listings,
+    listings: listingsForPrice,
   };
 }
 

@@ -35,7 +35,12 @@ async function runTicomboMarketScannerJob() {
     try {
       const market = await getTicomboPublicEventListings(
         listing.remote_event_id,
-        { quantity: Math.max(Number(listing.available_quantity || 2), 2) },
+        {
+          category: listing.category,
+          block: listing.block,
+          quantity: Math.max(Number(listing.available_quantity || 2), 2),
+          excludeListingId: listing.remote_listing_id,
+        },
       );
 
       const marketPrice = market.lowestCompetitorPrice;
@@ -85,7 +90,7 @@ async function runTicomboMarketScannerJob() {
         listing_id: listing.marketplace_listing_id,
         ticket_id: listing.ticket_id,
         marketPrice,
-        uggestedPrice: priceCheck.finalPrice,
+        suggestedPrice: priceCheck.finalPrice,
       });
     } catch (error) {
       console.error("Ticombo scanner error:", {
