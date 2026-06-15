@@ -157,8 +157,32 @@ router.get("/", authJwt, async (req, res) => {
                     AND tm.mapping_type = 'category'
                   )
                 )
-            ) AS ticombo_mapping_exists
-          FROM tickets
+           ) AS ticombo_mapping_exists,
+              EXISTS (
+                SELECT 1
+                FROM marketplace_listings ml
+                WHERE ml.ticket_id = tickets.id
+                  AND ml.marketplace = 'ticombo'
+                  AND ml.sync_status = 'synced'
+                  AND COALESCE(ml.remote_listing_id, '') <> ''
+              ) AS ticombo_published,
+              EXISTS (
+                SELECT 1
+                FROM marketplace_listings ml
+                WHERE ml.ticket_id = tickets.id
+                  AND ml.marketplace = 'gigsberg'
+                  AND ml.sync_status = 'synced'
+                  AND COALESCE(ml.remote_listing_id, '') <> ''
+              ) AS gigsberg_published,
+              EXISTS (
+                SELECT 1
+                FROM marketplace_listings ml
+                WHERE ml.ticket_id = tickets.id
+                  AND ml.marketplace = 'sportevents365'
+                  AND ml.sync_status = 'synced'
+                  AND COALESCE(ml.remote_listing_id, '') <> ''
+              ) AS sportevents365_published
+              FROM tickets
           WHERE 1=1
           AND tickets.status != 'deleted'
         `;

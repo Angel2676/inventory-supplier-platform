@@ -1374,12 +1374,22 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                               </button>
 
                               <button
-                                className="publish-action-btn gigsberg"
-                                title="Publish to Gigsberg"
+                                className={`publish-action-btn gigsberg ${
+                                  ticket.gigsberg_published ? "published" : ""
+                                }`}
+                                title={
+                                  ticket.gigsberg_published
+                                    ? "Già pubblicato su Gigsberg"
+                                    : "Publish to Gigsberg"
+                                }
                                 onClick={() => publishToGigsberg(ticket)}
                                 disabled={publishingTicketId === ticket.id}
                               >
-                                {publishingTicketId === ticket.id ? "..." : "G"}
+                                {publishingTicketId === ticket.id
+                                  ? "..."
+                                  : ticket.gigsberg_published
+                                    ? "✓G"
+                                    : "G"}
                               </button>
 
                               <button
@@ -1399,21 +1409,43 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                               </button>
 
                               <button
-                                className="publish-action-btn ticombo"
-                                title="Publish to Ticombo"
+                                className={`publish-action-btn ticombo ${
+                                  ticket.ticombo_published ? "published" : ""
+                                }`}
+                                title={
+                                  ticket.ticombo_published
+                                    ? "Già pubblicato su Ticombo"
+                                    : "Publish to Ticombo"
+                                }
                                 onClick={() => publishToTicombo(ticket)}
                                 disabled={publishingTicketId === ticket.id}
                               >
-                                {publishingTicketId === ticket.id ? "..." : "T"}
+                                {publishingTicketId === ticket.id
+                                  ? "..."
+                                  : ticket.ticombo_published
+                                    ? "✓T"
+                                    : "T"}
                               </button>
 
                               <button
-                                className="publish-action-btn sportevents"
-                                title="Publish to SportEvents365"
+                                className={`publish-action-btn sportevents ${
+                                  ticket.sportevents365_published
+                                    ? "published"
+                                    : ""
+                                }`}
+                                title={
+                                  ticket.sportevents365_published
+                                    ? "Già pubblicato su SportEvents365"
+                                    : "Publish to SportEvents365"
+                                }
                                 onClick={() => publishToSportEvents365(ticket)}
                                 disabled={publishingTicketId === ticket.id}
                               >
-                                {publishingTicketId === ticket.id ? "..." : "S"}
+                                {publishingTicketId === ticket.id
+                                  ? "..."
+                                  : ticket.sportevents365_published
+                                    ? "✓S"
+                                    : "S"}
                               </button>
                             </>
                           )}

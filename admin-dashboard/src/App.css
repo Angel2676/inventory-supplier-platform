@@ -4016,6 +4016,16 @@ body.dark-mode .ticombo-empty {
   cursor: not-allowed;
   transform: none;
 }
+.publish-action-btn.published {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  border-color: #15803d !important;
+}
+
+.publish-action-btn.published:hover {
+  background: #15803d !important;
+}
+
 .publish-table-v2 td {
   vertical-align: middle;
   font-size: 13px;
