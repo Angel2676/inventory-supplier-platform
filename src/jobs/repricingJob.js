@@ -24,10 +24,23 @@ const {
   getSportEvents365LowestMarketPrice,
 } = require("../services/integrations/sportevents365/sportevents365MarketScanner");
 
-async function runRepricingJob() {
-  console.log("Marketplace repricing job started");
+async function runRepricingJob(options = {}) {
+  const marketplaces = Array.isArray(options.marketplaces)
+    ? options.marketplaces.filter(Boolean)
+    : [];
+  console.log("Marketplace repricing job started", {
+    marketplaces: marketplaces.length ? marketplaces : "all",
+  });
+  const queryParams = [];
+  let marketplaceFilterSql = "";
 
-  const listingsResult = await pool.query(`
+  if (marketplaces.length > 0) {
+    queryParams.push(marketplaces);
+    marketplaceFilterSql = `AND ml.marketplace = ANY($${queryParams.length})`;
+  }
+
+  const listingsResult = await pool.query(
+    `
     SELECT
       ml.*,
       t.status AS ticket_status,
@@ -52,8 +65,10 @@ async function runRepricingJob() {
       AND ml.sync_status = 'synced'
       AND ms.enabled = true
       AND ms.api_configured = true
-  `);
-
+      ${marketplaceFilterSql}
+  `,
+    queryParams,
+  );
   const listings = listingsResult.rows;
 
   const GIGSBERG_PROCEEDS_RATE = Number(
@@ -395,15 +410,29 @@ async function runRepricingJob() {
 }
 
 function startRepricingJob() {
-  cron.schedule("45 * * * *", async () => {
-    await runRepricingJob();
+  // Gigsberg
+  cron.schedule("15 */2 * * *", async () => {
+    await runRepricingJob({
+      marketplaces: ["gigsberg"],
+    });
   });
 
-  console.log(
-    "Automatic marketplace repricing job scheduled every hour at minute 45",
-  );
-}
+  // Ticombo
+  cron.schedule("45 */2 * * *", async () => {
+    await runRepricingJob({
+      marketplaces: ["ticombo"],
+    });
+  });
 
+  // SportEvents365
+  cron.schedule("15 1-23/2 * * *", async () => {
+    await runRepricingJob({
+      marketplaces: ["sportevents365"],
+    });
+  });
+
+  console.log("Marketplace repricing jobs scheduled per marketplace");
+}
 module.exports = {
   runRepricingJob,
   startRepricingJob,
