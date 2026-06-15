@@ -16,6 +16,14 @@ const {
   getTicomboPublicMarketPrice,
 } = require("../services/integrations/ticombo/ticomboPublicMarket");
 
+const {
+  updateSupplierTicket,
+} = require("../services/integrations/sportevents365/sportevents365Api");
+
+const {
+  getSportEvents365LowestMarketPrice,
+} = require("../services/integrations/sportevents365/sportevents365MarketScanner");
+
 async function runRepricingJob() {
   console.log("Marketplace repricing job started");
 
@@ -128,6 +136,28 @@ async function runRepricingJob() {
           }
         }
       }
+
+      if (listing.marketplace === "sportevents365") {
+        const sportEvents365Market = await getSportEvents365LowestMarketPrice({
+          remoteEventId: listing.remote_event_id,
+          remoteCategoryName: listing.remote_category_name,
+        });
+
+        if (sportEvents365Market.lowestPrice) {
+          marketLowestPrice = Number(sportEvents365Market.lowestPrice);
+
+          console.log("SportEvents365 market price detected:", {
+            listing_id: listing.id,
+            remote_event_id: listing.remote_event_id,
+            remote_category_name: listing.remote_category_name,
+            lowestPrice: sportEvents365Market.lowestPrice,
+            prices: sportEvents365Market.prices,
+            matchedCount: sportEvents365Market.matchedCount,
+            source: sportEvents365Market.source,
+          });
+        }
+      }
+
       const effectiveUndercutAmount =
         listing.marketplace === "ticombo"
           ? 1
@@ -182,6 +212,7 @@ async function runRepricingJob() {
         continue;
       }
       let ticomboApiPrice = priceCheck.finalPrice;
+      let sportEvents365ApiPrice = priceCheck.finalPrice;
 
       if (listing.marketplace === "gigsberg" && listing.remote_listing_id) {
         if (
@@ -276,6 +307,42 @@ async function runRepricingJob() {
           `Ticombo listing ${listing.remote_listing_id} updated successfully`,
         );
       }
+      if (
+        listing.marketplace === "sportevents365" &&
+        listing.remote_listing_id
+      ) {
+        if (
+          effectiveMinPrice > 0 &&
+          Number(priceCheck.finalPrice) < effectiveMinPrice
+        ) {
+          console.error("BLOCKED_REPRICE_BELOW_MIN_PRICE", {
+            listing_id: listing.id,
+            marketplace: listing.marketplace,
+            finalPrice: priceCheck.finalPrice,
+            effectiveMinPrice,
+            priceCheck,
+          });
+
+          continue;
+        }
+
+        console.log(
+          `Updating SportEvents365 listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
+        );
+
+        await updateSupplierTicket(
+          listing.remote_event_id,
+          listing.remote_listing_id,
+          {
+            price: Math.floor(Number(priceCheck.finalPrice)),
+          },
+        );
+
+        console.log(
+          `SportEvents365 listing ${listing.remote_listing_id} updated successfully`,
+        );
+      }
+
       console.log("REPRICING DB UPDATE INPUT", {
         listing_id: listing.id,
         marketplace: listing.marketplace,
@@ -287,7 +354,9 @@ async function runRepricingJob() {
       const dbMarketplacePrice =
         listing.marketplace === "ticombo"
           ? ticomboApiPrice
-          : priceCheck.finalPrice;
+          : listing.marketplace === "sportevents365"
+            ? sportEvents365ApiPrice
+            : priceCheck.finalPrice;
 
       await pool.query(
         `
@@ -303,7 +372,7 @@ async function runRepricingJob() {
         [
           dbMarketplacePrice,
           marketLowestPrice || listing.last_market_price || null,
-          priceCheck.finalPrice,
+          dbMarketplacePrice,
           listing.id,
         ],
       );
