@@ -87,7 +87,7 @@ async function getTicomboPublicEventListings(
   }
 
   const response = await axios.get(
-    `https://www.ticombo.com/prod/discovery/events/${eventId}/listings`,
+    `https://www.ticombo.net/prod/discovery/events/${eventId}/listings`,
     {
       params: {
         limit: 100,
@@ -125,7 +125,7 @@ async function getTicomboPublicEventListings(
       excludeListingId &&
       String(item.listingId || "") === String(excludeListingId || "");
 
-    return !item.isOwnListing && !sameListing;
+    return !sameListing;
   });
 
   const competitorPrices = competitorListings

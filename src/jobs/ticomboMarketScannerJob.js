@@ -38,7 +38,7 @@ async function runTicomboMarketScannerJob() {
         {
           category: listing.category,
           block: listing.block,
-          quantity: Math.max(Number(listing.available_quantity || 2), 2),
+          quantity: 1,
           excludeListingId: listing.remote_listing_id,
         },
       );
