@@ -2213,7 +2213,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
     let sellerPrice = priceCheck.finalPrice;
 
     if (listing.marketplace === "ticombo" && listing.remote_listing_id) {
-      sellerPrice = Number(priceCheck.finalPrice);
+      sellerPrice = Number((priceCheck.finalPrice / 1.3).toFixed(2));
 
       await updateTicomboListing(listing.remote_listing_id, {
         price: sellerPrice,

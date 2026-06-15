@@ -272,12 +272,14 @@ async function runRepricingJob() {
           `Updating Ticombo listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
         );
 
-        ticomboApiPrice = Number(priceCheck.finalPrice);
+        ticomboApiPrice = Number((priceCheck.finalPrice / 1.3).toFixed(2));
 
-        console.log("Ticombo final price sent:", {
+        console.log("Ticombo public target to seller price conversion:", {
           listing_id: listing.id,
           remote_listing_id: listing.remote_listing_id,
-          final_price_sent_to_ticombo: ticomboApiPrice,
+          target_public_price: priceCheck.finalPrice,
+          seller_price_sent_to_ticombo: ticomboApiPrice,
+          public_to_seller_rate: 1.3,
         });
 
         await updateTicomboListing(listing.remote_listing_id, {
