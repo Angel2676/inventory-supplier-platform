@@ -29,6 +29,10 @@ const {
 } = require("../services/integrations/sportevents365/sportevents365Api");
 
 const {
+  getSportEvents365LowestMarketPrice,
+} = require("../services/integrations/sportevents365/sportevents365MarketScanner");
+
+const {
   searchTicomboEvents,
   getTicomboEventById,
 } = require("../services/ticomboService");
@@ -2061,9 +2065,15 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
         t.available_quantity,
         t.marketplace_price AS ticket_marketplace_price,
         t.min_price AS ticket_min_price,
-        t.undercut_amount AS ticket_undercut_amount
+        t.undercut_amount AS ticket_undercut_amount,
+        mm.remote_category_name
       FROM marketplace_listings ml
       JOIN tickets t ON t.id = ml.ticket_id
+      LEFT JOIN marketplace_mappings mm
+        ON mm.marketplace = ml.marketplace
+       AND mm.mapping_type = 'category'
+       AND mm.internal_event_id = t.event_id
+       AND mm.internal_category = t.category
       WHERE ml.id = $1
       LIMIT 1
       `,
@@ -2119,6 +2129,34 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
           lowestPrice: publicMarket.lowestPrice,
           matchedCount: publicMarket.matchedCount,
           source: publicMarket.source,
+        });
+      }
+    }
+
+    if (listing.marketplace === "sportevents365") {
+      const sportEvents365Market = await getSportEvents365LowestMarketPrice({
+        remoteEventId: listing.remote_event_id,
+        remoteCategoryName: listing.remote_category_name,
+      });
+
+      if (sportEvents365Market.lowestPrice) {
+        marketLowestPrice = Number(sportEvents365Market.lowestPrice);
+
+        console.log("Manual SportEvents365 market price detected:", {
+          listing_id: listing.id,
+          remote_event_id: listing.remote_event_id,
+          remote_category_name: listing.remote_category_name,
+          lowestPrice: sportEvents365Market.lowestPrice,
+          prices: sportEvents365Market.prices,
+          matchedCount: sportEvents365Market.matchedCount,
+          source: sportEvents365Market.source,
+        });
+      } else {
+        console.log("Manual SportEvents365 market price NOT found:", {
+          listing_id: listing.id,
+          remote_event_id: listing.remote_event_id,
+          remote_category_name: listing.remote_category_name,
+          source: sportEvents365Market.source,
         });
       }
     }
@@ -2195,6 +2233,20 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
       });
 
       marketplacePriceToSave = sellerPrice;
+    }
+    if (listing.marketplace === "sportevents365" && listing.remote_listing_id) {
+      const sportEvents365ApiPrice = Math.floor(Number(priceCheck.finalPrice));
+
+      await updateSupplierTicket(
+        listing.remote_event_id,
+        listing.remote_listing_id,
+        {
+          price: sportEvents365ApiPrice,
+        },
+      );
+
+      marketplacePriceToSave = sportEvents365ApiPrice;
+      sellerPrice = sportEvents365ApiPrice;
     }
 
     await pool.query(
