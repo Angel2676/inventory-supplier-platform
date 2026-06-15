@@ -85,6 +85,9 @@ async function runRepricingJob(options = {}) {
 
   for (const listing of listings) {
     try {
+      const TICOMBO_PUBLIC_TO_SELLER_RATE = Number(
+        process.env.TICOMBO_PUBLIC_TO_SELLER_RATE || 1.3,
+      );
       const currentMarketplacePrice = Number(
         listing.marketplace_price ||
           listing.ticket_marketplace_price ||
@@ -99,7 +102,13 @@ async function runRepricingJob(options = {}) {
       if (listing.marketplace === "ticombo") {
         if (listing.public_url) {
           const ownPublicPrice =
-            currentMarketplacePrice > 0 ? currentMarketplacePrice : null;
+            currentMarketplacePrice > 0
+              ? Number(
+                  (
+                    currentMarketplacePrice * TICOMBO_PUBLIC_TO_SELLER_RATE
+                  ).toFixed(2),
+                )
+              : null;
 
           const publicMarket = await getTicomboPublicMarketPrice({
             publicUrl: listing.public_url,
@@ -178,17 +187,64 @@ async function runRepricingJob(options = {}) {
               listing.undercut_amount || listing.ticket_undercut_amount || 0.01,
             );
 
-      const priceCheck = calculateSafePrice({
-        currentPrice: currentMarketplacePrice,
-        marketLowestPrice,
-        minPrice: Number(
-          listing.min_price ||
-            listing.ticket_min_price ||
-            listing.marketplace_default_min_price ||
-            0,
-        ),
-        undercutAmount: effectiveUndercutAmount,
-      });
+      const rawMinPrice = Number(
+        listing.min_price ||
+          listing.ticket_min_price ||
+          listing.marketplace_default_min_price ||
+          0,
+      );
+
+      const effectiveMinPriceForCalculation =
+        listing.marketplace === "ticombo"
+          ? Number((rawMinPrice * TICOMBO_PUBLIC_TO_SELLER_RATE).toFixed(2))
+          : rawMinPrice;
+
+      let priceCheck;
+
+      if (listing.marketplace === "ticombo") {
+        if (!marketLowestPrice || marketLowestPrice <= 0) {
+          priceCheck = {
+            shouldUpdate: false,
+            reason: "NO_MARKET_PRICE",
+            finalPrice: currentMarketplacePrice,
+          };
+        } else {
+          const publicMinPrice = effectiveMinPriceForCalculation;
+          const targetPublicPrice = Math.max(
+            Number((marketLowestPrice - effectiveUndercutAmount).toFixed(2)),
+            publicMinPrice,
+          );
+
+          const currentPublicPrice = Number(
+            (currentMarketplacePrice * TICOMBO_PUBLIC_TO_SELLER_RATE).toFixed(
+              2,
+            ),
+          );
+
+          const priceDifference = Math.abs(
+            Number(targetPublicPrice) - Number(currentPublicPrice),
+          );
+
+          priceCheck = {
+            shouldUpdate: priceDifference >= 0.01,
+            reason:
+              targetPublicPrice > currentPublicPrice
+                ? "REPRICE_UP"
+                : "REPRICE_DOWN",
+            finalPrice: targetPublicPrice,
+            currentPublicPrice,
+            targetPublicPrice,
+            priceDifference,
+          };
+        }
+      } else {
+        priceCheck = calculateSafePrice({
+          currentPrice: currentMarketplacePrice,
+          marketLowestPrice,
+          minPrice: effectiveMinPriceForCalculation,
+          undercutAmount: effectiveUndercutAmount,
+        });
+      }
 
       const effectiveMinPrice = Number(
         listing.min_price ||
@@ -200,6 +256,32 @@ async function runRepricingJob(options = {}) {
       const safeLastMarketPrice = marketLowestPrice || null;
       const safeLastSuggestedPrice =
         safeLastMarketPrice === null ? null : priceCheck.finalPrice;
+      if (listing.marketplace === "ticombo") {
+        console.log("TICOMBO PRICECHECK RESULT", {
+          listing_id: listing.id,
+          currentMarketplacePrice,
+          currentPublicPrice: priceCheck.currentPublicPrice,
+          marketLowestPrice,
+          effectiveMinPriceForCalculation,
+          targetPublicPrice: priceCheck.targetPublicPrice,
+          priceDifference: priceCheck.priceDifference,
+          shouldUpdate: priceCheck.shouldUpdate,
+          reason: priceCheck.reason,
+          finalPrice: priceCheck.finalPrice,
+        });
+      }
+      if (
+        !priceCheck.shouldUpdate &&
+        priceCheck.reason?.startsWith("REPRICE_")
+      ) {
+        console.error("INCONSISTENT_PRICECHECK_FORCE_UPDATE", {
+          listing_id: listing.id,
+          marketplace: listing.marketplace,
+          priceCheck,
+        });
+
+        priceCheck.shouldUpdate = true;
+      }
 
       if (!priceCheck.shouldUpdate) {
         await pool.query(
@@ -214,8 +296,11 @@ async function runRepricingJob(options = {}) {
           `,
           [safeLastMarketPrice, safeLastSuggestedPrice, listing.id],
         );
-        console.log("GIGSBERG SCANNER TICKET UPDATED", {
+        console.log("REPRICING LISTING CHECKED", {
+          marketplace: listing.marketplace,
+          listing_id: listing.id,
           ticket_id: listing.ticket_id,
+          reason: priceCheck.reason,
         });
 
         console.log(
@@ -287,14 +372,22 @@ async function runRepricingJob(options = {}) {
           `Updating Ticombo listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
         );
 
-        ticomboApiPrice = Number(priceCheck.finalPrice);
+        const TICOMBO_PUBLIC_TO_SELLER_RATE = Number(
+          process.env.TICOMBO_PUBLIC_TO_SELLER_RATE || 1.3,
+        );
+
+        ticomboApiPrice = Number(
+          (
+            Number(priceCheck.finalPrice) / TICOMBO_PUBLIC_TO_SELLER_RATE
+          ).toFixed(2),
+        );
 
         console.log("Ticombo public target to seller price conversion:", {
           listing_id: listing.id,
           remote_listing_id: listing.remote_listing_id,
           target_public_price: priceCheck.finalPrice,
           seller_price_sent_to_ticombo: ticomboApiPrice,
-          public_to_seller_rate: 1.3,
+          public_to_seller_rate: TICOMBO_PUBLIC_TO_SELLER_RATE,
         });
 
         await updateTicomboListing(listing.remote_listing_id, {
@@ -341,14 +434,6 @@ async function runRepricingJob(options = {}) {
         );
       }
 
-      console.log("REPRICING DB UPDATE INPUT", {
-        listing_id: listing.id,
-        marketplace: listing.marketplace,
-        marketplace_price: priceCheck.finalPrice,
-        last_market_price:
-          marketLowestPrice || listing.last_market_price || null,
-        last_suggested_price: priceCheck.finalPrice,
-      });
       const dbMarketplacePrice =
         listing.marketplace === "ticombo"
           ? ticomboApiPrice
@@ -356,6 +441,15 @@ async function runRepricingJob(options = {}) {
             ? sportEvents365ApiPrice
             : priceCheck.finalPrice;
 
+      console.log("REPRICING DB UPDATE INPUT", {
+        listing_id: listing.id,
+        marketplace: listing.marketplace,
+        marketplace_price: dbMarketplacePrice,
+        target_public_price: priceCheck.finalPrice,
+        last_market_price:
+          marketLowestPrice || listing.last_market_price || null,
+        last_suggested_price: priceCheck.finalPrice,
+      });
       await pool.query(
         `
           UPDATE marketplace_listings
@@ -367,10 +461,11 @@ async function runRepricingJob(options = {}) {
             updated_at = NOW()
           WHERE id = $4
           `,
+
         [
           dbMarketplacePrice,
           marketLowestPrice || listing.last_market_price || null,
-          dbMarketplacePrice,
+          priceCheck.finalPrice,
           listing.id,
         ],
       );

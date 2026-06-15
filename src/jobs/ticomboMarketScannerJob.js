@@ -68,11 +68,26 @@ async function runTicomboMarketScannerJob() {
         continue;
       }
 
+      const TICOMBO_PUBLIC_TO_SELLER_RATE = Number(
+        process.env.TICOMBO_PUBLIC_TO_SELLER_RATE || 1.3,
+      );
+
+      const sellerCurrentPrice = Number(listing.marketplace_price || 0);
+      const sellerMinPrice = Number(listing.min_price || 0);
+
+      const publicCurrentPrice = Number(
+        (sellerCurrentPrice * TICOMBO_PUBLIC_TO_SELLER_RATE).toFixed(2),
+      );
+
+      const publicMinPrice = Number(
+        (sellerMinPrice * TICOMBO_PUBLIC_TO_SELLER_RATE).toFixed(2),
+      );
+
       const priceCheck = calculateSafePrice({
-        currentPrice: Number(listing.marketplace_price || 0),
+        currentPrice: publicCurrentPrice,
         marketLowestPrice: Number(marketPrice),
-        minPrice: Number(listing.min_price || 0),
-        undercutAmount: Number(listing.undercut_amount || 0.01),
+        minPrice: publicMinPrice,
+        undercutAmount: 1,
       });
 
       await pool.query(
