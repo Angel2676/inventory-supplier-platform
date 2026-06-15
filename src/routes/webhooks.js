@@ -72,6 +72,29 @@ router.post("/marketplace-sale", async (req, res) => {
     );
     const eventName = eventResult.rows[0]?.event_name || null;
 
+    if (order_id) {
+      const existingOrderResult = await pool.query(
+        `
+        SELECT id
+        FROM marketplace_orders
+        WHERE marketplace = $1
+          AND marketplace_order_id = $2
+        LIMIT 1
+        `,
+        [String(marketplace).toLowerCase(), order_id],
+      );
+
+      if (existingOrderResult.rows.length > 0) {
+        return res.json({
+          success: true,
+          duplicate: true,
+          message: "Ordine marketplace già registrato",
+          order_id,
+          marketplace: String(marketplace).toLowerCase(),
+        });
+      }
+    }
+
     const result = await decreaseInventoryAndMarkMarketplaces({
       ticketId: listing.ticket_id,
       quantity: Number(quantity),
