@@ -125,11 +125,11 @@ async function runAutoPublishJob() {
 }
 
 function startAutoPublishJob() {
-  cron.schedule("*/10 * * * *", async () => {
+  cron.schedule("15 * * * *", async () => {
     await runAutoPublishJob();
   });
 
-  console.log("Auto publish job scheduled every 10 minutes");
+  console.log("Auto publish job scheduled every hour at minute 15");
 }
 
 module.exports = {

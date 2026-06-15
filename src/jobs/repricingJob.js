@@ -395,11 +395,13 @@ async function runRepricingJob() {
 }
 
 function startRepricingJob() {
-  cron.schedule("*/10 * * * *", async () => {
+  cron.schedule("45 * * * *", async () => {
     await runRepricingJob();
   });
 
-  console.log("Automatic marketplace repricing job scheduled every 10 minutes");
+  console.log(
+    "Automatic marketplace repricing job scheduled every hour at minute 45",
+  );
 }
 
 module.exports = {

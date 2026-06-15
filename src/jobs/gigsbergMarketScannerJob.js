@@ -424,7 +424,7 @@ async function runGigsbergMarketScannerJob() {
   }
 }
 
-cron.schedule("*/10 * * * *", async () => {
+cron.schedule("0 */2 * * *", async () => {
   await runGigsbergMarketScannerJob();
 });
 

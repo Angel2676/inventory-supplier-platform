@@ -13,7 +13,7 @@ async function runMarketplaceSyncJob() {
 }
 
 function startMarketplaceSyncJob() {
-  cron.schedule("*/5 * * * *", async () => {
+  cron.schedule("*/15 * * * *", async () => {
     try {
       await runMarketplaceSyncJob();
     } catch (error) {
@@ -21,7 +21,7 @@ function startMarketplaceSyncJob() {
     }
   });
 
-  console.log("Marketplace quantity sync job scheduled every 2 minutes");
+  console.log("Marketplace quantity sync job scheduled every 15 minutes");
 }
 
 module.exports = {

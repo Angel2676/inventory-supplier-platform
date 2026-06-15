@@ -1,3 +1,4 @@
+const cron = require("node-cron");
 const pool = require("../db");
 const {
   getTicomboPublicEventListings,
@@ -103,7 +104,21 @@ async function runTicomboMarketScannerJob() {
 
   console.log(`Ticombo market scanner completed: ${result.rows.length}`);
 }
+function startTicomboMarketScannerJob() {
+  cron.schedule("30 */2 * * *", async () => {
+    try {
+      await runTicomboMarketScannerJob();
+    } catch (error) {
+      console.error("Ticombo market scanner scheduled job error:", error);
+    }
+  });
+
+  console.log(
+    "Ticombo market scanner job scheduled every 2 hours at minute 30",
+  );
+}
 
 module.exports = {
   runTicomboMarketScannerJob,
+  startTicomboMarketScannerJob,
 };

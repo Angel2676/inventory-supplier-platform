@@ -19,10 +19,14 @@ const inventoryStatusRoutes = require("./routes/inventoryStatus");
 const analyticsRoutes = require("./routes/analytics");
 const notificationsRoutes = require("./routes/notifications");
 const { startMarketplaceSyncJob } = require("./jobs/marketplaceSyncJob");
+const {
+  startTicomboMarketScannerJob,
+} = require("./jobs/ticomboMarketScannerJob");
 const cleanupExpiredReservations = require("./services/reservationCleanup");
 const webhooksRoutes = require("./routes/webhooks");
 const PORT = process.env.PORT || 3000;
 const marketAnalysisRoutes = require("./routes/marketAnalysis");
+
 const marketplaceContentRequestsRoutes = require("./routes/marketplaceContentRequests");
 const {
   runGigsbergMarketScannerJob,
@@ -78,5 +82,7 @@ app.listen(PORT, () => {
   startRepricingJob();
   startMarketplaceSyncJob();
   startAutoPublishJob();
+  startTicomboMarketScannerJob();
+
   runGigsbergMarketScannerJob();
 });
