@@ -5,6 +5,15 @@ const {
 } = require("../services/marketAnalysis/marketAnalysisService");
 
 const router = express.Router();
+const { runRepricingJob } = require("../jobs/repricingJob");
+const {
+  runGigsbergMarketScannerJob,
+} = require("../jobs/gigsbergMarketScannerJob");
+const {
+  runTicomboMarketScannerJob,
+} = require("../jobs/ticomboMarketScannerJob");
+const { runMarketplaceSyncJob } = require("../jobs/marketplaceSyncJob");
+
 router.get("/events", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -93,6 +102,99 @@ router.post("/run", async (req, res) => {
       details: error.message,
     });
   }
+});
+router.post("/jobs/run", async (req, res) => {
+  try {
+    const { job } = req.body;
+
+    if (!job) {
+      return res.status(400).json({
+        success: false,
+        error: "job obbligatorio",
+      });
+    }
+
+    if (job === "ticombo") {
+      await runTicomboMarketScannerJob();
+      await runRepricingJob();
+    } else if (job === "gigsberg") {
+      await runGigsbergMarketScannerJob();
+      await runRepricingJob();
+    } else if (job === "repricing") {
+      await runRepricingJob();
+    } else if (job === "sync") {
+      await runMarketplaceSyncJob();
+    } else if (job === "all") {
+      await runGigsbergMarketScannerJob();
+      await runTicomboMarketScannerJob();
+      await runRepricingJob();
+      await runMarketplaceSyncJob();
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: "Job non supportato",
+      });
+    }
+
+    return res.json({
+      success: true,
+      job,
+      message: `Job ${job} completato correttamente`,
+    });
+  } catch (error) {
+    console.error("Manual marketplace job error:", error);
+
+    return res.status(500).json({
+      success: false,
+      error: "Errore durante esecuzione job manuale",
+      details: error.message,
+    });
+  }
+});
+router.post("/jobs/run", async (req, res) => {
+  const { job } = req.body;
+
+  const supportedJobs = ["ticombo", "gigsberg", "repricing", "sync", "all"];
+
+  if (!supportedJobs.includes(job)) {
+    return res.status(400).json({
+      success: false,
+      error: "Job non supportato",
+    });
+  }
+
+  setImmediate(async () => {
+    try {
+      console.log(`Manual marketplace job started: ${job}`);
+
+      if (job === "ticombo") {
+        await runTicomboMarketScannerJob();
+        await runRepricingJob({ marketplaces: ["ticombo"] });
+      } else if (job === "gigsberg") {
+        await runGigsbergMarketScannerJob();
+        await runRepricingJob({ marketplaces: ["gigsberg"] });
+      } else if (job === "repricing") {
+        await runRepricingJob();
+      } else if (job === "sync") {
+        await runMarketplaceSyncJob();
+      } else if (job === "all") {
+        await runGigsbergMarketScannerJob();
+        await runTicomboMarketScannerJob();
+        await runRepricingJob();
+        await runMarketplaceSyncJob();
+      }
+
+      console.log(`Manual marketplace job completed: ${job}`);
+    } catch (error) {
+      console.error(`Manual marketplace job failed: ${job}`, error);
+    }
+  });
+
+  return res.json({
+    success: true,
+    job,
+    message: `Job ${job} avviato in background`,
+  });
 });
 
 module.exports = router;

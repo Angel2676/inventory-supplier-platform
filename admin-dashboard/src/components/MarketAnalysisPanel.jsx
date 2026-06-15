@@ -19,6 +19,8 @@ export default function MarketAnalysisPanel() {
   const [publicUrlInputs, setPublicUrlInputs] = useState({});
   const [savingPublicUrl, setSavingPublicUrl] = useState("");
   const [usingPriceTicketId, setUsingPriceTicketId] = useState("");
+  const [runningJob, setRunningJob] = useState("");
+  const [jobMessage, setJobMessage] = useState("");
 
   useEffect(() => {
     async function loadEvents() {
@@ -149,10 +151,98 @@ export default function MarketAnalysisPanel() {
       setUsingPriceTicketId("");
     }
   };
+  const runMarketplaceJob = async (job) => {
+    const labels = {
+      ticombo: "Ticombo Scanner + Repricing",
+      gigsberg: "Gigsberg Scanner + Repricing",
+      repricing: "Repricing globale",
+      sync: "Marketplace Sync",
+      all: "All Scanners + Repricing + Sync",
+    };
+
+    const confirmed = window.confirm(
+      `Vuoi avviare ${labels[job] || job}? Il job partirà in background.`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setRunningJob(job);
+      setJobMessage("");
+
+      const response = await api.post("/api/market-analysis/jobs/run", {
+        job,
+      });
+
+      setJobMessage(response.data.message || `Job ${job} avviato.`);
+    } catch (err) {
+      setJobMessage(
+        err.response?.data?.error || err.message || "Errore avvio job manuale",
+      );
+    } finally {
+      setRunningJob("");
+    }
+  };
 
   return (
     <div className="market-analysis-panel">
       <h2>Market Analysis</h2>
+
+      <div className="marketplace-jobs-card">
+        <h3>Marketplace Jobs</h3>
+        <p>
+          Avvia manualmente scanner, repricing e sync. I job partono in
+          background.
+        </p>
+
+        <div className="marketplace-jobs-actions">
+          <button
+            type="button"
+            onClick={() => runMarketplaceJob("ticombo")}
+            disabled={!!runningJob}
+          >
+            {runningJob === "ticombo"
+              ? "Starting..."
+              : "Run Ticombo Scanner + Repricing"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => runMarketplaceJob("gigsberg")}
+            disabled={!!runningJob}
+          >
+            {runningJob === "gigsberg"
+              ? "Starting..."
+              : "Run Gigsberg Scanner + Repricing"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => runMarketplaceJob("repricing")}
+            disabled={!!runningJob}
+          >
+            {runningJob === "repricing" ? "Starting..." : "Run Repricing All"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => runMarketplaceJob("sync")}
+            disabled={!!runningJob}
+          >
+            {runningJob === "sync" ? "Starting..." : "Run Marketplace Sync"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => runMarketplaceJob("all")}
+            disabled={!!runningJob}
+          >
+            {runningJob === "all" ? "Starting..." : "Run All"}
+          </button>
+        </div>
+
+        {jobMessage && <div className="job-message">{jobMessage}</div>}
+      </div>
 
       <div className="market-analysis-form">
         <select
