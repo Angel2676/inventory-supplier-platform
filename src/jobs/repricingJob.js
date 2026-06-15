@@ -84,9 +84,7 @@ async function runRepricingJob() {
       if (listing.marketplace === "ticombo") {
         if (listing.public_url) {
           const ownPublicPrice =
-            currentMarketplacePrice > 0
-              ? Number((currentMarketplacePrice * 1.3).toFixed(2))
-              : null;
+            currentMarketplacePrice > 0 ? currentMarketplacePrice : null;
 
           const publicMarket = await getTicomboPublicMarketPrice({
             publicUrl: listing.public_url,
@@ -274,30 +272,13 @@ async function runRepricingJob() {
           `Updating Ticombo listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
         );
 
-        if (listing.marketplace === "ticombo" && currentMarketplacePrice > 0) {
-          const currentPublicPrice = marketLowestPrice
-            ? Number((currentMarketplacePrice * 1.3).toFixed(2))
-            : null;
+        ticomboApiPrice = Number(priceCheck.finalPrice);
 
-          const publicToSellerRate =
-            currentPublicPrice && currentMarketplacePrice
-              ? currentPublicPrice / currentMarketplacePrice
-              : 1.3;
-
-          ticomboApiPrice = Number(
-            (priceCheck.finalPrice / publicToSellerRate).toFixed(2),
-          );
-
-          console.log("Ticombo public to seller conversion:", {
-            listing_id: listing.id,
-            remote_listing_id: listing.remote_listing_id,
-            current_seller_price: currentMarketplacePrice,
-            estimated_current_public_price: currentPublicPrice,
-            target_public_price: priceCheck.finalPrice,
-            seller_price_sent_to_ticombo: ticomboApiPrice,
-            public_to_seller_rate: publicToSellerRate,
-          });
-        }
+        console.log("Ticombo final price sent:", {
+          listing_id: listing.id,
+          remote_listing_id: listing.remote_listing_id,
+          final_price_sent_to_ticombo: ticomboApiPrice,
+        });
 
         await updateTicomboListing(listing.remote_listing_id, {
           price: ticomboApiPrice,

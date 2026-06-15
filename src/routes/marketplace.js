@@ -50,6 +50,7 @@ const { calculateSafePrice } = require("../services/priceCheckerService");
 const {
   getTicomboPublicMarketPrice,
 } = require("../services/integrations/ticombo/ticomboPublicMarket");
+const { clear } = require("console");
 
 /**
  * LIST MARKETPLACE LISTINGS
@@ -2097,9 +2098,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
 
     if (listing.marketplace === "ticombo" && listing.public_url) {
       ownPublicPrice =
-        currentMarketplacePrice > 0
-          ? Number((currentMarketplacePrice * 1.3).toFixed(2))
-          : null;
+        currentMarketplacePrice > 0 ? currentMarketplacePrice : null;
 
       const publicMarket = await getTicomboPublicMarketPrice({
         publicUrl: listing.public_url,
@@ -2214,19 +2213,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
     let sellerPrice = priceCheck.finalPrice;
 
     if (listing.marketplace === "ticombo" && listing.remote_listing_id) {
-      const currentPublicPrice =
-        currentMarketplacePrice > 0
-          ? Number((currentMarketplacePrice * 1.3).toFixed(2))
-          : null;
-
-      const publicToSellerRate =
-        currentPublicPrice && currentMarketplacePrice
-          ? currentPublicPrice / currentMarketplacePrice
-          : 1.3;
-
-      sellerPrice = Number(
-        (priceCheck.finalPrice / publicToSellerRate).toFixed(2),
-      );
+      sellerPrice = Number(priceCheck.finalPrice);
 
       await updateTicomboListing(listing.remote_listing_id, {
         price: sellerPrice,
