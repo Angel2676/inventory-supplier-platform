@@ -1930,8 +1930,11 @@ router.post("/publish", async (req, res) => {
           error: `Mapping categoria SportEvents365 mancante per ${ticket.category}`,
         });
       }
-
       const categoryMapping = categoryMappingResult.rows[0];
+
+      const sportEventsSection = ticket.block
+        ? `S_${String(ticket.block).trim()}`
+        : undefined;
 
       const sportEventsPayload = [
         {
@@ -1950,6 +1953,7 @@ router.post("/publish", async (req, res) => {
           sittingArrangementId: 5,
           sellingLimitations: [],
           restrictions: [],
+          ...(sportEventsSection ? { section: sportEventsSection } : {}),
           notes: ticket.block || "",
         },
       ];
