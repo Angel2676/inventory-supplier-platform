@@ -1503,7 +1503,16 @@ router.post("/publish", async (req, res) => {
           "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
         ],
         delivery: {
-          inHandDate: new Date(ticket.event_date).toISOString(),
+          inHandDate: (() => {
+            const eventDate = ticket.event_date || ticket.eventDate;
+            const parsed = new Date(eventDate);
+
+            if (Number.isNaN(parsed.getTime())) {
+              throw new Error(`Invalid Ticombo inHandDate event_date: ${eventDate}`);
+            }
+
+            return parsed.toISOString();
+          })(),
         },
         price,
         currency: "EUR",
