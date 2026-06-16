@@ -1937,11 +1937,13 @@ router.post("/publish", async (req, res) => {
         {
           categoryId: Number(categoryMapping.remote_category_id),
           quantity: Number(ticket.available_quantity || 0),
-          price: Number(
-            ticket.marketplace_price ||
-              ticket.partner_price ||
-              ticket.price ||
-              0,
+          price: Math.ceil(
+            Number(
+              ticket.marketplace_price ||
+                ticket.partner_price ||
+                ticket.price ||
+                0,
+            ),
           ),
           currency: "EUR",
           shippingMethodId: 1006,
