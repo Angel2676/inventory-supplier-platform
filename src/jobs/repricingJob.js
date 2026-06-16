@@ -55,10 +55,17 @@ async function runRepricingJob(options = {}) {
       t.last_market_price AS ticket_last_market_price,
       t.suggested_marketplace_price AS ticket_suggested_marketplace_price,
       t.auto_reprice_enabled AS ticket_auto_reprice_enabled,
-      ms.default_min_price AS marketplace_default_min_price
+      ms.default_min_price AS marketplace_default_min_price,
+      em.public_url AS event_public_url
     FROM marketplace_listings ml
     JOIN tickets t ON t.id = ml.ticket_id
     JOIN marketplace_settings ms ON ms.marketplace = ml.marketplace
+    LEFT JOIN marketplace_mappings em
+      ON em.marketplace = ml.marketplace
+     AND em.mapping_type = 'event'
+     AND em.internal_event_id = t.event_id
+     AND em.is_active = true
+     AND COALESCE(em.public_url, '') <> ''
     WHERE COALESCE(ml.auto_reprice_enabled, t.auto_reprice_enabled) = true
       AND t.status = 'available'
       AND t.available_quantity > 0
@@ -100,18 +107,14 @@ async function runRepricingJob(options = {}) {
       );
 
       if (listing.marketplace === "ticombo") {
-        if (listing.public_url) {
+        const ticomboPublicUrl = listing.public_url || listing.event_public_url;
+
+        if (ticomboPublicUrl) {
           const ownPublicPrice =
-            currentMarketplacePrice > 0
-              ? Number(
-                  (
-                    currentMarketplacePrice * TICOMBO_PUBLIC_TO_SELLER_RATE
-                  ).toFixed(2),
-                )
-              : null;
+            currentMarketplacePrice > 0 ? currentMarketplacePrice : null;
 
           const publicMarket = await getTicomboPublicMarketPrice({
-            publicUrl: listing.public_url,
+            publicUrl: ticomboPublicUrl,
             category: listing.ticket_category,
             ownPublicPrice,
             headless: true,
@@ -370,10 +373,6 @@ async function runRepricingJob(options = {}) {
 
         console.log(
           `Updating Ticombo listing ${listing.remote_listing_id}: new price ${priceCheck.finalPrice}`,
-        );
-
-        const TICOMBO_PUBLIC_TO_SELLER_RATE = Number(
-          process.env.TICOMBO_PUBLIC_TO_SELLER_RATE || 1.3,
         );
 
         ticomboApiPrice = Number(
