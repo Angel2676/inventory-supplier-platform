@@ -1893,34 +1893,38 @@ router.post("/publish", async (req, res) => {
 
       const categoryMappingResult = await pool.query(
         `
-  SELECT *
-  FROM marketplace_mappings
-  WHERE marketplace = 'sportevents365'
-    AND internal_event_id = $1
-    AND is_active = true
-    AND (
-      (
-        mapping_type = 'category_block'
-        AND internal_category = $2
-        AND internal_block = $3
-      )
-      OR (
-        mapping_type = 'category'
-        AND internal_category = $2
-      )
-    )
-  ORDER BY
-    CASE
-      WHEN mapping_type = 'category_block' THEN 1
-      WHEN mapping_type = 'category' THEN 2
-      ELSE 3
-    END,
-    id DESC
-  LIMIT 1
-  `,
+        SELECT *
+        FROM marketplace_mappings
+        WHERE marketplace = 'sportevents365'
+          AND is_active = true
+          AND (
+            internal_event_id = $1
+            OR internal_event_id IS NULL
+          )
+          AND (
+            (
+              mapping_type = 'category_block'
+              AND internal_category = $2
+              AND internal_block = $3
+            )
+            OR (
+              mapping_type = 'category'
+              AND internal_category = $2
+            )
+          )
+        ORDER BY
+          CASE
+            WHEN internal_event_id = $1 AND mapping_type = 'category_block' THEN 1
+            WHEN internal_event_id = $1 AND mapping_type = 'category' THEN 2
+            WHEN internal_event_id IS NULL AND mapping_type = 'category_block' THEN 3
+            WHEN internal_event_id IS NULL AND mapping_type = 'category' THEN 4
+            ELSE 5
+          END,
+          id DESC
+        LIMIT 1
+      `,
         [ticket.event_id, ticket.category, ticket.block],
       );
-
       if (categoryMappingResult.rows.length === 0) {
         return res.status(400).json({
           error: `Mapping categoria SportEvents365 mancante per ${ticket.category}`,
