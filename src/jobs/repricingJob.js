@@ -425,7 +425,7 @@ async function runRepricingJob(options = {}) {
           listing.remote_event_id,
           listing.remote_listing_id,
           {
-            price: Math.floor(Number(priceCheck.finalPrice)),
+            price: Math.ceil(Number(priceCheck.finalPrice)),
           },
         );
 
