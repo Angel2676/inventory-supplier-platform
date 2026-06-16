@@ -1318,7 +1318,8 @@ router.post("/publish", async (req, res) => {
         `
         SELECT 
           t.*,
-          e.name AS event_name
+          e.name AS event_name,
+          e.event_date AS event_date
         FROM tickets t
         JOIN events e ON e.id = t.event_id
         WHERE t.id = $1
