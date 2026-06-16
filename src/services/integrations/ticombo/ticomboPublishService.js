@@ -7,7 +7,8 @@ async function publishTicomboTicket(ticketId) {
     `
     SELECT 
       t.*,
-      e.name AS event_name
+      e.name AS event_name,
+      e.event_date AS event_date
     FROM tickets t
     JOIN events e ON e.id = t.event_id
     WHERE t.id = $1
@@ -131,7 +132,16 @@ async function publishTicomboTicket(ticketId) {
       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
     ],
     delivery: {
-      inHandDate: new Date(ticket.event_date).toISOString(),
+      inHandDate: (() => {
+        const eventDate = ticket.event_date || ticket.eventDate;
+        const parsed = new Date(eventDate);
+
+        if (Number.isNaN(parsed.getTime())) {
+          throw new Error(`Invalid Ticombo inHandDate event_date: ${eventDate}`);
+        }
+
+        return parsed.toISOString();
+      })(),
     },
     price,
     currency: "EUR",
