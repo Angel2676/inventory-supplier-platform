@@ -14,16 +14,6 @@ function getSportEvents365Config() {
   if (!SPORTSEVENTS365_BASE_URL) {
     throw new Error("SPORTSEVENTS365_BASE_URL mancante nel file .env");
   }
-  console.log("SPORTSEVENTS365 ENV CHECK", {
-    baseUrl: !!SPORTSEVENTS365_BASE_URL,
-    username: !!username,
-    password: !!password,
-    apiKey: !!apiKey,
-    source: !!source,
-    supplierEmail: !!supplierEmail,
-    supplierPassword: !!supplierPassword,
-    env: process.env.SPORTSEVENTS365_ENV,
-  });
 
   if (!username || !password || !apiKey || !source) {
     throw new Error("Credenziali SportEvents365 mancanti nel file .env");

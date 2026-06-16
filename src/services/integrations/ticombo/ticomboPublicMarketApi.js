@@ -125,7 +125,7 @@ async function getTicomboPublicEventListings(
       excludeListingId &&
       String(item.listingId || "") === String(excludeListingId || "");
 
-    return !sameListing;
+    return !item.isOwnListing && !sameListing;
   });
 
   const competitorPrices = competitorListings
