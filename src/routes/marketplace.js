@@ -1971,7 +1971,7 @@ router.post("/publish", async (req, res) => {
           remote_category_name: categoryMapping.remote_category_name,
           payload: sportEventsPayload,
           status: publishError.response?.status,
-          data: publishError.response?.data,
+          data: JSON.stringify(publishError.response?.data, null, 2),
           message: publishError.message,
         });
 
