@@ -45,6 +45,13 @@ const {
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
+function buildTicomboPublicUrl(slug, remoteEventId, quantity = 2) {
+  if (!slug || !remoteEventId) return null;
+
+  return `https://www.ticombo.net/it/sports-tickets/football-tickets/${slug}/${remoteEventId}?quantity=${quantity}`;
+}
+
+
 const createAuditLog = require("../services/auditLogService");
 const { calculateSafePrice } = require("../services/priceCheckerService");
 const {
@@ -1745,13 +1752,14 @@ router.post("/publish", async (req, res) => {
             remote_event_id = $3,
             remote_category_id = $4,
             remote_listing_id = $5,
+            public_url = $6,
             sync_status = 'synced',
             sync_direction = 'inventory_to_marketplace',
             last_sync_at = NOW(),
-            marketplace_price = $6,
+            marketplace_price = $7,
             last_error = NULL,
             updated_at = NOW()
-          WHERE id = $7
+          WHERE id = $8
           RETURNING *
           `,
           [
@@ -1760,6 +1768,7 @@ router.post("/publish", async (req, res) => {
             eventMapping.remote_event_id,
             categoryMapping.remote_category_id,
             remoteListingId,
+            eventMapping.public_url || null,
             price,
             pendingListingResult.rows[0].id,
           ],
@@ -1775,6 +1784,7 @@ router.post("/publish", async (req, res) => {
               remote_event_id,
               remote_category_id,
               remote_listing_id,
+              public_url,
               sync_status,
               sync_direction,
               last_sync_at,
@@ -1784,7 +1794,7 @@ router.post("/publish", async (req, res) => {
               undercut_amount,
               last_error
             )
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW(),$10,$11,$12,$13,$14)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW(),$11,$12,$13,$14,$15)
             RETURNING *
           `,
           [
@@ -1795,6 +1805,7 @@ router.post("/publish", async (req, res) => {
             eventMapping.remote_event_id,
             categoryMapping.remote_category_id,
             remoteListingId,
+            eventMapping.public_url || null,
             "synced",
             "inventory_to_marketplace",
             price,
@@ -3067,6 +3078,11 @@ router.post(
       }
 
       const bestMatch = matchResult.rows[0];
+      const ticomboPublicUrl = buildTicomboPublicUrl(
+        bestMatch.slug,
+        bestMatch.remote_event_id,
+        2,
+      );
 
       const existingMappingResult = await pool.query(
         `
@@ -3084,8 +3100,21 @@ router.post(
       let mappingResult;
 
       if (existingMappingResult.rows.length > 0) {
-        mappingResult = existingMappingResult;
-      } else {
+          mappingResult = await pool.query(
+            `
+            UPDATE marketplace_mappings
+            SET
+              public_url = COALESCE(public_url, $1),
+              updated_at = NOW()
+            WHERE id = $2
+            RETURNING *
+            `,
+            [
+              ticomboPublicUrl,
+              existingMappingResult.rows[0].id,
+            ],
+          );
+        } else {
         mappingResult = await pool.query(
           `
           INSERT INTO marketplace_mappings (
@@ -3094,10 +3123,11 @@ router.post(
             internal_event_id,
             remote_event_id,
             remote_event_name,
+            public_url,
             notes,
             is_active
           )
-          VALUES ($1,$2,$3,$4,$5,$6,true)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,true)
           RETURNING *
           `,
           [
@@ -3106,6 +3136,7 @@ router.post(
             event.id,
             bestMatch.remote_event_id,
             bestMatch.event_name,
+            ticomboPublicUrl,
             `Auto-match Ticombo catalog slug: ${bestMatch.slug}`,
           ],
         );
