@@ -155,6 +155,7 @@ export default function MarketAnalysisPanel() {
     const labels = {
       ticombo: "Ticombo Scanner + Repricing",
       gigsberg: "Gigsberg Scanner + Repricing",
+      sportevents365: "SportEvents365 Repricing",
       repricing: "Repricing globale",
       sync: "Marketplace Sync",
       all: "All Scanners + Repricing + Sync",
@@ -214,6 +215,14 @@ export default function MarketAnalysisPanel() {
             {runningJob === "gigsberg"
               ? "Starting..."
               : "Run Gigsberg Scanner + Repricing"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => runMarketplaceJob("sportevents365")}
+            disabled={!!runningJob}
+          >
+            {runningJob === "sportevents365" ? "Starting..." : "Run SportEvents365 Repricing"}
           </button>
 
           <button

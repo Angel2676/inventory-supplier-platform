@@ -154,7 +154,7 @@ router.post("/jobs/run", async (req, res) => {
 router.post("/jobs/run", async (req, res) => {
   const { job } = req.body;
 
-  const supportedJobs = ["ticombo", "gigsberg", "repricing", "sync", "all"];
+  const supportedJobs = ["ticombo", "gigsberg", "sportevents365", "repricing", "sync", "all"];
 
   if (!supportedJobs.includes(job)) {
     return res.status(400).json({
@@ -173,6 +173,8 @@ router.post("/jobs/run", async (req, res) => {
       } else if (job === "gigsberg") {
         await runGigsbergMarketScannerJob();
         await runRepricingJob({ marketplaces: ["gigsberg"] });
+      } else if (job === "sportevents365") {
+        await runRepricingJob({ marketplaces: ["sportevents365"] });
       } else if (job === "repricing") {
         await runRepricingJob();
       } else if (job === "sync") {
