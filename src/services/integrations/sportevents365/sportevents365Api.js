@@ -1,7 +1,6 @@
 const axios = require("axios");
 
-const SPORTSEVENTS365_BASE_URL =
-  process.env.SPORTSEVENTS365_BASE_URL || "";
+const SPORTSEVENTS365_BASE_URL = process.env.SPORTSEVENTS365_BASE_URL || "";
 
 function getSportEvents365Config() {
   const username = process.env.SPORTSEVENTS365_HTTP_USERNAME;
@@ -15,6 +14,16 @@ function getSportEvents365Config() {
   if (!SPORTSEVENTS365_BASE_URL) {
     throw new Error("SPORTSEVENTS365_BASE_URL mancante nel file .env");
   }
+  console.log("SPORTSEVENTS365 ENV CHECK", {
+    baseUrl: !!SPORTSEVENTS365_BASE_URL,
+    username: !!username,
+    password: !!password,
+    apiKey: !!apiKey,
+    source: !!source,
+    supplierEmail: !!supplierEmail,
+    supplierPassword: !!supplierPassword,
+    env: process.env.SPORTSEVENTS365_ENV,
+  });
 
   if (!username || !password || !apiKey || !source) {
     throw new Error("Credenziali SportEvents365 mancanti nel file .env");
@@ -26,7 +35,7 @@ function getSportEvents365Config() {
     apiKey,
     source,
     supplierEmail,
-    supplierPassword
+    supplierPassword,
   };
 }
 
@@ -42,8 +51,8 @@ function getSportEvents365Client() {
       Accept: "application/json",
       "Content-Type": "application/json",
       Authorization: `Basic ${basicAuth}`,
-      source
-    }
+      source,
+    },
   });
 }
 
@@ -52,12 +61,12 @@ function getSportEvents365SupplierClient() {
 
   if (!supplierEmail || !supplierPassword) {
     throw new Error(
-      "Credenziali Supplier SportEvents365 mancanti: SPORTSEVENTS365_SUPPLIER_EMAIL / SPORTSEVENTS365_SUPPLIER_PASSWORD"
+      "Credenziali Supplier SportEvents365 mancanti: SPORTSEVENTS365_SUPPLIER_EMAIL / SPORTSEVENTS365_SUPPLIER_PASSWORD",
     );
   }
 
   const supplierAuth = Buffer.from(
-    `${supplierEmail}:${supplierPassword}`
+    `${supplierEmail}:${supplierPassword}`,
   ).toString("base64");
 
   return axios.create({
@@ -67,8 +76,8 @@ function getSportEvents365SupplierClient() {
       Accept: "application/json",
       "Content-Type": "application/json",
       "X-Supplier-Auth": supplierAuth,
-      source
-    }
+      source,
+    },
   });
 }
 
@@ -89,7 +98,7 @@ function normalizeSportEvents365Event(event) {
     venue: event.venue?.name || "",
     city: event.city?.name || "",
     date: event.dateOfEvent || "",
-    raw: event
+    raw: event,
   };
 }
 
@@ -99,8 +108,8 @@ async function getSportEvents365EventTypes() {
 
   const response = await client.get("/event-types", {
     params: {
-      apiKey
-    }
+      apiKey,
+    },
   });
 
   return response.data;
@@ -110,7 +119,9 @@ async function searchSportEvents365Events({ keyword, maxPages = 30 }) {
   const client = getSportEvents365Client();
   const { apiKey } = getSportEvents365Config();
 
-  const normalizedKeyword = String(keyword || "").toLowerCase().trim();
+  const normalizedKeyword = String(keyword || "")
+    .toLowerCase()
+    .trim();
 
   if (!normalizedKeyword) {
     return [];
@@ -126,15 +137,18 @@ async function searchSportEvents365Events({ keyword, maxPages = 30 }) {
         perPage: 100,
         page,
         language: "en_us",
-        currency: "EUR"
-      }
+        currency: "EUR",
+      },
     });
 
     const events = response.data?.data || [];
 
     for (const event of events) {
       const participants = Array.isArray(event.participants)
-        ? event.participants.map((p) => p?.name).filter(Boolean).join(" ")
+        ? event.participants
+            .map((p) => p?.name)
+            .filter(Boolean)
+            .join(" ")
         : "";
 
       const text = [
@@ -147,7 +161,7 @@ async function searchSportEvents365Events({ keyword, maxPages = 30 }) {
         event.city?.name,
         event.venue?.name,
         event.dateOfEvent,
-        event.timeOfEvent
+        event.timeOfEvent,
       ]
         .filter(Boolean)
         .join(" ")
@@ -159,9 +173,7 @@ async function searchSportEvents365Events({ keyword, maxPages = 30 }) {
     }
 
     const lastPage =
-      response.data?.meta?.last_page ||
-      response.data?.meta?.totalPages ||
-      page;
+      response.data?.meta?.last_page || response.data?.meta?.totalPages || page;
 
     if (!events.length || page >= lastPage) {
       break;
@@ -179,8 +191,8 @@ async function getSportEvents365TicketsByEventId(eventId) {
     params: {
       apiKey,
       language: "en_us",
-      currency: "EUR"
-    }
+      currency: "EUR",
+    },
   });
 
   return response.data;
@@ -190,11 +202,14 @@ async function getSupplierTicketOptions(eventId) {
   const client = getSportEvents365SupplierClient();
   const { apiKey } = getSportEvents365Config();
 
-  const response = await client.get(`/supplier/event/${eventId}/ticket-options`, {
-    params: {
-      apiKey
-    }
-  });
+  const response = await client.get(
+    `/supplier/event/${eventId}/ticket-options`,
+    {
+      params: {
+        apiKey,
+      },
+    },
+  );
 
   return response.data;
 }
@@ -206,13 +221,13 @@ async function createSupplierTickets(eventId, tickets) {
   const response = await client.post(
     `/supplier/event/${eventId}/tickets`,
     {
-      tickets
+      tickets,
     },
     {
       params: {
-        apiKey
-      }
-    }
+        apiKey,
+      },
+    },
   );
 
   return response.data;
@@ -227,9 +242,9 @@ async function updateSupplierTicket(eventId, ticketId, payload) {
     payload,
     {
       params: {
-        apiKey
-      }
-    }
+        apiKey,
+      },
+    },
   );
 
   return response.data;
@@ -241,5 +256,5 @@ module.exports = {
   getSportEvents365TicketsByEventId,
   getSupplierTicketOptions,
   createSupplierTickets,
-  updateSupplierTicket
+  updateSupplierTicket,
 };
