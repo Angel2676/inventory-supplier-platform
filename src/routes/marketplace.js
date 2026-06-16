@@ -1502,9 +1502,7 @@ router.post("/publish", async (req, res) => {
           "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
         ],
         delivery: {
-          inHandDate: new Date(
-            Date.now() + 7 * 24 * 60 * 60 * 1000,
-          ).toISOString(),
+          inHandDate: new Date(ticket.event_date).toISOString(),
         },
         price,
         currency: "EUR",
