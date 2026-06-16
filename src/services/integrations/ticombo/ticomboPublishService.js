@@ -140,6 +140,8 @@ async function publishTicomboTicket(ticketId) {
           throw new Error(`Invalid Ticombo inHandDate event_date: ${eventDate}`);
         }
 
+        parsed.setDate(parsed.getDate() - 3);
+
         return parsed.toISOString();
       })(),
     },
