@@ -111,7 +111,13 @@ async function runRepricingJob(options = {}) {
 
         if (ticomboPublicUrl) {
           const ownPublicPrice =
-            currentMarketplacePrice > 0 ? currentMarketplacePrice : null;
+            currentMarketplacePrice > 0
+              ? Number(
+                  (
+                    currentMarketplacePrice * TICOMBO_PUBLIC_TO_SELLER_RATE
+                  ).toFixed(2),
+                )
+              : null;
 
           const publicMarket = await getTicomboPublicMarketPrice({
             publicUrl: ticomboPublicUrl,
