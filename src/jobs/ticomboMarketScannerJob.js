@@ -1,8 +1,8 @@
 const cron = require("node-cron");
 const pool = require("../db");
 const {
-  getTicomboPublicEventListings,
-} = require("../services/integrations/ticombo/ticomboPublicMarketApi");
+  getTicomboPublicMarketPrice,
+} = require("../services/integrations/ticombo/ticomboPublicMarket");
 const { calculateSafePrice } = require("../services/priceCheckerService");
 
 async function runTicomboMarketScannerJob() {
@@ -15,6 +15,7 @@ async function runTicomboMarketScannerJob() {
       ml.marketplace,
       ml.remote_event_id,
       ml.remote_listing_id,
+      ml.public_url,
       ml.marketplace_price,
       ml.min_price,
       ml.undercut_amount,
@@ -34,17 +35,34 @@ async function runTicomboMarketScannerJob() {
 
   for (const listing of result.rows) {
     try {
-      const market = await getTicomboPublicEventListings(
-        listing.remote_event_id,
-        {
-          category: listing.category,
-          block: listing.block,
-          quantity: 1,
-          excludeListingId: listing.remote_listing_id,
-        },
+      if (!listing.public_url) {
+        console.log("Ticombo scanner: missing public_url", {
+          listing_id: listing.marketplace_listing_id,
+          ticket_id: listing.ticket_id,
+          event_id: listing.remote_event_id,
+        });
+
+        continue;
+      }
+
+      const TICOMBO_PUBLIC_TO_SELLER_RATE = Number(
+        process.env.TICOMBO_PUBLIC_TO_SELLER_RATE || 1.304,
       );
 
-      const marketPrice = market.lowestCompetitorPrice;
+      const sellerCurrentPrice = Number(listing.marketplace_price || 0);
+
+      const ownPublicPrice = Number(
+        (sellerCurrentPrice * TICOMBO_PUBLIC_TO_SELLER_RATE).toFixed(2),
+      );
+
+      const market = await getTicomboPublicMarketPrice({
+        publicUrl: listing.public_url,
+        category: listing.category,
+        ownPublicPrice,
+        headless: true,
+      });
+
+      const marketPrice = market.lowestPrice;
 
       if (!marketPrice) {
         await pool.query(
@@ -68,11 +86,6 @@ async function runTicomboMarketScannerJob() {
         continue;
       }
 
-      const TICOMBO_PUBLIC_TO_SELLER_RATE = Number(
-        process.env.TICOMBO_PUBLIC_TO_SELLER_RATE || 1.3,
-      );
-
-      const sellerCurrentPrice = Number(listing.marketplace_price || 0);
       const sellerMinPrice = Number(listing.min_price || 0);
 
       const publicCurrentPrice = Number(
