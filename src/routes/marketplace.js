@@ -2247,7 +2247,7 @@ router.post("/listings/:id/run-repricing", async (req, res) => {
       marketplacePriceToSave = sellerPrice;
     }
     if (listing.marketplace === "sportevents365" && listing.remote_listing_id) {
-      const sportEvents365ApiPrice = Math.floor(Number(priceCheck.finalPrice));
+      const sportEvents365ApiPrice = Math.ceil(Number(priceCheck.finalPrice));
 
       await updateSupplierTicket(
         listing.remote_event_id,
