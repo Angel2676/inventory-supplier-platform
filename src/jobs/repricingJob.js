@@ -56,7 +56,8 @@ async function runRepricingJob(options = {}) {
       t.suggested_marketplace_price AS ticket_suggested_marketplace_price,
       t.auto_reprice_enabled AS ticket_auto_reprice_enabled,
       ms.default_min_price AS marketplace_default_min_price,
-      em.public_url AS event_public_url
+      em.public_url AS event_public_url,
+      cm.remote_category_name AS mapping_remote_category_name
     FROM marketplace_listings ml
     JOIN tickets t ON t.id = ml.ticket_id
     JOIN marketplace_settings ms ON ms.marketplace = ml.marketplace
@@ -66,6 +67,13 @@ async function runRepricingJob(options = {}) {
      AND em.internal_event_id = t.event_id
      AND em.is_active = true
      AND COALESCE(em.public_url, '') <> ''
+    LEFT JOIN marketplace_mappings cm
+      ON cm.marketplace = ml.marketplace
+     AND cm.mapping_type IN ('category', 'category_block')
+     AND cm.internal_event_id = t.event_id
+     AND cm.internal_category = t.category
+     AND COALESCE(cm.internal_block, '') = COALESCE(t.block, '')
+     AND cm.is_active = true
     WHERE COALESCE(ml.auto_reprice_enabled, t.auto_reprice_enabled) = true
       AND t.status = 'available'
       AND t.available_quantity > 0
@@ -171,7 +179,10 @@ async function runRepricingJob(options = {}) {
       if (listing.marketplace === "sportevents365") {
         const sportEvents365Market = await getSportEvents365LowestMarketPrice({
           remoteEventId: listing.remote_event_id,
-          remoteCategoryName: listing.remote_category_name,
+          remoteCategoryName:
+            listing.remote_category_name ||
+            listing.mapping_remote_category_name ||
+            listing.ticket_category,
         });
 
         if (sportEvents365Market.lowestPrice) {
