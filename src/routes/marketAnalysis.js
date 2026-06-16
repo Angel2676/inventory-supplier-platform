@@ -119,7 +119,9 @@ router.post("/jobs/run", async (req, res) => {
       await runRepricingJob();
     } else if (job === "gigsberg") {
       await runGigsbergMarketScannerJob();
-      await runRepricingJob();
+      await runRepricingJob({ marketplaces: ["gigsberg"] });
+    } else if (job === "sportevents365") {
+      await runRepricingJob({ marketplaces: ["sportevents365"] });
     } else if (job === "repricing") {
       await runRepricingJob();
     } else if (job === "sync") {
