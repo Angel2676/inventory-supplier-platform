@@ -1960,6 +1960,21 @@ router.post("/publish", async (req, res) => {
           sportEventsPayload,
         );
       } catch (publishError) {
+        console.error("SportEvents365 publish failed", {
+          ticket_id: ticket.id,
+          event_id: ticket.event_id,
+          event_name: ticket.event_name,
+          category: ticket.category,
+          block: ticket.block,
+          remote_event_id: eventMapping.remote_event_id,
+          remote_category_id: categoryMapping.remote_category_id,
+          remote_category_name: categoryMapping.remote_category_name,
+          payload: sportEventsPayload,
+          status: publishError.response?.status,
+          data: publishError.response?.data,
+          message: publishError.message,
+        });
+
         return res.status(500).json({
           error: "Publish SportEvents365 fallito",
           details: publishError.response?.data || publishError.message,
