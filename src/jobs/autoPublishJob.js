@@ -125,6 +125,11 @@ async function runAutoPublishJob() {
 }
 
 function startAutoPublishJob() {
+  if (process.env.AUTO_PUBLISH_ENABLED !== "true") {
+    console.log("Auto publish job disabled");
+    return;
+  }
+
   cron.schedule("15 * * * *", async () => {
     await runAutoPublishJob();
   });
