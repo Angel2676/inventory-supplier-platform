@@ -18,19 +18,47 @@ function normalizeText(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
 }
-function getPreferredGigsbergCategoryName(ticketCategory) {
-  const category = normalizeText(ticketCategory);
+function normalizeBlock(value) {
+  return String(value || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+}
 
-  // San Siro / Inter / Milan
-  if (category === normalizeText("Secondo Anello Arancio")) {
-    return "Category 1 Platinum";
+function getPreferredGigsbergCategoryName(ticketCategory, ticketBlock = "") {
+  const category = normalizeText(ticketCategory);
+  const block = normalizeBlock(ticketBlock);
+
+  const primoRossoPlatinum = new Set([
+    "A","B","C","D","F","G","H","I","L","M","N","O","P","Q","R","S","T","V","Z",
+  ]);
+
+  const primoArancioPlatinum = new Set([
+    "155","156","157","158","159","160","161","162","164","165","166",
+  ]);
+
+  const secondoArancioPlatinum = new Set([
+    "259","261","262","263","264","265","266","267","268","269","270","271","272",
+  ]);
+
+  const secondoRossoPlatinum = new Set([
+    "223","224","225","226","227","228","229","230","231","232","233","234",
+  ]);
+
+  // San Siro / Inter / Milan - category + block rules
+  if (category === normalizeText("Primo Anello Rosso")) {
+    return primoRossoPlatinum.has(block) ? "Category 1 Platinum" : "Category 1 Gold";
   }
 
-  if (
-    category === normalizeText("Primo Anello Arancio") ||
-    category === normalizeText("Primo Anello Rosso")
-  ) {
-    return "Category 1 Gold";
+  if (category === normalizeText("Primo Anello Arancio")) {
+    return primoArancioPlatinum.has(block) ? "Category 1 Platinum" : "Category 1 Gold";
+  }
+
+  if (category === normalizeText("Secondo Anello Arancio")) {
+    return secondoArancioPlatinum.has(block) ? "Category 1 Platinum" : "Category 1 Silver";
+  }
+
+  if (category === normalizeText("Secondo Anello Rosso")) {
+    return secondoRossoPlatinum.has(block) ? "Category 1 Platinum" : "Category 1 Silver";
   }
 
   if (

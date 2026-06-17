@@ -140,6 +140,7 @@ async function runGigsbergMarketScannerJob() {
             ownPrice: ownPublicPrice,
             ownPriceTolerance: 5,
             categoryName: listing.category,
+            block: listing.block,
             sanSiro: isSanSiroEvent,
           });
 
@@ -220,6 +221,7 @@ async function runGigsbergMarketScannerJob() {
             ),
             ownPriceTolerance: 5,
             categoryName: listing.category,
+            block: listing.block,
             sanSiro: isSanSiroEvent,
           });
 
@@ -277,6 +279,8 @@ async function runGigsbergMarketScannerJob() {
 
               categoryName: listing.category,
 
+              block: listing.block,
+
               sanSiro: isSanSiroEvent,
             });
 
@@ -318,6 +322,7 @@ async function runGigsbergMarketScannerJob() {
             ),
             ownPriceTolerance: 5,
             categoryName: listing.category,
+            block: listing.block,
             sanSiro: isSanSiroEvent,
           });
 

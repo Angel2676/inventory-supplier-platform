@@ -25,9 +25,16 @@ function normalizeText(value) {
     .trim();
 }
 
+function normalizeBlock(value) {
+  return String(value || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+}
+
 function normalizeMarketplaceCategory(value, options = {}) {
   const text = normalizeText(value);
-  const { sanSiro = false } = options;
+  const { sanSiro = false, block = "" } = options;
+  const normalizedBlock = normalizeBlock(block);
 
   if (
     text.includes("prato") ||
@@ -54,17 +61,46 @@ function normalizeMarketplaceCategory(value, options = {}) {
     return "los_vecinos";
   }
 
-  // Regole speciali SOLO San Siro: Inter / Milan
+  // Regole speciali SOLO San Siro: Inter / Milan - category + block
   if (sanSiro) {
-    if (text.includes("secondo anello arancio")) {
-      return "long_middle_central"; // Category 1 Platinum
+    const primoRossoPlatinum = new Set([
+      "A","B","C","D","F","G","H","I","L","M","N","O","P","Q","R","S","T","V","Z",
+    ]);
+
+    const primoArancioPlatinum = new Set([
+      "155","156","157","158","159","160","161","162","164","165","166",
+    ]);
+
+    const secondoArancioPlatinum = new Set([
+      "259","261","262","263","264","265","266","267","268","269","270","271","272",
+    ]);
+
+    const secondoRossoPlatinum = new Set([
+      "223","224","225","226","227","228","229","230","231","232","233","234",
+    ]);
+
+    if (text.includes("primo anello rosso")) {
+      return primoRossoPlatinum.has(normalizedBlock)
+        ? "long_middle_central" // Category 1 Platinum
+        : "long_lower"; // Category 1 Gold
     }
 
-    if (
-      text.includes("primo anello arancio") ||
-      text.includes("primo anello rosso")
-    ) {
-      return "long_lower"; // Category 1 Gold
+    if (text.includes("primo anello arancio")) {
+      return primoArancioPlatinum.has(normalizedBlock)
+        ? "long_middle_central" // Category 1 Platinum
+        : "long_lower"; // Category 1 Gold
+    }
+
+    if (text.includes("secondo anello arancio")) {
+      return secondoArancioPlatinum.has(normalizedBlock)
+        ? "long_middle_central" // Category 1 Platinum
+        : "long_middle"; // Category 1 Silver
+    }
+
+    if (text.includes("secondo anello rosso")) {
+      return secondoRossoPlatinum.has(normalizedBlock)
+        ? "long_middle_central" // Category 1 Platinum
+        : "long_middle"; // Category 1 Silver
     }
 
     if (
