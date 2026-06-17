@@ -114,7 +114,7 @@ async function publishTicomboTicket(ticketId) {
     ticket.row_name || ticket.seat_from || ticket.seat_to,
   );
 
-  const seatAllocationType = hasSeatDetails ? "fixed" : "general";
+  const seatAllocationType = "fixed";
 
   const ticomboPayload = {
     eventId: eventMapping.remote_event_id,
