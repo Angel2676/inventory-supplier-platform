@@ -1,6 +1,4 @@
-const {
-  getSportEvents365TicketsByEventId,
-} = require("./sportevents365Api");
+const { getSportEvents365TicketsByEventId } = require("./sportevents365Api");
 
 function normalize(value) {
   return String(value || "")
@@ -15,6 +13,13 @@ function getMainCategoryName(value) {
     .trim();
 }
 
+function extractPrices(tickets) {
+  return tickets
+    .map((ticket) => Number(ticket.price))
+    .filter((price) => Number.isFinite(price) && price > 0)
+    .sort((a, b) => a - b);
+}
+
 async function getSportEvents365LowestMarketPrice({
   remoteEventId,
   remoteCategoryName,
@@ -26,20 +31,28 @@ async function getSportEvents365LowestMarketPrice({
   const data = await getSportEvents365TicketsByEventId(remoteEventId);
   const tickets = data?.data || [];
 
+  const normalizedRemoteCategory = normalize(remoteCategoryName);
   const mainCategory = getMainCategoryName(remoteCategoryName);
   const normalizedMainCategory = normalize(mainCategory);
 
-  const matchedTickets = tickets.filter((ticket) => {
-    const categoryName = ticket.categoryName || "";
-    const ticketMainCategory = getMainCategoryName(categoryName);
-
-    return normalize(ticketMainCategory) === normalizedMainCategory;
+  let matchedTickets = tickets.filter((ticket) => {
+    return normalize(ticket.categoryName || "") === normalizedRemoteCategory;
   });
 
-  const prices = matchedTickets
-    .map((ticket) => Number(ticket.price))
-    .filter((price) => Number.isFinite(price) && price > 0)
-    .sort((a, b) => a - b);
+  let matchMode = "exact_category";
+
+  if (!matchedTickets.length) {
+    matchedTickets = tickets.filter((ticket) => {
+      const categoryName = ticket.categoryName || "";
+      const ticketMainCategory = getMainCategoryName(categoryName);
+
+      return normalize(ticketMainCategory) === normalizedMainCategory;
+    });
+
+    matchMode = "main_category_fallback";
+  }
+
+  const prices = extractPrices(matchedTickets);
 
   return {
     lowestPrice: prices[0] || null,
@@ -48,6 +61,7 @@ async function getSportEvents365LowestMarketPrice({
     remoteEventId,
     remoteCategoryName,
     mainCategory,
+    matchMode,
     source: "sportevents365_api_tickets",
   };
 }
