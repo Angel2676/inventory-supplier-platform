@@ -169,9 +169,11 @@ async function getTicomboPublicMarketPrice({
 
     if (prices.length === 0) {
       categoryActivated = await tryActivateCategory(page, targetCategory);
+      let activeSearchCategory = targetCategory;
 
       if (!categoryActivated && block) {
         categoryActivated = await tryActivateCategory(page, category);
+        activeSearchCategory = category;
       }
 
       if (categoryActivated) {
@@ -179,8 +181,12 @@ async function getTicomboPublicMarketPrice({
 
         lines = await getBodyLines(page);
 
-        prices = extractPricesFromLines(lines, targetCategory);
+        prices = extractPricesFromLines(lines, activeSearchCategory);
       }
+    }
+
+    if (prices.length === 0 && block) {
+      prices = extractPricesFromLines(lines, category);
     }
 
     const own = ownPublicPrice ? Number(ownPublicPrice) : null;
