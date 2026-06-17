@@ -56,56 +56,57 @@ async function tryActivateCategory(page, category) {
   const escaped = targetCategory.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   const candidates = [
-    page
-      .locator("button", {
-        hasText: new RegExp(
-          `^${escaped}\\s*(\$begin:math:text$\\\\d\+\\$end:math:text$)?$`,
-          "i",
-        ),
-      })
-      .first(),
-    page
-      .locator("label", {
-        hasText: new RegExp(
-          `^${escaped}\\s*(\$begin:math:text$\\\\d\+\\$end:math:text$)?$`,
-          "i",
-        ),
-      })
-      .first(),
-    page
-      .locator("[role='button']", {
-        hasText: new RegExp(
-          `^${escaped}\\s*(\$begin:math:text$\\\\d\+\\$end:math:text$)?$`,
-          "i",
-        ),
-      })
-      .first(),
-    page
-      .locator("input[type='checkbox']")
-      .locator(
-        `xpath=following-sibling::*[contains(normalize-space(.), "${targetCategory}")]`,
-      )
-      .first(),
+    page.getByText(new RegExp(`^${escaped}\\s*\$begin:math:text$\\\\d\+\\$end:math:text$$`, "i")).first(),
+    page.getByText(new RegExp(`${escaped}\\s*\$begin:math:text$\\\\d\+\\$end:math:text$`, "i")).first(),
+    page.locator("label", { hasText: new RegExp(`${escaped}`, "i") }).first(),
+    page.locator("button", { hasText: new RegExp(`${escaped}`, "i") }).first(),
+    page.locator("[role='button']", { hasText: new RegExp(`${escaped}`, "i") }).first(),
   ];
 
   for (const candidate of candidates) {
     try {
       if ((await candidate.count()) === 0) continue;
-      if (!(await candidate.isVisible().catch(() => false))) continue;
 
       await candidate.evaluate((el) => {
         el.scrollIntoView({ block: "center", inline: "center" });
       });
 
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(700);
 
       await candidate.evaluate((el) => {
+        const input = el.matches("input")
+          ? el
+          : el.querySelector("input[type='checkbox'], input[type='radio']");
+
+        if (input) {
+          input.click();
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+          return;
+        }
+
         el.click();
       });
 
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(1000);
 
-      return true;
+      const applyButton = page.getByText(/^Applica filtri$/i).first();
+      if (await applyButton.isVisible().catch(() => false)) {
+        await applyButton.evaluate((el) => el.click());
+        await page.waitForTimeout(5000);
+      } else {
+        await page.waitForTimeout(4000);
+      }
+
+      const lines = await getBodyLines(page);
+      const visibleCategoryCards = lines.filter(
+        (line) => normalize(line) === normalize(targetCategory),
+      );
+
+      if (visibleCategoryCards.length > 0) {
+        return true;
+      }
+
     } catch (error) {
       console.log("Ticombo category click failed:", {
         category: targetCategory,
@@ -178,6 +179,11 @@ async function getTicomboPublicMarketPrice({
 
       if (categoryActivated) {
         await scrollToLoadMore(page);
+
+        await page.screenshot({
+          path: "ticombo_after_category_filter.png",
+          fullPage: true,
+        });
 
         lines = await getBodyLines(page);
 

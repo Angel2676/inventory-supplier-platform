@@ -317,19 +317,6 @@ async function runRepricingJob(options = {}) {
           finalPrice: priceCheck.finalPrice,
         });
       }
-      if (
-        !priceCheck.shouldUpdate &&
-        priceCheck.reason?.startsWith("REPRICE_")
-      ) {
-        console.error("INCONSISTENT_PRICECHECK_FORCE_UPDATE", {
-          listing_id: listing.id,
-          marketplace: listing.marketplace,
-          priceCheck,
-        });
-
-        priceCheck.shouldUpdate = true;
-      }
-
       if (!priceCheck.shouldUpdate) {
         await pool.query(
           `
