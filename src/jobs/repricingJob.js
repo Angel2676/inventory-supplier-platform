@@ -264,6 +264,20 @@ async function runRepricingJob(options = {}) {
           minPrice: effectiveMinPriceForCalculation,
           undercutAmount: effectiveUndercutAmount,
         });
+
+        if (listing.marketplace === "gigsberg") {
+          console.log("GIGSBERG PRICECHECK RESULT", {
+            listing_id: listing.id,
+            remote_listing_id: listing.remote_listing_id,
+            currentMarketplacePrice,
+            marketLowestPrice,
+            effectiveMinPriceForCalculation,
+            effectiveUndercutAmount,
+            shouldUpdate: priceCheck.shouldUpdate,
+            reason: priceCheck.reason,
+            finalPrice: priceCheck.finalPrice,
+          });
+        }
       }
 
       const effectiveMinPrice = Number(
