@@ -127,9 +127,7 @@ async function runGigsbergMarketScannerJob() {
         let activeListings = [];
 
         try {
-          const ownPublicPrice = Number(
-            listing.last_market_price || listing.marketplace_price || 0,
-          );
+          const ownPublicPrice = Number(listing.marketplace_price || 0);
 
           const isSanSiroEvent =
             /inter|milan/i.test(String(listing.event_name || "")) ||
