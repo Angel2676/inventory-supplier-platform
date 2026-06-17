@@ -355,6 +355,7 @@ async function findBestGigsbergCategory(gigsbergEventId, ticket) {
   const localCategory = normalizeText(ticket.category);
   const preferredCategoryName = getPreferredGigsbergCategoryName(
     ticket.category,
+    ticket.block,
   );
 
   if (preferredCategoryName) {
