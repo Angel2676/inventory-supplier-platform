@@ -125,6 +125,7 @@ async function scrollToLoadMore(page) {
 async function getTicomboPublicMarketPrice({
   publicUrl,
   category,
+  block = "",
   ownPublicPrice = null,
   headless = true,
 }) {
@@ -152,25 +153,33 @@ async function getTicomboPublicMarketPrice({
 
     await page.waitForTimeout(8000);
 
+    const targetCategory = block
+      ? `${category} ${block}`
+      : category;
+
     let lines = await getBodyLines(page);
-    let prices = extractPricesFromLines(lines, category);
+    let prices = extractPricesFromLines(lines, targetCategory);
     let categoryActivated = false;
 
     if (prices.length === 0) {
       await scrollToLoadMore(page);
       lines = await getBodyLines(page);
-      prices = extractPricesFromLines(lines, category);
+      prices = extractPricesFromLines(lines, targetCategory);
     }
 
     if (prices.length === 0) {
-      categoryActivated = await tryActivateCategory(page, category);
+      categoryActivated = await tryActivateCategory(page, targetCategory);
+
+      if (!categoryActivated && block) {
+        categoryActivated = await tryActivateCategory(page, category);
+      }
 
       if (categoryActivated) {
         await scrollToLoadMore(page);
 
         lines = await getBodyLines(page);
 
-        prices = extractPricesFromLines(lines, category);
+        prices = extractPricesFromLines(lines, targetCategory);
       }
     }
 
@@ -186,6 +195,8 @@ async function getTicomboPublicMarketPrice({
     return {
       source: "ticombo_public_browser",
       category,
+      block,
+      targetCategory,
       publicUrl: url,
       prices,
       ownPublicPrice: own,

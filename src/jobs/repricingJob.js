@@ -130,6 +130,7 @@ async function runRepricingJob(options = {}) {
           const publicMarket = await getTicomboPublicMarketPrice({
             publicUrl: ticomboPublicUrl,
             category: listing.ticket_category,
+            block: listing.ticket_block,
             ownPublicPrice,
             headless: true,
           });

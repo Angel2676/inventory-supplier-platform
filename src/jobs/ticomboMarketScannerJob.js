@@ -58,6 +58,7 @@ async function runTicomboMarketScannerJob() {
       const market = await getTicomboPublicMarketPrice({
         publicUrl: listing.public_url,
         category: listing.category,
+        block: listing.block,
         ownPublicPrice,
         headless: true,
       });
