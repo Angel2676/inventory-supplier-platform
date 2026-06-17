@@ -5,10 +5,21 @@ const {
 } = require("../services/integrations/ticombo/ticomboPublicMarket");
 const { calculateSafePrice } = require("../services/priceCheckerService");
 
-async function runTicomboMarketScannerJob() {
-  console.log("Ticombo market scanner job started");
+async function runTicomboMarketScannerJob(options = {}) {
+  const eventId = options.eventId ? Number(options.eventId) : null;
 
-  const result = await pool.query(`
+  console.log("Ticombo market scanner job started", { eventId });
+
+  const queryParams = [];
+  let eventFilterSql = "";
+
+  if (eventId) {
+    queryParams.push(eventId);
+    eventFilterSql = `AND t.event_id = $${queryParams.length}`;
+  }
+
+  const result = await pool.query(
+    `
     SELECT
       ml.id AS marketplace_listing_id,
       ml.ticket_id,
@@ -30,8 +41,11 @@ async function runTicomboMarketScannerJob() {
       AND ml.remote_event_id IS NOT NULL
       AND ms.enabled = true
       AND ms.api_configured = true
+      ${eventFilterSql}
     ORDER BY ml.id DESC
-  `);
+  `,
+    queryParams,
+  );
 
   for (const listing of result.rows) {
     try {

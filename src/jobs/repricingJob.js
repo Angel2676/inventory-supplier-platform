@@ -28,15 +28,26 @@ async function runRepricingJob(options = {}) {
   const marketplaces = Array.isArray(options.marketplaces)
     ? options.marketplaces.filter(Boolean)
     : [];
+
+  const eventId = options.eventId ? Number(options.eventId) : null;
+
   console.log("Marketplace repricing job started", {
     marketplaces: marketplaces.length ? marketplaces : "all",
+    eventId,
   });
+
   const queryParams = [];
   let marketplaceFilterSql = "";
+  let eventFilterSql = "";
 
   if (marketplaces.length > 0) {
     queryParams.push(marketplaces);
     marketplaceFilterSql = `AND ml.marketplace = ANY($${queryParams.length})`;
+  }
+
+  if (eventId) {
+    queryParams.push(eventId);
+    eventFilterSql = `AND t.event_id = $${queryParams.length}`;
   }
 
   const listingsResult = await pool.query(
@@ -81,6 +92,7 @@ async function runRepricingJob(options = {}) {
       AND ms.enabled = true
       AND ms.api_configured = true
       ${marketplaceFilterSql}
+      ${eventFilterSql}
   `,
     queryParams,
   );
@@ -501,16 +513,23 @@ async function runRepricingJob(options = {}) {
         ],
       );
 
-      // await pool.query(
-      //`
-      // UPDATE tickets
-      //SET
-      // marketplace_price = $1,
-      // updated_at = NOW()
-      //WHERE id = $2
-      //`,
-      // [priceCheck.finalPrice, listing.ticket_id],
-      //);
+      await pool.query(
+        `
+        UPDATE tickets
+        SET
+          marketplace_price = $1,
+          last_market_price = $2,
+          suggested_marketplace_price = $3,
+          updated_at = NOW()
+        WHERE id = $4
+        `,
+        [
+          dbMarketplacePrice,
+          marketLowestPrice || listing.last_market_price || null,
+          priceCheck.finalPrice,
+          listing.ticket_id,
+        ],
+      );
 
       console.log(
         `Marketplace listing ${listing.id} (${listing.marketplace}): price updated from ${currentMarketplacePrice} to ${priceCheck.finalPrice}`,

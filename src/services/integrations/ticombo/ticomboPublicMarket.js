@@ -23,7 +23,7 @@ function extractPricesFromLines(lines, category) {
 
     if (line !== targetCategory) continue;
 
-    const block = lines.slice(i, i + 20);
+    const block = lines.slice(i, i + 80);
 
     for (const blockLine of block) {
       const price = parsePrice(blockLine);
@@ -36,6 +36,8 @@ function extractPricesFromLines(lines, category) {
 
   return prices;
 }
+
+
 
 async function getBodyLines(page) {
   const text = await page.locator("body").innerText();
@@ -153,9 +155,7 @@ async function getTicomboPublicMarketPrice({
 
     await page.waitForTimeout(8000);
 
-    const targetCategory = block
-      ? `${category} ${block}`
-      : category;
+    const targetCategory = block ? `${category} ${block}` : category;
 
     let lines = await getBodyLines(page);
     let prices = extractPricesFromLines(lines, targetCategory);

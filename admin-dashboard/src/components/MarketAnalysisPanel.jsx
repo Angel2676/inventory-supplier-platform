@@ -19,6 +19,8 @@ export default function MarketAnalysisPanel() {
   const [publicUrlInputs, setPublicUrlInputs] = useState({});
   const [savingPublicUrl, setSavingPublicUrl] = useState("");
   const [usingPriceTicketId, setUsingPriceTicketId] = useState("");
+  const [selectedJobEventId, setSelectedJobEventId] = useState("");
+  const [selectedJobMarketplace, setSelectedJobMarketplace] = useState("ticombo");
   const [runningJob, setRunningJob] = useState("");
   const [jobMessage, setJobMessage] = useState("");
 
@@ -185,6 +187,45 @@ export default function MarketAnalysisPanel() {
     }
   };
 
+  const runEventMarketplaceJob = async () => {
+    if (!selectedJobEventId) {
+      setJobMessage("Seleziona un evento.");
+      return;
+    }
+
+    const selectedEvent = events.find(
+      (event) => String(event.id) === String(selectedJobEventId),
+    );
+
+    const confirmed = window.confirm(
+      `Vuoi avviare scanner + repricing per ${selectedEvent?.name || "evento"} su ${selectedJobMarketplace}?`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const jobKey = `event-${selectedJobMarketplace}`;
+      setRunningJob(jobKey);
+      setJobMessage("");
+
+      const response = await api.post("/api/market-analysis/jobs/run", {
+        job: "event",
+        eventId: Number(selectedJobEventId),
+        marketplace: selectedJobMarketplace,
+      });
+
+      setJobMessage(response.data.message || "Job evento avviato.");
+    } catch (err) {
+      setJobMessage(
+        err.response?.data?.error ||
+          err.message ||
+          "Errore avvio job evento",
+      );
+    } finally {
+      setRunningJob("");
+    }
+  };
+
   return (
     <div className="market-analysis-panel">
       <h2>Market Analysis</h2>
@@ -195,6 +236,40 @@ export default function MarketAnalysisPanel() {
           Avvia manualmente scanner, repricing e sync. I job partono in
           background.
         </p>
+
+        <div className="marketplace-event-job">
+          <select
+            value={selectedJobEventId}
+            onChange={(e) => setSelectedJobEventId(e.target.value)}
+          >
+            <option value="">Seleziona evento per job</option>
+            {events.map((event) => (
+              <option key={event.id} value={event.id}>
+                {event.name} - {event.city} -{" "}
+                {new Date(event.event_date).toLocaleDateString("it-IT")}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedJobMarketplace}
+            onChange={(e) => setSelectedJobMarketplace(e.target.value)}
+          >
+            <option value="ticombo">Ticombo</option>
+            <option value="gigsberg">Gigsberg</option>
+            <option value="sportevents365">SportEvents365</option>
+          </select>
+
+          <button
+            type="button"
+            onClick={runEventMarketplaceJob}
+            disabled={!!runningJob || !selectedJobEventId}
+          >
+            {runningJob === `event-${selectedJobMarketplace}`
+              ? "Starting..."
+              : "Run Selected Event Job"}
+          </button>
+        </div>
 
         <div className="marketplace-jobs-actions">
           <button
