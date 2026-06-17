@@ -214,7 +214,14 @@ export default function MarketAnalysisPanel() {
         marketplace: selectedJobMarketplace,
       });
 
-      setJobMessage(response.data.message || "Job evento avviato.");
+      setJobMessage(
+        `${response.data.message || "Job evento avviato."} Aggiornamento automatico tra 45 secondi...`,
+      );
+
+      window.setTimeout(() => {
+        runAnalysis();
+        setJobMessage("Dati evento aggiornati dopo il job.");
+      }, 45000);
     } catch (err) {
       setJobMessage(
         err.response?.data?.error ||
