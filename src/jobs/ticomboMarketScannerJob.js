@@ -3,6 +3,9 @@ const pool = require("../db");
 const {
   getTicomboPublicMarketPrice,
 } = require("../services/integrations/ticombo/ticomboPublicMarket");
+const {
+  getTicomboLowestMarketPrice,
+} = require("../services/integrations/ticombo/ticomboMarketScanner");
 const { calculateSafePrice } = require("../services/priceCheckerService");
 
 async function runTicomboMarketScannerJob(options = {}) {
@@ -49,14 +52,14 @@ async function runTicomboMarketScannerJob(options = {}) {
 
   for (const listing of result.rows) {
     try {
+      let marketPrice = null;
+
       if (!listing.public_url) {
         console.log("Ticombo scanner: missing public_url", {
           listing_id: listing.marketplace_listing_id,
           ticket_id: listing.ticket_id,
           event_id: listing.remote_event_id,
         });
-
-        continue;
       }
 
       const TICOMBO_PUBLIC_TO_SELLER_RATE = Number(
@@ -69,15 +72,38 @@ async function runTicomboMarketScannerJob(options = {}) {
         (sellerCurrentPrice * TICOMBO_PUBLIC_TO_SELLER_RATE).toFixed(2),
       );
 
-      const market = await getTicomboPublicMarketPrice({
-        publicUrl: listing.public_url,
-        category: listing.category,
-        block: listing.block,
-        ownPublicPrice,
-        headless: true,
-      });
+      if (listing.public_url) {
+        try {
+          const market = await getTicomboPublicMarketPrice({
+            publicUrl: listing.public_url,
+            category: listing.category,
+            block: listing.block,
+            ownPublicPrice,
+            headless: true,
+          });
 
-      const marketPrice = market.lowestPrice;
+          marketPrice = market.lowestPrice;
+        } catch (publicError) {
+          console.error("Ticombo public scanner error, trying API fallback:", {
+            listing_id: listing.marketplace_listing_id,
+            ticket_id: listing.ticket_id,
+            event_id: listing.remote_event_id,
+            error: publicError.response?.data || publicError.message,
+          });
+        }
+      }
+
+      if (!marketPrice) {
+        const fallbackMarket = await getTicomboLowestMarketPrice({
+          remoteEventId: listing.remote_event_id,
+          category: listing.category,
+          block: listing.block,
+          quantity: Number(listing.available_quantity || 1),
+          excludeListingId: listing.remote_listing_id,
+        });
+
+        marketPrice = fallbackMarket.lowestPrice;
+      }
 
       if (!marketPrice) {
         await pool.query(
