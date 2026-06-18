@@ -59,7 +59,8 @@ async function runGigsbergMarketScannerJob() {
         ml.remote_category_id,
         ml.marketplace,
         t.category,
-        t.marketplace_price,
+        t.block AS block,
+        ml.marketplace_price AS marketplace_price,
         t.min_price,
         t.undercut_amount,
         t.last_market_price
