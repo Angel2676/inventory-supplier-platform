@@ -1098,7 +1098,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                     <th>Categoria</th>
                     <th>Block</th>
                     <th>Available</th>
-                    <th>Original Price</th>
+                    {canEdit && <th>Original Price</th>}
                     <th>Partner Price</th>
 
                     {canEdit && <th>Marketplace Price</th>}
@@ -1128,7 +1128,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                 const originalPrice = Number(ticket.price || 0);
 
                 const partnerPrice = Number(
-                  ticket.partner_price || 0,
+                  ticket.partner_price || ticket.marketplace_price || ticket.price || 0,
                 );
 
                 const marketplacePrice = Number(
