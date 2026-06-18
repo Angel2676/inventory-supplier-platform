@@ -12,6 +12,7 @@ const requireRole = require("../middleware/requireRole");
 
 const createAuditLog = require("../services/auditLogService");
 const { calculatePrice } = require("../services/pricingService");
+const { updateTicomboListing } = require("../services/integrations/ticombo/ticomboListings");
 
 const upload = multer({ dest: "uploads/" });
 
@@ -378,9 +379,60 @@ router.patch(
         },
       });
 
+      const ticomboFaceValueSyncResults = [];
+
+      if (price !== undefined && price !== null) {
+        const ticomboListingsResult = await pool.query(
+          `
+          SELECT id, remote_listing_id
+          FROM marketplace_listings
+          WHERE ticket_id = $1
+          AND marketplace = 'ticombo'
+          AND remote_listing_id IS NOT NULL
+          AND COALESCE(remote_listing_id, '') <> ''
+          `,
+          [ticketId],
+        );
+
+        for (const listing of ticomboListingsResult.rows) {
+          try {
+            const ticomboResult = await updateTicomboListing(
+              listing.remote_listing_id,
+              {
+                faceValue: Number(price),
+              },
+            );
+
+            ticomboFaceValueSyncResults.push({
+              marketplace_listing_id: listing.id,
+              remote_listing_id: listing.remote_listing_id,
+              success: true,
+              faceValue: Number(price),
+              updated_at: ticomboResult?.data?.updatedAt || null,
+            });
+          } catch (syncError) {
+            console.error("Errore sync Ticombo faceValue:", {
+              ticket_id: ticketId,
+              marketplace_listing_id: listing.id,
+              remote_listing_id: listing.remote_listing_id,
+              error: syncError.response?.data || syncError.message,
+            });
+
+            ticomboFaceValueSyncResults.push({
+              marketplace_listing_id: listing.id,
+              remote_listing_id: listing.remote_listing_id,
+              success: false,
+              faceValue: Number(price),
+              error: syncError.response?.data || syncError.message,
+            });
+          }
+        }
+      }
+
       res.json({
         message: "Ticket aggiornato correttamente",
         ticket: result.rows[0],
+        ticombo_face_value_sync: ticomboFaceValueSyncResults,
       });
     } catch (error) {
       console.error("Errore PATCH /api/tickets/:id:", error);

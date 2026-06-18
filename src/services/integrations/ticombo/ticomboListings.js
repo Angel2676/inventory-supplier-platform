@@ -50,7 +50,9 @@ async function updateTicomboListing(listingId, updates) {
     price,
     currency: current.currency || "EUR",
     faceValue: Number(
-      current.faceValue?.amount || current.faceValue || price || 0,
+      updates.faceValue !== undefined
+        ? updates.faceValue
+        : current.faceValue?.amount || current.faceValue || price || 0,
     ),
     allowProposals: current.allowProposals || false,
     refId: current.refId,
