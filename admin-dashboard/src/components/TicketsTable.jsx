@@ -583,10 +583,12 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     }
   }
 
+  const dbTypeFilter = typeFilter === "football" ? "calcio" : typeFilter;
+
   const availableSubcategories = typeFilter ? getSubcategories(typeFilter) : [];
 
   const filteredEventsForTeams = events.filter((event) => {
-    const matchesType = typeFilter ? event.event_type === typeFilter : true;
+    const matchesType = dbTypeFilter ? event.event_type === dbTypeFilter : true;
 
     const matchesSubcategory = subcategoryFilter
       ? event.event_subcategory === subcategoryFilter
@@ -600,7 +602,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   });
 
   const filteredEventsForCards = events.filter((event) => {
-    const matchesType = typeFilter ? event.event_type === typeFilter : true;
+    const matchesType = dbTypeFilter ? event.event_type === dbTypeFilter : true;
 
     const matchesSubcategory = subcategoryFilter
       ? event.event_subcategory === subcategoryFilter
@@ -644,8 +646,8 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
         ? Number(ticket.event_id) === Number(eventFilter)
         : true;
 
-      const matchesType = typeFilter
-        ? getEventType(ticket.event_id) === typeFilter
+      const matchesType = dbTypeFilter
+        ? getEventType(ticket.event_id) === dbTypeFilter
         : true;
 
       const matchesSubcategory = subcategoryFilter
