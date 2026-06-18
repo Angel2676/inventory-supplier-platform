@@ -1,7 +1,7 @@
 function EventCategoryBanners({ selectedType = "", onSelectType }) {
   const categories = [
     {
-      type: "football",
+      type: "calcio",
       title: "Football Events",
       subtitle:
         "Serie A, Premier League, Champions League and top European matches.",
