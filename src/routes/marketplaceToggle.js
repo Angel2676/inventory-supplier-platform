@@ -66,8 +66,7 @@ router.post("/tickets/:ticketId/toggle-marketplace", async (req, res) => {
       FROM marketplace_listings
       WHERE ticket_id = $1
         AND marketplace = $2
-        AND COALESCE(is_active, true) = true
-        AND COALESCE(status, '') NOT IN ('delisted', 'deleted', 'cancelled')
+        AND COALESCE(sync_status, '') NOT IN ('delisted', 'deleted', 'cancelled', 'failed')
       ORDER BY id DESC
       LIMIT 1
       `,
@@ -82,9 +81,8 @@ router.post("/tickets/:ticketId/toggle-marketplace", async (req, res) => {
       await client.query(
         `
         UPDATE marketplace_listings
-        SET status = 'delisted',
-            is_active = false,
-            delisted_at = NOW(),
+        SET sync_status = 'delisted',
+            last_sync_at = NOW(),
             updated_at = NOW()
         WHERE id = $1
         `,
