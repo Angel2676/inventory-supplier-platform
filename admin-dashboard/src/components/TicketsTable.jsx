@@ -525,6 +525,71 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     }
   }
 
+
+  async function toggleMarketplacePublication(ticket, marketplace) {
+    if (!ticket?.id) return;
+
+    const publishedFieldByMarketplace = {
+      gigsberg: "gigsberg_published",
+      ticombo: "ticombo_published",
+      sportevents365: "sportevents365_published",
+    };
+
+    const labelByMarketplace = {
+      gigsberg: "Gigsberg",
+      ticombo: "Ticombo",
+      sportevents365: "SportEvents365",
+    };
+
+    const publishedField = publishedFieldByMarketplace[marketplace];
+    const marketplaceLabel = labelByMarketplace[marketplace] || marketplace;
+    const isPublished = Boolean(ticket[publishedField]);
+
+    if (!isPublished) {
+      if (marketplace === "gigsberg") return publishToGigsberg(ticket);
+      if (marketplace === "ticombo") return publishToTicombo(ticket);
+      if (marketplace === "sportevents365") return publishToSportEvents365(ticket);
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Vuoi davvero delistare questo ticket da ${marketplaceLabel}?\n\nIl listing verrà rimosso/nascosto realmente dal marketplace.`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setPublishingTicketId(ticket.id);
+      setError("");
+
+      await api.post(`/api/marketplace/tickets/${ticket.id}/toggle-marketplace`, {
+        marketplace,
+      });
+
+      setSuccessModal({
+        title: "Delist completato",
+        message: `Il ticket è stato delistato da ${marketplaceLabel}.`,
+      });
+
+      await loadTickets({ silent: true });
+    } catch (err) {
+      console.error(err);
+
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.details ||
+        `Errore delist ${marketplaceLabel}`;
+
+      setError(message);
+      setErrorModal({
+        title: `Errore delist ${marketplaceLabel}`,
+        message,
+      });
+    } finally {
+      setPublishingTicketId(null);
+    }
+  }
+
   async function requestTicket(ticket) {
     setError("");
 
@@ -1412,10 +1477,10 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 }`}
                                 title={
                                   ticket.gigsberg_published
-                                    ? "Già pubblicato su Gigsberg"
+                                    ? "Click per delistare da Gigsberg"
                                     : "Publish to Gigsberg"
                                 }
-                                onClick={() => publishToGigsberg(ticket)}
+                                onClick={() => toggleMarketplacePublication(ticket, "gigsberg")}
                                 disabled={publishingTicketId === ticket.id}
                               >
                                 {publishingTicketId === ticket.id
@@ -1447,10 +1512,10 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 }`}
                                 title={
                                   ticket.ticombo_published
-                                    ? "Già pubblicato su Ticombo"
+                                    ? "Click per delistare da Ticombo"
                                     : "Publish to Ticombo"
                                 }
-                                onClick={() => publishToTicombo(ticket)}
+                                onClick={() => toggleMarketplacePublication(ticket, "ticombo")}
                                 disabled={publishingTicketId === ticket.id}
                               >
                                 {publishingTicketId === ticket.id
@@ -1468,10 +1533,10 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                                 }`}
                                 title={
                                   ticket.sportevents365_published
-                                    ? "Già pubblicato su SportEvents365"
+                                    ? "Click per delistare da SportEvents365"
                                     : "Publish to SportEvents365"
                                 }
-                                onClick={() => publishToSportEvents365(ticket)}
+                                onClick={() => toggleMarketplacePublication(ticket, "sportevents365")}
                                 disabled={publishingTicketId === ticket.id}
                               >
                                 {publishingTicketId === ticket.id
