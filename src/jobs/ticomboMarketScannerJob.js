@@ -53,6 +53,7 @@ async function runTicomboMarketScannerJob(options = {}) {
   for (const listing of result.rows) {
     try {
       let marketPrice = null;
+      let source = "none";
 
       if (!listing.public_url) {
         console.log("Ticombo scanner: missing public_url", {
@@ -83,6 +84,9 @@ async function runTicomboMarketScannerJob(options = {}) {
           });
 
           marketPrice = market.lowestPrice;
+          if (marketPrice) {
+            source = "public_browser";
+          }
         } catch (publicError) {
           console.error("Ticombo public scanner error, trying API fallback:", {
             listing_id: listing.marketplace_listing_id,
@@ -103,6 +107,9 @@ async function runTicomboMarketScannerJob(options = {}) {
         });
 
         marketPrice = fallbackMarket.lowestPrice;
+        if (marketPrice) {
+          source = "api_fallback";
+        }
       }
 
       if (!marketPrice) {
@@ -122,6 +129,7 @@ async function runTicomboMarketScannerJob(options = {}) {
           listing_id: listing.marketplace_listing_id,
           ticket_id: listing.ticket_id,
           event_id: listing.remote_event_id,
+          source,
         });
 
         continue;
@@ -159,6 +167,7 @@ async function runTicomboMarketScannerJob(options = {}) {
       console.log("Ticombo scanner updated listing", {
         listing_id: listing.marketplace_listing_id,
         ticket_id: listing.ticket_id,
+        source,
         marketPrice,
         suggestedPrice: priceCheck.finalPrice,
       });
