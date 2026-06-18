@@ -28,6 +28,7 @@ const PORT = process.env.PORT || 3000;
 const marketAnalysisRoutes = require("./routes/marketAnalysis");
 
 const marketplaceContentRequestsRoutes = require("./routes/marketplaceContentRequests");
+const marketplaceToggleRoutes = require("./routes/marketplaceToggle");
 const {
   runGigsbergMarketScannerJob,
 } = require("./jobs/gigsbergMarketScannerJob");
@@ -76,6 +77,7 @@ setInterval(() => {
   cleanupExpiredReservations();
 }, 60000);
 
+app.use("/api/marketplace", marketplaceToggleRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 

@@ -747,4 +747,7 @@ async function syncMarketplaceQuantities() {
 
 module.exports = {
   syncMarketplaceQuantities,
+  autoDelistSportEvents365Listing,
+  autoDelistTicomboListing,
+  autoDelistGigsbergListing,
 };
