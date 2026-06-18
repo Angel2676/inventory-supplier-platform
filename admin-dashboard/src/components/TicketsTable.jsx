@@ -242,7 +242,8 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     setEditingId(ticket.id);
 
     setEditForm({
-      price: ticket.partner_price || ticket.price || "",
+      original_price: ticket.price || "",
+      partner_price: ticket.partner_price || "",
       marketplace_price: ticket.marketplace_price || "",
       available_quantity: ticket.available_quantity || "",
       low_stock_threshold: ticket.low_stock_threshold || 2,
@@ -256,7 +257,8 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
     setEditingId(null);
 
     setEditForm({
-      price: "",
+      original_price: "",
+      partner_price: "",
       marketplace_price: "",
       available_quantity: "",
       low_stock_threshold: "",
@@ -269,8 +271,10 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
   async function saveEdit(ticketId) {
     try {
       await api.patch(`/api/tickets/${ticketId}`, {
-        price: Number(editForm.price),
-        partner_price: Number(editForm.price),
+        price: Number(editForm.original_price),
+        partner_price: editForm.partner_price
+          ? Number(editForm.partner_price)
+          : null,
         marketplace_price: editForm.marketplace_price
           ? Number(editForm.marketplace_price)
           : null,
@@ -1092,6 +1096,7 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                     <th>Categoria</th>
                     <th>Block</th>
                     <th>Available</th>
+                    <th>Original Price</th>
                     <th>Partner Price</th>
 
                     {canEdit && <th>Marketplace Price</th>}
@@ -1118,8 +1123,10 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                   requestQuantities[ticket.id] || 1,
                 );
 
+                const originalPrice = Number(ticket.price || 0);
+
                 const partnerPrice = Number(
-                  ticket.partner_price || ticket.price || 0,
+                  ticket.partner_price || 0,
                 );
 
                 const marketplacePrice = Number(
@@ -1178,22 +1185,46 @@ function TicketsTable({ canEdit = true, marketplaceMode = false }) {
                         <td>
                           <div className="publish-pricing-cell">
                             <div>
+                              <span>Original</span>
+                              {editingId === ticket.id ? (
+                                <input
+                                  className="table-input"
+                                  type="number"
+                                  step="0.01"
+                                  value={editForm.original_price}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      original_price: e.target.value,
+                                    })
+                                  }
+                                />
+                              ) : (
+                                <strong>€ {originalPrice.toFixed(2)}</strong>
+                              )}
+                            </div>
+
+                            <div>
                               <span>Partner</span>
                               {editingId === ticket.id ? (
                                 <input
                                   className="table-input"
                                   type="number"
                                   step="0.01"
-                                  value={editForm.price}
+                                  value={editForm.partner_price}
                                   onChange={(e) =>
                                     setEditForm({
                                       ...editForm,
-                                      price: e.target.value,
+                                      partner_price: e.target.value,
                                     })
                                   }
                                 />
                               ) : (
-                                <strong>€ {partnerPrice.toFixed(2)}</strong>
+                                <strong>
+                                  {ticket.partner_price
+                                    ? `€ ${partnerPrice.toFixed(2)}`
+                                    : "-"}
+                                </strong>
                               )}
                             </div>
 
