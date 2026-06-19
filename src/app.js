@@ -86,5 +86,5 @@ app.listen(PORT, () => {
   startAutoPublishJob();
   startTicomboMarketScannerJob();
 
-  runGigsbergMarketScannerJob();
+  // runGigsbergMarketScannerJob();
 });

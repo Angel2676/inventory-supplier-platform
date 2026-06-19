@@ -428,9 +428,10 @@ async function runGigsbergMarketScannerJob() {
   }
 }
 
-cron.schedule("0 */2 * * *", async () => {
-  await runGigsbergMarketScannerJob();
-});
+// Gigsberg scanner DISABLED
+// cron.schedule("0 */2 * * *", async () => {
+//   await runGigsbergMarketScannerJob();
+// });
 
 module.exports = {
   runGigsbergMarketScannerJob,

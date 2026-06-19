@@ -542,12 +542,12 @@ async function runRepricingJob(options = {}) {
 }
 
 function startRepricingJob() {
-  // Gigsberg
-  cron.schedule("15 */2 * * *", async () => {
-    await runRepricingJob({
-      marketplaces: ["gigsberg"],
-    });
-  });
+  // Gigsberg DISABLED
+  // cron.schedule("15 */2 * * *", async () => {
+  //   await runRepricingJob({
+  //     marketplaces: ["gigsberg"],
+  //   });
+  // });
 
   // Ticombo
   cron.schedule("45 */2 * * *", async () => {
