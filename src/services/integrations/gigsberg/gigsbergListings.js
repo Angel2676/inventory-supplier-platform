@@ -406,24 +406,13 @@ async function createGigsbergListing(ticketId) {
     throw new Error("Quantità ticket non valida");
   }
 
-  const priceCheck = calculateSafePrice({
-    currentPrice: Number(
-      ticket.marketplace_price ||
-        ticket.final_price ||
-        ticket.partner_price ||
-        ticket.price ||
-        0,
-    ),
-    marketLowestPrice: Number(ticket.last_market_price || 0),
-    minPrice: Number(ticket.min_price || 0),
-    undercutAmount: Number(ticket.undercut_amount || 0.01),
-  });
-
-  const price = priceCheck.shouldUpdate
-    ? Number(priceCheck.finalPrice)
-    : Number(
-        ticket.marketplace_price || ticket.final_price || ticket.price || 0,
-      );
+  const price = Number(
+    ticket.marketplace_price ||
+      ticket.final_price ||
+      ticket.partner_price ||
+      ticket.price ||
+      0,
+  );
 
   if (!price || price <= 0) {
     throw new Error("Prezzo ticket non valido");
