@@ -418,6 +418,13 @@ async function createGigsbergListing(ticketId) {
     throw new Error("Prezzo ticket non valido");
   }
 
+  const priceCheck = {
+    suggestedPrice: price,
+    finalPrice: price,
+    reason: "marketplace_price",
+    shouldUpdate: true,
+  };
+
   const faceValue = Number(ticket.face_value || ticket.price || price || 1);
 
   const categoryId = gigsbergCategory.id || gigsbergCategory.category_id;
