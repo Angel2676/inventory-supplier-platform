@@ -121,9 +121,7 @@ async function publishTicomboTicket(ticketId) {
     type: "e-tickets",
     section,
     category: categoryMapping.remote_category_name,
-    concession: {
-      fanSection: "No Fan Restrictions",
-    },
+
     quantity,
     isInPossession: false,
     listWithoutTicketUpload: false,
