@@ -726,6 +726,28 @@ router.get("/orders", async (req, res) => {
   }
 });
 
+
+/**
+ * SYNC TICOMBO ORDERS
+ */
+router.post("/ticombo/orders/sync", async (req, res) => {
+  try {
+    const { syncTicomboOrders } = require("../jobs/ticomboOrdersSyncJob");
+
+    const stats = await syncTicomboOrders();
+
+    res.json({
+      message: "Sync ordini Ticombo completato",
+      stats,
+    });
+  } catch (error) {
+    console.error("Errore sync ordini Ticombo:", error);
+    res.status(500).json({
+      error: error.message || "Errore sync ordini Ticombo",
+    });
+  }
+});
+
 /**
  * MARKETPLACE SETTINGS
  */

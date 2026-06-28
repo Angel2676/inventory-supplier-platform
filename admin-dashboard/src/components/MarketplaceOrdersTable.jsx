@@ -4,6 +4,8 @@ import api from "../api";
 function MarketplaceOrdersTable() {
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
 
   async function loadOrders() {
     try {
@@ -25,6 +27,42 @@ function MarketplaceOrdersTable() {
 
     return () => clearInterval(interval);
   }, []);
+
+  async function syncTicomboOrders() {
+    try {
+      setSyncing(true);
+      setSyncMessage("");
+
+      const response = await api.post("/api/marketplace/ticombo/orders/sync");
+
+      setSyncMessage(
+        `Sync Ticombo completato: processati ${response.data?.stats?.processed || 0}, saltati ${response.data?.stats?.skipped_old_or_status || 0}`,
+      );
+
+      await loadOrders();
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || "Errore sync ordini Ticombo");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const totalOrders = orders.length;
+  const todayOrders = orders.filter((order) =>
+    String(order.created_at || "").startsWith(today),
+  ).length;
+  const pendingFulfillment = orders.filter((order) =>
+    ["pending", "manual_request"].includes(
+      String(order.fulfillment_status || "").toLowerCase(),
+    ),
+  ).length;
+  const totalValue = orders.reduce(
+    (sum, order) => sum + Number(order.total_amount || 0),
+    0,
+  );
 
   function exportOrdersToCsv() {
     if (!orders.length) return;
@@ -102,16 +140,50 @@ function MarketplaceOrdersTable() {
       >
         <h2>Marketplace Orders</h2>
 
-        <button
-          className="btn btn-secondary"
-          onClick={exportOrdersToCsv}
-          disabled={false}
-        >
-          Export CSV
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            className="btn btn-secondary"
+            onClick={syncTicomboOrders}
+            disabled={syncing}
+          >
+            {syncing ? "Syncing..." : "Sync Ticombo Orders"}
+          </button>
+
+          <button
+            className="btn btn-secondary"
+            onClick={exportOrdersToCsv}
+            disabled={!orders.length}
+          >
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {error && <div className="error">{error}</div>}
+
+      {syncMessage && <div className="success">{syncMessage}</div>}
+
+      <div className="marketplace-kpi-row" style={{ marginBottom: "16px" }}>
+        <div className="marketplace-kpi">
+          <span>Ordini totali</span>
+          <strong>{totalOrders}</strong>
+        </div>
+
+        <div className="marketplace-kpi">
+          <span>Ordini oggi</span>
+          <strong>{todayOrders}</strong>
+        </div>
+
+        <div className="marketplace-kpi warning">
+          <span>Da evadere</span>
+          <strong>{pendingFulfillment}</strong>
+        </div>
+
+        <div className="marketplace-kpi">
+          <span>Valore totale</span>
+          <strong>€ {totalValue.toFixed(2)}</strong>
+        </div>
+      </div>
 
       {orders.length === 0 ? (
         <p>Nessuna vendita marketplace registrata.</p>

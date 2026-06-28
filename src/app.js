@@ -3,6 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const { startRepricingJob } = require("./jobs/repricingJob");
 const { startAutoPublishJob } = require("./jobs/autoPublishJob");
+const {
+  startTicomboOrdersSyncJob,
+} = require("./jobs/ticomboOrdersSyncJob");
 const app = express();
 const marketplaceRoutes = require("./routes/marketplace");
 const authRoutes = require("./routes/auth");
@@ -85,6 +88,7 @@ app.listen(PORT, () => {
   startMarketplaceSyncJob();
   startAutoPublishJob();
   startTicomboMarketScannerJob();
+  startTicomboOrdersSyncJob();
 
   // runGigsbergMarketScannerJob();
 });

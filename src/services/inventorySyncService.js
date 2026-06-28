@@ -44,6 +44,10 @@ async function decreaseInventoryAndMarkMarketplaces({
       UPDATE tickets
       SET
         available_quantity = $1,
+        status = CASE
+          WHEN $1 = 0 THEN 'sold'
+          ELSE 'available'
+        END,
         updated_at = NOW()
       WHERE id = $2
       RETURNING *

@@ -611,6 +611,7 @@ router.post(
       quantity,
       available_quantity,
       price,
+      partner_price,
       marketplace_price,
       min_price,
       auto_reprice_enabled,
@@ -620,7 +621,7 @@ router.post(
     )
     VALUES (
       $1,$2,$3,$4,$5,$6,$7,
-      $8,$8,$9,$10,$11,$12,$13,$14,'available'
+      $8,$8,$9,$10,$11,$12,$13,$14,$15,'available'
     )
     RETURNING *
     `,
@@ -634,6 +635,7 @@ router.post(
                   row.seat_to || null,
                   Number(row.quantity),
                   Number(row.price),
+                  row.partner_price ? Number(row.partner_price) : null,
                   row.marketplace_price
                     ? Number(row.marketplace_price)
                     : Number(row.price),
