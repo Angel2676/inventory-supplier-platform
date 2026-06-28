@@ -179,6 +179,7 @@ async function searchListings({
 }
 
 module.exports = {
+  gigsbergRequest,
   getAuthToken,
   getCurrentUser,
   searchEvents,
