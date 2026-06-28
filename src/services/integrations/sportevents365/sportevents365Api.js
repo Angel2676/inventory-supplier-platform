@@ -241,6 +241,9 @@ async function updateSupplierTicket(eventId, ticketId, payload) {
 }
 
 module.exports = {
+  getSportEvents365Config,
+  getSportEvents365Client,
+  getSportEvents365SupplierClient,
   getSportEvents365EventTypes,
   searchSportEvents365Events,
   getSportEvents365TicketsByEventId,
