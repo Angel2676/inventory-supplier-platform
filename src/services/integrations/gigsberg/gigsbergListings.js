@@ -86,6 +86,21 @@ function getPreferredGigsbergCategoryName(ticketCategory, ticketBlock = "") {
     return "Category 4";
   }
 
+  // Atalanta / Gewiss Stadium
+  if (
+    category === normalizeText("Tribuna Rinascimento Uncovered") ||
+    category === normalizeText("Tribuna Rinascimento Covered")
+  ) {
+    return "Category 1 Platinum";
+  }
+
+  if (
+    category === normalizeText("Tribuna Ovest") ||
+    category === normalizeText("Tribuna Sud")
+  ) {
+    return "Category 2";
+  }
+
   // Napoli / Stadio Maradona
   if (category === normalizeText("Distinti Superiori")) {
     return "Category 1";
