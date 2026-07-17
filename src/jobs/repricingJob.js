@@ -549,12 +549,12 @@ function startRepricingJob() {
   //   });
   // });
 
-  // Ticombo
-  cron.schedule("45 */2 * * *", async () => {
-    await runRepricingJob({
-      marketplaces: ["ticombo"],
-    });
-  });
+  // Ticombo DISABLED
+  // cron.schedule("45 */2 * * *", async () => {
+  //   await runRepricingJob({
+  //     marketplaces: ["ticombo"],
+  //   });
+  // });
 
   // SportEvents365
   cron.schedule("15 1-23/2 * * *", async () => {
