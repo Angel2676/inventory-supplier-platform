@@ -3,9 +3,44 @@ const { getTicomboClient } = require("./ticomboApi");
 async function createTicomboListing(payload) {
   const client = getTicomboClient();
 
-  const response = await client.post("/listings", payload);
+  try {
+    const response = await client.post("/listings", payload);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    const details = error.response?.data?.details || {};
+    const fanSectionErrors = details["concession.fanSection"];
+    const fanSectionRequired =
+      Array.isArray(fanSectionErrors) &&
+      fanSectionErrors.some((message) =>
+        String(message).toLowerCase().includes("fan section is required"),
+      );
+
+    if (!fanSectionRequired) {
+      throw error;
+    }
+
+    const retryPayload = {
+      ...payload,
+      concession: {
+        ...(payload.concession || {}),
+        fanSection: "No Fan Restrictions",
+      },
+    };
+
+    console.log(
+      "Ticombo fan section required: retrying publish with No Fan Restrictions",
+      {
+        eventId: payload.eventId,
+        category: payload.category,
+        section: payload.section,
+      },
+    );
+
+    const retryResponse = await client.post("/listings", retryPayload);
+
+    return retryResponse.data;
+  }
 }
 
 async function getTicomboListing(listingId) {
