@@ -583,14 +583,9 @@ async function syncMarketplaceQuantities() {
             currentQuantity,
           );
 
-          const priceResponse = await updateSportEvents365Price(
-            listing,
-            currentPrice,
-          );
-
           responsePayload = {
             quantity: quantityResponse,
-            price: priceResponse,
+            price_sync: "disabled",
           };
         }
 
@@ -601,11 +596,14 @@ async function syncMarketplaceQuantities() {
         */
 
         if (listing.marketplace === "ticombo") {
-          responsePayload = await updateTicomboQuantityAndPrice(
-            listing,
-            currentQuantity,
-            currentPrice,
-          );
+          responsePayload = {
+            marketplace: "ticombo",
+            action: "quantity_sync_noop",
+            listing_id: listing.id,
+            remote_listing_id: listing.remote_listing_id,
+            quantity: currentQuantity,
+            price_sync: "disabled",
+          };
         }
 
         /*
@@ -618,7 +616,7 @@ async function syncMarketplaceQuantities() {
           responsePayload = await updateGigsbergQuantityAndPrice(
             listing,
             currentQuantity,
-            currentPrice,
+            undefined,
           );
         }
 

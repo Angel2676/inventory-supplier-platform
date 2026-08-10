@@ -25,6 +25,14 @@ const {
 } = require("../services/integrations/sportevents365/sportevents365MarketScanner");
 
 async function runRepricingJob(options = {}) {
+  if (process.env.REPRICING_ENABLED !== "true") {
+    console.warn("Marketplace repricing blocked: REPRICING_ENABLED is not true");
+    return {
+      skipped: true,
+      reason: "REPRICING_DISABLED",
+    };
+  }
+
   const marketplaces = Array.isArray(options.marketplaces)
     ? options.marketplaces.filter(Boolean)
     : [];
@@ -542,6 +550,11 @@ async function runRepricingJob(options = {}) {
 }
 
 function startRepricingJob() {
+  if (process.env.REPRICING_ENABLED !== "true") {
+    console.log("Marketplace repricing jobs disabled");
+    return;
+  }
+
   // Gigsberg DISABLED
   // cron.schedule("15 */2 * * *", async () => {
   //   await runRepricingJob({

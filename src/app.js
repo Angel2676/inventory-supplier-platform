@@ -84,10 +84,11 @@ app.use("/api/marketplace", marketplaceToggleRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 
-// startRepricingJob();
-// startMarketplaceSyncJob();
+  // Repricing disabled globally. Keep quantity/lifecycle synchronization active.
+  // startRepricingJob();
+  startMarketplaceSyncJob();
   startAutoPublishJob();
-// startTicomboMarketScannerJob();
+  // startTicomboMarketScannerJob();
   startTicomboOrdersSyncJob();
 
   // runGigsbergMarketScannerJob();
